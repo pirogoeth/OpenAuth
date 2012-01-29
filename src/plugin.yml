@@ -1,0 +1,5 @@
+name: OpenAuth
+main: me.maiome.openauth.OpenAuth
+version: 1.0.0
+authors: ['pirogoeth', 'TakSayu']
+order: startup

@@ -1,0 +1,4 @@
+*.class
+build.sh
+downloads.txt
+OpenAuth.jar
