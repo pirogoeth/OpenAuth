@@ -1,9 +1,5 @@
 package me.maiome.openauth.util;
 
-// bukkit imports
-import org.bukkit.configuration.Configuration;
-import org.bukkit.configuration.file.YamlConfiguration;
-
 // java imports
 import java.io.File;
 
@@ -11,6 +7,10 @@ import java.io.File;
 import me.maiome.openauth.OpenAuth;
 import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
+
+// yaml util imports
+import com.sk89q.util.yaml.YAMLFormat;
+import com.sk89q.util.yaml.YAMLProcessor;
 
 public class Config {
     // main
@@ -22,8 +22,8 @@ public class Config {
     public static String extension = ".yml";
     public static boolean loaded = false;
     // configuration
-    public static YamlConfiguration main;
-    public static YamlConfiguration data;
+    public static YAMLProcessor main;
+    public static YAMLProcessor data;
     // files
     public static File mainf;
     public static File dataf;
@@ -62,13 +62,13 @@ public class Config {
         }
 
         // create configuration objects
-        main = new YamlConfiguration();
-        data = new YamlConfiguration();
+        main = new YAMLProcessor(mainf, true, YAMLFormat.EXTENDED);
+        data = new YAMLProcessor(dataf, true, YAMLFormat.EXTENDED);
 
         // load the configurations
         try {
-            main.load(mainf);
-            data.load(dataf);
+            main.load();
+            data.load();
         } catch (java.lang.Exception e) {
             e.printStackTrace();
             return false;
@@ -76,5 +76,5 @@ public class Config {
         return true;
     }
 
-    // XXX - need this.load(), this.checkv()
+    // TODO - need this.load(), this.checkv()
 }

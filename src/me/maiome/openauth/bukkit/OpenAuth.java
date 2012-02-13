@@ -1,8 +1,9 @@
-package me.maiome.openauth;
+package me.maiome.openauth.bukkit;
 
 // bukkit imports
 import org.bukkit.*;
 import org.bukkit.command.Command;
+import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -23,7 +24,10 @@ import me.maiome.openauth.util.LogHandler;
 import me.pirogoeth.openauth.event.OAuthPlayerListener;
 
 // bundled imports
+import com.avaje.ebeaninternal.server.core.ConfigBuilder;
 import com.sk89q.minecraft.util.commands.*; // command framework
+import com.sk89q.util.yaml.YAMLFormat; // yaml components
+import com.sk89q.util.yaml.YAMLProcessor;
 import com.zachsthings.libcomponents.*; // component framework
 import com.zachsthings.libcomponents.bukkit.BasePlugin;
 import com.zachsthings.libcomponents.bukkit.DefaultsFileYAMLProcessor;
@@ -54,7 +58,7 @@ public class OpenAuth extends BasePlugin {
     public static Logger logger() {
         return this.inst().getLogger();
     }
-
+    
     /**
      * Plugin setup.
      */
@@ -76,8 +80,8 @@ public class OpenAuth extends BasePlugin {
         };
 
         final CommandsManagerRegistration commandRegister = new CommandsManagerRegistration(this, commands);
-        // XXX - implement the basic OA commands.
-        commandRegister.register(OACommands.OAParent.class);
+        // TODO - implement the basic OA commands.
+        commandRegister.register(OAComponents.OAParentCommand.class);
     };
 
     public void registerComponentLoaders() {
@@ -100,19 +104,54 @@ public class OpenAuth extends BasePlugin {
             new YAMLNodeConfigurationNode(config),
             new YAMLNodeConfigurationNode(jarComponentAliases), config_dir));
         
-	for (String dir : config.getStringList("component-class-dirs", Arrays.asList("component-classes"))) {
-            final File class_dir = new File(Config.plugindir, dir);
-            if (!class_dir.exists() || !class_dir.isDirectory()) {
-		class_dir.mkdirs();
-            }
-	    componentManager.addComponentLoader(new ClassLoaderComponentLoader(getLogger(), class_dir, config_dir) {
-		@Override
-		public ConfigurationFile createConfigurationNode(File file) {
-	            return new YAMLProcessorConfigurationFile(new YAMLProcessor(file, true, YAMLFormat.EXTENDED));
-		}
-	    });
-	};
-
-	// annotation handlers
-	componentManager.registerAnnotationHandler(InjectComponent.class, new InjectComponenetAnnotationHandler(componentManager));
+    	for (String dir : config.getStringList("component-class-dirs", Arrays.asList("component-classes"))) {
+                final File class_dir = new File(Config.plugindir, dir);
+                if (!class_dir.exists() || !class_dir.isDirectory()) {
+    		class_dir.mkdirs();
+                }
+    	    componentManager.addComponentLoader(new ClassLoaderComponentLoader(getLogger(), class_dir, config_dir) {
+    		@Override
+    		public ConfigurationFile createConfigurationNode(File file) {
+    	            return new YAMLProcessorConfigurationFile(new YAMLProcessor(file, true, YAMLFormat.EXTENDED));
+    		}
+    	    });
+    	};
+    
+    	// annotation handlers
+    	componentManager.registerAnnotationHandler(InjectComponent.class, new InjectComponenetAnnotationHandler(componentManager));
     };
+    
+    /**
+     * Called to process a command.
+     */
+    public boolean onCommand(CommandSender sender, Command cmd,
+            String cmdLabel, String[] args) {
+        try {
+            commands.execute(cmd.getName(), args, sender, sender);
+        } catch (CommandPermissionsException e) {
+            sender.sendMessage(ChatColor.RED + "You don't have permission.");
+        } catch (MissingNestedCommandException e) {
+            sender.sendMessage(ChatColor.RED + e.getUsage());
+        } catch (CommandUsageException e) {
+            sender.sendMessage(ChatColor.RED + e.getMessage());
+            sender.sendMessage(ChatColor.RED + e.getUsage());
+        } catch (WrappedCommandException e) {
+            if (e.getCause() instanceof NumberFormatException) {
+                sender.sendMessage(ChatColor.RED + "Number expected, string received.");
+            } else {
+                sender.sendMessage(ChatColor.RED + "An error has occurred. See console.");
+                e.printStackTrace();
+            }
+        } catch (CommandException e) {
+            sender.sendMessage(ChatColor.RED + e.getMessage());
+        }
+        
+        return true;
+    }
+    
+    @Override
+    public YAMLProcessor populateConfiguration() {
+        this.configurationManager.initialise();
+        return this.configurationManager.mainf;
+    }
+}
