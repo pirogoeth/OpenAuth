@@ -25,7 +25,7 @@ public class Permission {
 
     public Permission (OpenAuth instance) {
         plugin = instance;
-        Logger log = Logger.getLogger("Minecraft");
+        LogHandler log = new LogHandler();
         Plugin permissions = plugin.getServer().getPluginManager().getPlugin("Permissions");
         Plugin superperms_s = plugin.getServer().getPluginManager().getPlugin("PermissionsBukkit");
         if (permissions != null) {
