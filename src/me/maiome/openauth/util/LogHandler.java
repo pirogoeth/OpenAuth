@@ -14,7 +14,6 @@ public class LogHandler {
     // construct
     public LogHandler () {
         // now handling logs.
-        info(String.format("Extraneous debug is set to %s.", Boolean.toString(ex_debug)));
     }
 
     // extraneous debug methods
@@ -25,6 +24,7 @@ public class LogHandler {
 
     public static void setExtraneousDebugging (boolean b) {
         ex_debug = b;
+        info(String.format("Extraneous debug is set to %s.", Boolean.toString(ex_debug)));
     }
 
     public static void exDebug (String message) {

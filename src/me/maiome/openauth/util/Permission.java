@@ -46,13 +46,17 @@ public class Permission {
         switch (handler) {
             case PERMISSIONS:
                 log.info("Using [" + permissions.getDescription().getFullName() + "] for Permissions.");
+                break;
             case PERMISSIONS_EX:
                 log.info("Using [PermissionsEx " + permissions.getDescription().getVersion() + "] for Permissions.");
+                break;
             case SUPERPERMS:
                 log.info("Using Bukkit SuperPerms for Permissions.");
                 log.info("SuperPerms provider: [" + permissions.getDescription().getFullName() + "].");
+                break;
             case OP:
                 log.info("Using OP system for Permissions.");
+                break;
         }
     }
 
@@ -72,30 +76,30 @@ public class Permission {
         SUPERPERMS
     }
 
-    public static boolean has (Player p, String node) {
+    public static boolean has (Player player, String node) {
         switch (handler) {
             case PERMISSIONS:
-                return ((Permissions) permissions).getHandler().has(p, node);
+                return ((Permissions) permissions).getHandler().has(player, node);
             case PERMISSIONS_EX:
-                return PermissionsEx.getPermissionManager().has(p, node);
+                return PermissionsEx.getPermissionManager().has(player, node);
             case SUPERPERMS:
-                return p.hasPermission(node);
+                return player.hasPermission(node);
             case OP:
-                return p.isOp();
+                return player.isOp();
         }
         return true;
     }
 
-    private static boolean hasPermission (Player p, String node, boolean def) {
+    public static boolean has (Player player, String node, boolean def) {
         switch (handler) {
             case PERMISSIONS:
-                return ((Permissions) permissions).getHandler().has(p, node);
+                return ((Permissions) permissions).getHandler().has(player, node);
             case PERMISSIONS_EX:
-                return PermissionsEx.getPermissionManager().has(p, node);
+                return PermissionsEx.getPermissionManager().has(player, node);
             case SUPERPERMS:
-                return p.hasPermission(node);
+                return player.hasPermission(node);
             case OP:
-                return def ? true : p.isOp();
+                return def ? true : player.isOp();
         }
         return def;
     }

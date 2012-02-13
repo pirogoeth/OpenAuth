@@ -16,7 +16,7 @@ import java.io.File;
 import java.util.logging.Logger;
 
 // core
-import me.maiome.openauth.commands.*;
+import me.maiome.openauth.commands.OACommands;
 import me.maiome.openauth.util.Permission;
 import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.LogHandler;
@@ -67,16 +67,25 @@ public class OpenAuth extends JavaPlugin {
         this.permissionsManager = new Permission(this);
         this.configurationManager = new Config(this);
 
-        // register our commands.
-        commands = new CommandsManager<CommandSender>() {
+        // set version number
+        this.version = this.getDescription().getVersion();
+
+        // register our command manager.
+        this.commands = new CommandsManager<CommandSender>() {
             @Override
             public boolean hasPermission(CommandSender player, String perm) {
                 return Permission.has((Player) player, perm);
             }
         };
 
+        // setup instance injector
+        this.commands.setInjector(new SimpleInjector(this));
+
         // register command classes.
-        commands.registerAndReturn(OACommands.OAParentCommand.class);
+        this.commands.registerAndReturn(OACommands.OAParentCommand.class);
+
+        // loaded.
+        log.info("Enabled version " + version + ".");
     };
 
     /**
@@ -90,9 +99,12 @@ public class OpenAuth extends JavaPlugin {
     /**
      * Called to process a command.
      */
+    @Override
     public boolean onCommand(CommandSender sender, Command cmd,
             String cmdLabel, String[] args) {
+        log.info("onCommand()");
         try {
+            log.info("Processing command: " + cmdLabel);
             commands.execute(cmd.getName(), args, sender, sender);
         } catch (CommandPermissionsException e) {
             sender.sendMessage(ChatColor.RED + "You don't have permission.");
