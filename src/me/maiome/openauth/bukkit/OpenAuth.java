@@ -26,24 +26,24 @@ import me.pirogoeth.openauth.event.OAuthPlayerListener;
 // bundled imports
 import com.avaje.ebeaninternal.server.core.ConfigBuilder;
 import com.sk89q.minecraft.util.commands.*; // command framework
-import com.sk89q.util.YAMLFormat; // yaml components
-import com.sk89q.util.YAMLProcessor;
+import com.sk89q.util.yaml.YAMLFormat; // yaml components
+import com.sk89q.util.yaml.YAMLProcessor;
 import com.zachsthings.libcomponents.*; // component framework
 import com.zachsthings.libcomponents.bukkit.BasePlugin;
 import com.zachsthings.libcomponents.bukkit.DefaultsFileYAMLProcessor;
-import com.zachsthings.libcomponents.YAMLNodeConfiguratioNNode;
+import com.zachsthings.libcomponents.YAMLNodeConfigurationNode;
 import com.zachsthings.libcomponents.YAMLProcessorConfigurationFile;
 import com.zachsthings.libcomponents.config.ConfigurationFile;
 import com.zachsthings.libcomponents.loader.ClassLoaderComponentLoader;
 import com.zachsthings.libcomponents.loader.ConfigListedComponentLoader;
-import com.zachsthings.libcomponents.loader.JarFilesComponenetLoader;
+import com.zachsthings.libcomponents.loader.JarFilesComponentLoader;
 import com.zachsthings.libcomponents.loader.StaticComponentLoader;
 
 public class OpenAuth extends BasePlugin {
 
     private static OpenAuth instance;
     private CommandsManager<CommandSender> commands;
-    private Permissions permissionsManager;
+    private Permission permissionsManager;
     private Config configurationManager;
 
     public OpenAuth() {
@@ -118,7 +118,7 @@ public class OpenAuth extends BasePlugin {
     	};
     
     	// annotation handlers
-    	componentManager.registerAnnotationHandler(InjectComponent.class, new InjectComponenetAnnotationHandler(componentManager));
+    	componentManager.registerAnnotationHandler(InjectComponent.class, new InjectComponentAnnotationHandler(componentManager));
     };
     
     /**
