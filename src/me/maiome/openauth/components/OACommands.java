@@ -39,7 +39,7 @@ public class OACommands {
              usage = "", desc = "Reload OpenAuth's settings",
              min = 0, max = 0)
     @CommandPermissions( {"openauth.reload"} )
-    public static reload(CommandContext args, CommandSender sender) throws CommandException {
+    public static void reload(CommandContext args, CommandSender sender) throws CommandException {
         OpenAuth.inst().populateConfiguration();
         OpenAuth.inst().getComponentManager().reloadComponents();
         

@@ -11,7 +11,7 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 
 // java imports
 import java.io.*;
-import java.util.*
+import java.util.*;
 import java.util.logging.Logger;
 import java.util.logging.Level;
 
