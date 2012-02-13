@@ -56,7 +56,7 @@ public class OpenAuth extends BasePlugin {
     }
 
     public static Logger logger() {
-        return Logger.getLogger("Minecraft);
+        return Logger.getLogger("Minecraft");
     }
     
     /**
