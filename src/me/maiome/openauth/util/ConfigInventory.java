@@ -1,7 +1,7 @@
 package me.maiome.openauth.util;
 
 // yaml util imports
-import com.sk89q.util.yaml.YAMLProcessor;
+import com.sk89q.util.YAMLProcessor;
 
 // java imports
 import java.util.Map;

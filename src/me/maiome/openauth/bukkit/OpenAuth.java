@@ -26,8 +26,8 @@ import me.pirogoeth.openauth.event.OAuthPlayerListener;
 // bundled imports
 import com.avaje.ebeaninternal.server.core.ConfigBuilder;
 import com.sk89q.minecraft.util.commands.*; // command framework
-import com.sk89q.util.yaml.YAMLFormat; // yaml components
-import com.sk89q.util.yaml.YAMLProcessor;
+import com.sk89q.util.YAMLFormat; // yaml components
+import com.sk89q.util.YAMLProcessor;
 import com.zachsthings.libcomponents.*; // component framework
 import com.zachsthings.libcomponents.bukkit.BasePlugin;
 import com.zachsthings.libcomponents.bukkit.DefaultsFileYAMLProcessor;

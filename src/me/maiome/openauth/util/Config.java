@@ -9,8 +9,8 @@ import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
 
 // yaml util imports
-import com.sk89q.util.yaml.YAMLFormat;
-import com.sk89q.util.yaml.YAMLProcessor;
+import com.sk89q.util.YAMLFormat;
+import com.sk89q.util.YAMLProcessor;
 
 public class Config {
     // main
