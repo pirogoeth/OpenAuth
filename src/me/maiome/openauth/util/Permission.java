@@ -3,14 +3,17 @@ package me.maiome.openauth.util;
 // java imports
 import java.util.HashMap;
 import java.util.HashSet;
+
 // bukkit imports
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
+
 // permissions imports
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
+
 // internal imports
-import me.maiome.openauth.OpenAuth;
+import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.util.LogHandler;
 
 public class Permission {

@@ -4,18 +4,23 @@ package me.maiome.openauth.util;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+
 // bukkit imports
 import org.bukkit.util.FileUtil;
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.file.YamlConfiguration;;
+
+// yaml util imports
+import com.sk89q.util.yaml.YAMLProcessor;
+
 // java imports
 import java.net.HttpURLConnection;
 import java.io.BufferedReader;
 import java.net.URL;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+
 // internal imports
-import me.maiome.openauth.OpenAuth;
+import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
@@ -24,7 +29,7 @@ public class AutoUpdate {
     public File jar;
     public LogHandler log = new LogHandler();
     public OpenAuth plugin;
-    public YamlConfiguration main = ConfigInventory.MAIN;
+    public YAMLProcessor main = ConfigInventory.MAIN;
 
     public AutoUpdate (OpenAuth instance) {
         plugin = instance;

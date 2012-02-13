@@ -11,9 +11,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.command.CommandSender;
 
 // Core imports
-import me.maiome.openauth.OpenAuth;
-import me.maiome.openauth.Util.Command;
-import me.maiome.openauth.Util.RegistryException;
+import me.maiome.openauth.bukkit.OpenAuth;
+import me.maiome.openauth.util.Command;
+import me.maiome.openauth.util.RegistryException;
 import me.maiome.openauth.util.LogHandler;
 
 public class Registry {

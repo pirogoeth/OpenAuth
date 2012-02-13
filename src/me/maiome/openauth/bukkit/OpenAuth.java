@@ -21,7 +21,7 @@ import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.LogHandler;
 
 // event listeners
-import me.pirogoeth.openauth.event.OAuthPlayerListener;
+// import me.pirogoeth.openauth.event.OAuthPlayerListener;
 
 // bundled imports
 import com.avaje.ebeaninternal.server.core.ConfigBuilder;

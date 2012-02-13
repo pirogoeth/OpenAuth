@@ -6,17 +6,19 @@ import org.bukkit.World;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.command.CommandSender;
+
 // Java imports
 import java.util.Map;
 import java.util.Set;
 import java.util.ArrayList;
 import java.util.Iterator;
+
 // Core imports
-import me.maiome.openauth.OpenAuth;
-import me.maiome.openauth.Util.Permission;
-import me.maiome.openauth.Util.Registry;
-import me.maiome.openauth.Util.CommandException;
-import me.maiome.openauth.Util.RegistryException;
+import me.maiome.openauth.bukkit.OpenAuth;
+import me.maiome.openauth.util.Permission;
+import me.maiome.openauth.util.Registry;
+import me.maiome.openauth.util.CommandException;
+import me.maiome.openauth.util.RegistryException;
 import me.maiome.openauth.util.LogHandler;
 
 public class Command {

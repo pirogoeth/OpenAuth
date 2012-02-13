@@ -1,14 +1,14 @@
 package me.maiome.openauth.util;
 
 // yaml util imports
-import com.sk89q.util.YAMLProcessor;
+import com.sk89q.util.yaml.YAMLProcessor;
 
 // java imports
 import java.util.Map;
 import java.util.HashMap;
 
 // internal imports
-import me.maiome.openauth.OpenAuth;
+import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.util.Config;
 
 public enum ConfigInventory {
