@@ -1,7 +1,8 @@
 package me.maiome.openauth.util;
 
-// yaml util imports
-import com.sk89q.util.yaml.YAMLProcessor;
+// bukkit imports
+import org.bukkit.configuration.Configuration;
+import org.bukkit.configuration.file.YamlConfiguration;
 
 // java imports
 import java.util.Map;
@@ -15,10 +16,10 @@ public enum ConfigInventory {
     MAIN (Config.main),
     DATA (Config.data);
 
-    public final YAMLProcessor config;
-    private static final Map<ConfigInventory, YAMLProcessor> store = new HashMap<ConfigInventory, YAMLProcessor>();
+    public final YamlConfiguration config;
+    private static final Map<ConfigInventory, Configuration> store = new HashMap<ConfigInventory, Configuration>();
 
-    ConfigInventory (final YAMLProcessor config) {
+    ConfigInventory (final YamlConfiguration config) {
         this.config = config;
     }
 
@@ -26,8 +27,8 @@ public enum ConfigInventory {
         return this.config;
     }
 
-    public static YAMLProcessor getByConstant (final ConfigInventory ci) {
-        return store.get(ci);
+    public static YamlConfiguration getByConstant (final ConfigInventory ci) {
+        return (YamlConfiguration) store.get(ci);
     }
 
     static {

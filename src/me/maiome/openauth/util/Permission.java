@@ -11,6 +11,8 @@ import org.bukkit.plugin.Plugin;
 // permissions imports
 import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
+import ru.tehkode.permissions.PermissionManager;
+import ru.tehkode.permissions.bukkit.PermissionsEx;
 
 // internal imports
 import me.maiome.openauth.bukkit.OpenAuth;
@@ -18,29 +20,53 @@ import me.maiome.openauth.util.LogHandler;
 
 public class Permission {
 
-    private OpenAuth plugin;
-    // public static Permissions permissions;
-    private static HandlerType handler = HandlerType.OP;
-    private static PermissionHandler permissionPlugin;
+    private static OpenAuth plugin;
+    private static HandlerType handler = HandlerType.NONE;
+    private static Plugin permissions;
 
     public Permission (OpenAuth instance) {
         plugin = instance;
         LogHandler log = new LogHandler();
-        Plugin permissions = plugin.getServer().getPluginManager().getPlugin("Permissions");
-        Plugin superperms_s = plugin.getServer().getPluginManager().getPlugin("PermissionsBukkit");
-        if (permissions != null) {
-            permissionPlugin = ((Permissions)permissions).getHandler();
-            handler = HandlerType.PERMISSIONS;
-            log.info("Permissions plugin detected. Using " + permissions.getDescription().getFullName());
-        } else if (permissions == null && superperms_s != null) {
+        log.info("Searching for a suitable permissions plugin.");
+        Plugin permissions = null;
+        // check for a permissions method
+        if (isPluginEnabled("PermissionsEx")) {
+            handler = HandlerType.PERMISSIONS_EX;
+            permissions = getPlugin("PermissionsEx");
+        } else if (isPluginEnabled("PermissionsBukkit")) {
             handler = HandlerType.SUPERPERMS;
-            log.info("Using Bukkit SuperPerms, PermissionsBukkit detected.");
+            permissions = getPlugin("PermissionsBukkit");
+        } else if (isPluginEnabled("Permissions")) {
+            handler = HandlerType.PERMISSIONS;
+            permissions = getPlugin("Permissions");
         } else {
-            log.info("No Permissions plugin detected. Using OP");
+            handler = HandlerType.OP;
+        }
+        // notify to what we are using
+        switch (handler) {
+            case PERMISSIONS:
+                log.info("Using [" + permissions.getDescription().getFullName() + "] for Permissions.");
+            case PERMISSIONS_EX:
+                log.info("Using [PermissionsEx " + permissions.getDescription().getVersion() + "] for Permissions.");
+            case SUPERPERMS:
+                log.info("Using Bukkit SuperPerms for Permissions.");
+                log.info("SuperPerms provider: [" + permissions.getDescription().getFullName() + "].");
+            case OP:
+                log.info("Using OP system for Permissions.");
         }
     }
 
+    private static boolean isPluginEnabled (String pluginname) {
+        return plugin.getServer().getPluginManager().isPluginEnabled(pluginname);
+    }
+
+    private static Plugin getPlugin (String pluginname) {
+        return (Plugin) plugin.getServer().getPluginManager().getPlugin(pluginname);
+    }
+
     private enum HandlerType {
+        NONE,
+        PERMISSIONS_EX,
         PERMISSIONS,
         OP,
         SUPERPERMS
@@ -49,11 +75,13 @@ public class Permission {
     public static boolean has (Player p, String node) {
         switch (handler) {
             case PERMISSIONS:
-                return permissionPlugin.has(p, node);
-            case OP:
-                return p.isOp();
+                return ((Permissions) permissions).getHandler().has(p, node);
+            case PERMISSIONS_EX:
+                return PermissionsEx.getPermissionManager().has(p, node);
             case SUPERPERMS:
                 return p.hasPermission(node);
+            case OP:
+                return p.isOp();
         }
         return true;
     }
@@ -61,11 +89,13 @@ public class Permission {
     private static boolean hasPermission (Player p, String node, boolean def) {
         switch (handler) {
             case PERMISSIONS:
-                return permissionPlugin.has(p, node);
-            case OP:
-                return def ? true : p.isOp();
+                return ((Permissions) permissions).getHandler().has(p, node);
+            case PERMISSIONS_EX:
+                return PermissionsEx.getPermissionManager().has(p, node);
             case SUPERPERMS:
                 return p.hasPermission(node);
+            case OP:
+                return def ? true : p.isOp();
         }
         return def;
     }

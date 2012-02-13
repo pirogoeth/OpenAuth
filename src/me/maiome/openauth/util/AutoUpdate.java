@@ -8,9 +8,8 @@ import java.io.InputStreamReader;
 // bukkit imports
 import org.bukkit.util.FileUtil;
 import org.bukkit.Bukkit;
-
-// yaml util imports
-import com.sk89q.util.yaml.YAMLProcessor;
+import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.Configuration;
 
 // java imports
 import java.net.HttpURLConnection;
@@ -29,7 +28,7 @@ public class AutoUpdate {
     public File jar;
     public LogHandler log = new LogHandler();
     public OpenAuth plugin;
-    public YAMLProcessor main = ConfigInventory.MAIN;
+    public Configuration main = ConfigInventory.MAIN.getConfig();
 
     public AutoUpdate (OpenAuth instance) {
         plugin = instance;
@@ -42,7 +41,7 @@ public class AutoUpdate {
             if (directory.exists()) {
                 File p = new File(directory.getPath(), "OpenAuth.jar");
                 if (p.exists()) {
-                    FileUtil.copy(p, plugin.fileGet());
+                    FileUtil.copy(p, plugin.getFile());
                     p.delete();
                     log.info("Update finalised.");
                 }
