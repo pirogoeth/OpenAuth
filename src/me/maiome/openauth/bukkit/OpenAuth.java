@@ -7,6 +7,7 @@ import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -14,9 +15,11 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 // java imports
 import java.io.File;
 import java.util.logging.Logger;
+import java.util.List;
 
 // core
-import me.maiome.openauth.commands.OACommands;
+import me.maiome.openauth.commands.*;
+import me.maiome.openauth.event.*;
 import me.maiome.openauth.util.Permission;
 import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.LogHandler;
@@ -25,6 +28,8 @@ import me.maiome.openauth.util.LogHandler;
 // import me.pirogoeth.openauth.event.OAuthPlayerListener;
 
 // bundled imports
+import com.sk89q.bukkit.util.CommandRegistration; // dynamic command registry
+import com.sk89q.util.*;
 import com.sk89q.minecraft.util.commands.*; // command framework
 
 /**
@@ -60,12 +65,18 @@ public class OpenAuth extends JavaPlugin {
     private CommandsManager<CommandSender> commands;
 
     /**
+     * Dynamically registers commands.
+     */
+    private CommandRegistration dynamicCommandRegistry;
+
+    /**
      * Plugin setup.
      */
     public void onEnable() {
-        // initialise permissions manager and config manager
+        // initialise permissions manager and config manager as well as dynamic command registration
         this.permissionsManager = new Permission(this);
         this.configurationManager = new Config(this);
+        this.dynamicCommandRegistry = new CommandRegistration(this);
 
         // set version number
         this.version = this.getDescription().getVersion();
@@ -81,8 +92,11 @@ public class OpenAuth extends JavaPlugin {
         // setup instance injector
         this.commands.setInjector(new SimpleInjector(this));
 
+        // register listener(s)
+        this.registerEvents(new OAListener(this));
+
         // register command classes.
-        this.commands.registerAndReturn(OACommands.OAParentCommand.class);
+        this.registerCommands(this.commands.registerAndReturn(OACommands.OAParentCommand.class));
 
         // loaded.
         log.info("Enabled version " + version + ".");
@@ -100,11 +114,9 @@ public class OpenAuth extends JavaPlugin {
      * Called to process a command.
      */
     @Override
-    public boolean onCommand(CommandSender sender, Command cmd,
+    public boolean onCommand(CommandSender sender, org.bukkit.command.Command cmd,
             String cmdLabel, String[] args) {
-        log.info("onCommand()");
         try {
-            log.info("Processing command: " + cmdLabel);
             commands.execute(cmd.getName(), args, sender, sender);
         } catch (CommandPermissionsException e) {
             sender.sendMessage(ChatColor.RED + "You don't have permission.");
@@ -127,8 +139,45 @@ public class OpenAuth extends JavaPlugin {
         return true;
     }
 
+    // various support methods
+
+    /**
+     * Looks for a command inside of a string array.
+     */
+    public String[] detectCommands(String[] split) {
+        split[0] = split[0].substring(1);
+
+        String search = split[0].toLowerCase();
+
+        // detect the command.
+        if (this.commands.hasCommand(search)) {
+        } else if (split[0].length() >= 2 && split[0].charAt(0) == '/'
+                   && this.commands.hasCommand(search.substring(1))) {
+            split[0] = split[0].substring(1);
+        }
+
+        return split;
+    }
+
     @Override
     public File getFile () {
         return super.getFile();
+    }
+
+    /**
+     * Register commands with the magical dynamic handler.
+     */
+    public void registerCommands(List<com.sk89q.minecraft.util.commands.Command> commands) {
+        this.dynamicCommandRegistry.registerAll(commands);
+    }
+
+    /**
+     * Shorthand to register an event listener.
+     */
+    public void registerEvents(Listener listener) {
+        this.getServer().getPluginManager().registerEvents(
+            listener,
+            (Plugin) this);
+        return;
     }
 }

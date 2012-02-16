@@ -15,21 +15,29 @@ import org.bukkit.command.CommandSender;
 
 public class OACommands {
 
-    public static class OAParentCommand {
-        @Command(aliases = {"openauth", "oauth", "oa"},
-                 desc = "OpenAuth commands", flags = "d",
-                 min = 1, max = 3)
-        @NestedCommand( {OACommands.class} )
-        public static void openAuth() {
-        }
+    private final OpenAuth oa;
+
+    public OACommands (OpenAuth openauth) {
+        oa = openauth;
     }
 
-    @Command(aliases = {"version"},
-             usage = "", desc = "OpenAuth version information",
-             min = 0, max = 0)
-    public static void version(CommandContext args, CommandSender sender) throws CommandException {
-        sender.sendMessage(ChatColor.BLUE + "OpenAuth 1.0.0");
-        sender.sendMessage(ChatColor.BLUE + "http://maio.me");
+    public static class OAParentCommand {
+
+        private final OpenAuth oa;
+
+        public OAParentCommand (OpenAuth openauth) {
+            oa = openauth;
+        }
+
+        @Command(aliases = {"openauth", "oauth", "oa"}, desc = "OpenAuth commands",
+                 flags = "d", min = 1, max = 3)
+        @NestedCommand({OACommands.class})
+        public static void openAuth() {}
     }
+
+    @Command(aliases = {"version"}, usage = "", desc = "OpenAuth version information", min = 0, max = 0)
+    public static void version(CommandContext args, CommandSender sender) throws CommandException {
+        sender.sendMessage(ChatColor.GREEN + "OpenAuth version " + oa.getDescription().getVersion());
+     }
 
 }
