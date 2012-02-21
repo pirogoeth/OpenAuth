@@ -11,11 +11,14 @@ import org.bukkit.event.Listener;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.Server;
 
 // java imports
 import java.io.File;
 import java.util.logging.Logger;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 // core
 import me.maiome.openauth.commands.*;
@@ -48,6 +51,16 @@ public class OpenAuth extends JavaPlugin {
      * This holds OpenAuth's version.
      */
     public String version;
+
+    /**
+     * Holds an OAServer instance.
+     */
+    public OAServer oaserver = new OAServer(this, this.getServer());
+
+    /**
+     * Holds OAPlayer instances.
+     */
+    public Map<String, OAPlayer> players = new HashMap<String, OAPlayer>();
 
     /**
      * Holds the gateway to all permission verification.
@@ -167,17 +180,44 @@ public class OpenAuth extends JavaPlugin {
     /**
      * Register commands with the magical dynamic handler.
      */
-    public void registerCommands(List<com.sk89q.minecraft.util.commands.Command> commands) {
+    protected void registerCommands(List<com.sk89q.minecraft.util.commands.Command> commands) {
         this.dynamicCommandRegistry.registerAll(commands);
     }
 
     /**
      * Shorthand to register an event listener.
      */
-    public void registerEvents(Listener listener) {
+    private void registerEvents(Listener listener) {
         this.getServer().getPluginManager().registerEvents(
             listener,
             (Plugin) this);
         return;
+    }
+
+    /**
+     * Wraps a player into an OAPlayer instance.
+     */
+    public OAPlayer wrapOAPlayer(Player player) {
+        if(!(players.containsKey(player.getName()))) {
+            OAPlayer _player = new OAPlayer(this.oaserver, player);
+            players.put(player.getName(), _player);
+            return _player;
+        } else if (players.containsKey(player.getName())) {
+            return players.get(player.getName());
+        }
+        return null;
+    }
+
+    public OAPlayer wrapOAPlayer(String _player) {
+        Player player = this.getServer().getPlayer(_player);
+        if (!(player isinstance org.bukkit.entity.LivingEntity) && (player isinstance org.bukkit.entity.Player)) return null;
+        if(!(players.containsKey(player.getName()))) {
+            OAPlayer _player = new OAPlayer(this.oaserver, player);
+            players.put(player.getName(), _player);
+            return _player;
+        } else if (players.containsKey(player.getName())) {
+            return players.get(player.getName());
+        }
+        return null;
     }
 }

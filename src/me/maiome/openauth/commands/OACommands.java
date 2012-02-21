@@ -15,7 +15,7 @@ import org.bukkit.command.CommandSender;
 
 public class OACommands {
 
-    private final OpenAuth oa;
+    private static OpenAuth oa;
 
     public OACommands (OpenAuth openauth) {
         oa = openauth;
@@ -38,6 +38,6 @@ public class OACommands {
     @Command(aliases = {"version"}, usage = "", desc = "OpenAuth version information", min = 0, max = 0)
     public static void version(CommandContext args, CommandSender sender) throws CommandException {
         sender.sendMessage(ChatColor.GREEN + "OpenAuth version " + oa.getDescription().getVersion());
-     }
+    }
 
 }

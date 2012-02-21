@@ -60,4 +60,15 @@ public class OAListener implements Listener {
             }
         }
     }
+
+    /** 
+     * Called when a player logs in.
+     *
+     * This will be used to for ban and whitelist features.
+     */
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerJoin(PlayerJoinEvent event) {
+	// this is a STUUUUB
+	return;
+    }
 }
