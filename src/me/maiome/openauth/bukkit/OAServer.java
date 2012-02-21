@@ -77,6 +77,30 @@ public class OAServer {
         }
     }
 
+    public void banPlayerByIP(final String IP) {
+        if (!(this.ip_bans.containsKey(IP))) {
+            this.ip_bans.put(IP, null);
+        }
+    }
+
+    public void banPlayerByIP(final String IP, final String reason) {
+        if (!(this.ip_bans.containsKey(IP))) {
+            this.ip_bans.put(IP, reason);
+        }
+    }
+
+    public void unbanPlayerByIP(final OAPlayer player) {
+        if (!(this.ip_bans.containsKey(player.getIP()))) {
+            this.ip_bans.remove(player.getIP());
+        }
+    }
+
+    public void unbanPlayerByIP(final String IP) {
+        if (!(this.ip_bans.containsKey(IP))) {
+            this.ip_bans.remove(IP);
+        }
+    }
+
     public void banPlayerByName(final OAPlayer player) {
         if (!(this.name_bans.containsKey(player.getName()))) {
             this.name_bans.put(player.getName(), null);
@@ -86,6 +110,30 @@ public class OAServer {
     public void banPlayerByName(final OAPlayer player, final String reason) {
         if (!(this.name_bans.containsKey(player.getName()))) {
             this.name_bans.put(player.getName(), reason);
+        }
+    }
+
+    public void banPlayerByName(final String player) {
+        if (!(this.name_bans.containsKey(player))) {
+            this.name_bans.put(player, null);
+        }
+    }
+
+    public void banPlayerByName(final String player, final String reason) {
+        if (!(this.name_bans.containsKey(player))) {
+            this.name_bans.put(player, reason);
+        }
+    }
+
+    public void unbanPlayerByName(final OAPlayer player) {
+        if (!(this.name_bans.containsKey(player.getName()))) {
+            this.name_bans.remove(player.getName());
+        }
+    }
+
+    public void unbanPlayerByName(final String player) {
+        if (!(this.name_bans.containsKey(player))) {
+            this.name_bans.remove(player);
         }
     }
 }

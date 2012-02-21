@@ -12,7 +12,6 @@ import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAServer;
 import me.maiome.openauth.util.LogHandler;
 import me.maiome.openauth.util.Permission;
-import me.maiome.openauth.util.PlayerState;
 
 public class OAPlayer {
     private final OAServer server;
@@ -20,10 +19,24 @@ public class OAPlayer {
     private final LogHandler log = new LogHandler();
     private PlayerState state;
 
+    private String player_ip = null;
+
+    // PlayerState enum
+
+    private enum PlayerState {
+        ONLINE,
+        OFFLINE,
+        UNKNOWN
+    }
+
+    // construct ALL the things!
+
     public OAPlayer(OAServer server, Player player) {
         this.player = player;
         this.server = server;
         this.state = PlayerState.ONLINE;
+
+        this.player_ip = this.player.getAddress().getAddress().toString();
     }
 
     // wrapper methods
@@ -33,7 +46,7 @@ public class OAPlayer {
     }
 
     public String getIP() {
-        return this.player.getAddress().getAddress().toString();
+        return this.player_ip;
     }
 
     public Player getPlayer() {
