@@ -26,6 +26,7 @@ public class OAPlayer {
     private enum PlayerState {
         ONLINE,
         OFFLINE,
+        BANNED,
         UNKNOWN
     }
 
@@ -57,10 +58,6 @@ public class OAPlayer {
         return this.server;
     }
 
-    public Location getLocation() {
-        return this.player.getLocation();
-    }
-
     // movement-type methods
 
     public double getPitch() {
@@ -69,6 +66,10 @@ public class OAPlayer {
 
     public double getYaw() {
         return this.player.getLocation().getYaw();
+    }
+
+    public Location getLocation() {
+        return this.player.getLocation();
     }
 
     public void setLocation(Location location) {
@@ -97,10 +98,14 @@ public class OAPlayer {
     // state methods
 
     public void setOffline() {
-	    this.state = PlayerState.OFFLINE;
+        this.state = PlayerState.OFFLINE;
     }
 
     public void setOnline() {
-	    this.state = PlayerState.ONLINE;
+        this.state = PlayerState.ONLINE;
+    }
+
+    public void setBanned() {
+        this.state = PlayerState.BANNED;
     }
 }

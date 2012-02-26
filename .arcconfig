@@ -2,7 +2,7 @@
   "project_id" : "OpenAuth",
   "conduit_uri" : "http://phabricator.maio.me/",
   "phutil_libraries" : {
-    "arc_java_lint" : "/usr/home/pirogoeth/.arcanist/arc_java_lint"
+    "arc_java_lint" : "/usr/home/pirogoeth/.arcanist/arc_java_lint/arc_java_lint"
   },
   "lint_engine" : "JavaLintEngine",
   "max_line_length" : "150"

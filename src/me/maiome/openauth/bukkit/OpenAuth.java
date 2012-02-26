@@ -210,11 +210,11 @@ public class OpenAuth extends JavaPlugin {
 
     public OAPlayer wrapOAPlayer(String _player) {
         Player player = this.getServer().getPlayer(_player);
-        if (!(player isinstance org.bukkit.entity.LivingEntity) && (player isinstance org.bukkit.entity.Player)) return null;
+        if (!(player instanceof org.bukkit.entity.LivingEntity) && (player instanceof org.bukkit.entity.Player)) return null;
         if(!(players.containsKey(player.getName()))) {
-            OAPlayer _player = new OAPlayer(this.oaserver, player);
-            players.put(player.getName(), _player);
-            return _player;
+            OAPlayer __player = new OAPlayer(this.oaserver, player);
+            players.put(player.getName(), __player);
+            return __player;
         } else if (players.containsKey(player.getName())) {
             return players.get(player.getName());
         }
