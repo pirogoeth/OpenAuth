@@ -37,7 +37,7 @@ public class OACommands {
 
     @Command(aliases = {"version"}, usage = "", desc = "OpenAuth version information", min = 0, max = 0)
     public static void version(CommandContext args, CommandSender sender) throws CommandException {
-        sender.sendMessage(ChatColor.GREEN + oa.getDescription().getFullName());
+        sender.sendMessage(ChatColor.GREEN + "OpenAuth version " + oa.getDescription().getVersion());
     }
 
 }
