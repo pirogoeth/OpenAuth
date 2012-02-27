@@ -2,6 +2,8 @@ package me.maiome.openauth.event;
 
 import com.sk89q.util.StringUtil; // string processing
 
+import java.util.logging.Logger; // java logging module
+
 // bukkit imports
 import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
@@ -68,7 +70,7 @@ public class OAListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerJoin(PlayerJoinEvent event) {
-	// this is a STUUUUB
+        // this is a STUUUUB
 	return;
     }
 }
