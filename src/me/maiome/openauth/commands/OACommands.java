@@ -29,8 +29,8 @@ public class OACommands {
             oa = openauth;
         }
 
-        @Command(aliases = {"openauth", "oauth", "oa"}, desc = "OpenAuth commands",
-                 flags = "d", min = 1, max = 3)
+        @Command(aliases = {"openauth", "oa"}, desc = "OpenAuth commands",
+                 flags = "d", min = 1)
         @NestedCommand({OACommands.class})
         public static void openAuth() {}
     }
