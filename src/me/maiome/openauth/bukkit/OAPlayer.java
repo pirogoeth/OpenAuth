@@ -60,6 +60,10 @@ public class OAPlayer {
         return this.server;
     }
 
+    public int getItemInHand() {
+        return this.player.getItemInHand().getTypeId();
+    }
+
     // movement-type methods
 
     public float getPitch() {

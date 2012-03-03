@@ -172,9 +172,19 @@ public class OpenAuth extends JavaPlugin {
         return split;
     }
 
+    /**
+     * Allows us to publically hand out our File instance.
+     */
     @Override
     public File getFile () {
         return super.getFile();
+    }
+
+    /**
+     * Returns the server instance that we are using.
+     */
+    public OAServer getOAServer() {
+        return this.oaserver;
     }
 
     /**
