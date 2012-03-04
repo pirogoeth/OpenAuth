@@ -55,12 +55,17 @@ public class OpenAuth extends JavaPlugin {
     /**
      * Holds an OAServer instance.
      */
-    public OAServer oaserver = new OAServer(this, this.getServer());
+    public final OAServer oaserver = new OAServer(this, this.getServer());
 
     /**
      * Holds OAPlayer instances.
      */
     public Map<String, OAPlayer> players = new HashMap<String, OAPlayer>();
+
+    /**
+     * Session controller.
+     */
+    public final SessionController sc = new SessionController(this);
 
     /**
      * Holds the gateway to all permission verification.

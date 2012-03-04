@@ -18,10 +18,10 @@ import me.maiome.openauth.util.LogHandler;
 public class OAActiveLoginHandler implements OALoginHandler {
 
     private List<OAPlayer> active = new ArrayList<OAPlayer>();
-    private OpenAuth plugin;
+    private OpenAuth controller;
 
-    public OAActiveLoginHandler(OpenAuth plugin) {
-        this.plugin = plugin;
+    public OAActiveLoginHandler(OpenAuth controller) {
+        this.controller = controller;
     }
 
     public boolean isPlayerLoggedIn(OAPlayer player) {
@@ -29,6 +29,6 @@ public class OAActiveLoginHandler implements OALoginHandler {
     }
 
     public boolean isPlayerLoggedIn(String player) {
-        return this.active.contains(this.plugin.wrapOAPlayer(this.plugin.getServer().getPlayer(player)));
+        return this.active.contains(this.controller.wrapOAPlayer(this.controller.getServer().getPlayer(player)));
     }
 }

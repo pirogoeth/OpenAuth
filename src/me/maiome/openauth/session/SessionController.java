@@ -54,16 +54,22 @@ public class SessionController {
         return this.controller;
     }
 
-    public Session create(OAPlayer player) {
-        return new Session(this, player);
+    private Session create(OAPlayer player) {
+        Session session = new Session(this, player);
+        this.remember(session);
+        return session;
     }
 
-    public Session create(Player player) {
-        return new Session(this, this.controller.wrapOAPlayer(player));
+    private Session create(Player player) {
+        Session session = new Session(this, this.controller.wrapOAPlayer(player));
+        this.remember(session);
+        return session;
     }
 
-    public Session create(String player) {
-        return new Session(this, this.controller.wrapOAPlayer(player));
+    private Session create(String player) {
+        Session session = new Session(this, this.controller.wrapOAPlayer(player));
+        this.remember(session);
+        return session;
     }
 
     public void remember(Session session) {
@@ -83,14 +89,25 @@ public class SessionController {
     }
 
     public Session get(OAPlayer player) {
-        return this.session_bag.get(player);
+        if (this.session_bag.contrainsKey(player))
+            return this.session_bag.get(player);
+        else
+            return this.create(player);
     }
 
     public Session get(String player) {
-        return this.session_bag.get(this.controller.wrapOAPlayer(player));
+        OAPlayer _player = this.controller.wrapOAPlayer(player);
+        if (this.session_bag.containsKey(_player))
+            return this.session_bag.get(_player);
+        else
+            return this.create(_player);
     }
 
     public Session get(Player player) {
-        return this.session_bag.get(this.controller.wrapOAPlayer(player));
+        OAPlayer _player = this.controller.wrapOAPlayer(player);
+        if (this.session_bag.containsKey(_player)
+            return this.session_bag.get(_player);
+        else
+            return this.create(_player);
     }
 }

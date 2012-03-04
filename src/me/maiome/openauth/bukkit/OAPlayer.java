@@ -19,6 +19,7 @@ public class OAPlayer {
     private final OAServer server;
     private final Player player;
     private final LogHandler log = new LogHandler();
+    private final Session session;
     private PlayerState state;
 
     private String player_ip = null;
@@ -29,6 +30,7 @@ public class OAPlayer {
         this.player = player;
         this.server = server;
         this.state = PlayerState.UNKNOWN;
+        this.session = this.server.sc.get(this);
 
         this.player_ip = this.player.getAddress().getAddress().toString();
     }
