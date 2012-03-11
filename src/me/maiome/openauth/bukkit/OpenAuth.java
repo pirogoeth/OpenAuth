@@ -23,6 +23,7 @@ import java.util.Map;
 // core imports
 import me.maiome.openauth.commands.*;
 import me.maiome.openauth.event.*;
+import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.Permission;
 import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.LogHandler;

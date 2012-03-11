@@ -16,6 +16,7 @@ import org.bukkit.World;
 // internal imports
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.handlers.*;
+import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.Permission;
 import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.ConfigInventory;
@@ -26,7 +27,7 @@ import me.maiome.openauth.util.WhitelistStatus;
 public class OAServer {
 
     public Server server;
-    private OpenAuth plugin;
+    private OpenAuth controller;
     private LogHandler log = new LogHandler();
     private OALoginHandler loginHandler;
 
@@ -34,8 +35,8 @@ public class OAServer {
     private Map<String, String> ip_bans = new HashMap<String, String>();
     private Map<String, String> name_bans = new HashMap<String, String>();
 
-    public OAServer(OpenAuth plugin, Server server) {
-        this.plugin = plugin;
+    public OAServer(OpenAuth controller, Server server) {
+        this.controller = controller;
         this.server = server;
         this.setupDefaultLoginHandler();
     }
@@ -43,21 +44,29 @@ public class OAServer {
     // scheduling
 
     public int scheduleSyncRepetitiveTask(long delay, long period, Runnable task) {
-        return Bukkit.getScheduler().scheduleSyncRepeatingTask(this.plugin, task, delay, period);
+        return Bukkit.getScheduler().scheduleSyncRepeatingTask(this.controller, task, delay, period);
     }
 
     public int scheduleSyncDelayedTask(long delay, Runnable task) {
-        return Bukkit.getScheduler().scheduleSyncDelayedTask(this.plugin, task, delay);
+        return Bukkit.getScheduler().scheduleSyncDelayedTask(this.controller, task, delay);
     }
 
     public int scheduleAsynchronousRepeatingTask(long delay, long period, Runnable task) {
-        return Bukkit.getScheduler().scheduleAsyncRepeatingTask(this.plugin, task, delay, period);
+        return Bukkit.getScheduler().scheduleAsyncRepeatingTask(this.controller, task, delay, period);
     }
 
     // support
 
     public Server getServer() {
         return this.server;
+    }
+
+    public OpenAuth getController() {
+        return this.controller;
+    }
+
+    public SessionController getSessionController() {
+        return this.controller.getSessionController();
     }
 
     // setup of handlers

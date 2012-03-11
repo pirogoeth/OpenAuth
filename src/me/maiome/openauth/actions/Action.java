@@ -5,7 +5,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 
 // internal imports
-import me.maiome.openauth.bukkit.OpenAuth
+import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAPlayer;
 import me.maiome.openauth.bukkit.OAServer;
 import me.maiome.openauth.session.Session;
@@ -16,17 +16,11 @@ import me.maiome.openauth.util.Permission;
 
 public interface Action {
 
-    // fields
-    Session attached;
-    SessionController sc;
-    String permissible;
-    OAServer server;
-
     // methods
     boolean allowed();
 
-    void run();
+    void run(final OAPlayer player);
 
-    void undo();
+    void undo(final OAPlayer player);
 
 }

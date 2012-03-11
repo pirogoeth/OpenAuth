@@ -10,6 +10,7 @@ import org.bukkit.inventory.ItemStack;
 // internal imports
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAServer;
+import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.LogHandler;
 import me.maiome.openauth.util.Permission;
 import me.maiome.openauth.util.LoginStatus;
@@ -19,7 +20,8 @@ public class OAPlayer {
     private final OAServer server;
     private final Player player;
     private final LogHandler log = new LogHandler();
-    private final Session session = null;
+    private Session session = null;
+    private final SessionController sc;
     private PlayerState state;
 
     private String player_ip = null;
@@ -30,6 +32,7 @@ public class OAPlayer {
         this.player = player;
         this.server = server;
         this.state = PlayerState.UNKNOWN;
+        this.sc = this.server.getSessionController();
 
         this.player_ip = this.player.getAddress().getAddress().toString();
     }
@@ -162,10 +165,10 @@ public class OAPlayer {
     // session methods
 
     public void initSession() {
-        this.session = (this.session == null) ? this.server.sc.get(this) : this.session;
+        this.session = (this.session == null) ? this.sc.get(this) : this.session;
     }
 
-    public void getSession() {
+    public Session getSession() {
         return this.session;
     }
 

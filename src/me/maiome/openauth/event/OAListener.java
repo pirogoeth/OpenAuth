@@ -22,10 +22,12 @@ import org.bukkit.event.player.PlayerQuitEvent;
 
 // internal
 import me.maiome.openauth.bukkit.OpenAuth;
+import me.maiome.openauth.bukkit.OAPlayer;
+import me.maiome.openauth.bukkit.OAServer;
 
 public class OAListener implements Listener {
 
-    private final OpenAuth oa;
+    private final OpenAuth controller;
 
     public OAListener(OpenAuth oa) {
         this.controller = oa;

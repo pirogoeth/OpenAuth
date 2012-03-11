@@ -29,9 +29,14 @@ public class OAActiveLoginHandler implements OALoginHandler {
     }
 
     public String getStringHash(String password) {
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        md.update(password.getBytes(), 0, s.length());
-        return new BigInteger(1, md.digest()).toString(16);
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            md.update(password.getBytes(), 0, password.length());
+            return new BigInteger(1, md.digest()).toString(16);
+        } catch (java.security.NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 
     public boolean isPlayerLoggedIn(OAPlayer player) {
@@ -42,13 +47,13 @@ public class OAActiveLoginHandler implements OALoginHandler {
         return this.active.contains(this.controller.wrapOAPlayer(this.controller.getServer().getPlayer(player)));
     }
 
-    public LoginStatus getPlayerStatus() {
-        return (this.isPlayerLoggedIn == true) ? PlayerStatus.ACTIVE : PlayerStatus.INACTIVE;
+    public LoginStatus getPlayerStatus(OAPlayer player) {
+        return (this.isPlayerLoggedIn(player) == true) ? LoginStatus.ACTIVE : LoginStatus.INACTIVE;
     }
 
     public void processPlayerLogin(OAPlayer player) {
-        player.setOnline()
-        if (this.controller.getOAServer().hasNameBan(player.getName()) {
+        player.setOnline();
+        if (this.controller.getOAServer().hasNameBan(player.getName())) {
             this.controller.getOAServer().kickPlayer(
                 player,
                 this.controller.getOAServer().getNameBanReason(player.getName()));
@@ -56,7 +61,7 @@ public class OAActiveLoginHandler implements OALoginHandler {
         } else {
             this.log.exDebug(String.format("%s successfully matched no name bans!", player.getName()));
         }
-        if (this.controller.getOAServer().hasIPBan(player.getIP()) {
+        if (this.controller.getOAServer().hasIPBan(player.getIP())) {
             this.controller.getOAServer().kickPlayer(
                 player,
                 this.controller.getOAServer().getIPBanReason(player.getIP()));

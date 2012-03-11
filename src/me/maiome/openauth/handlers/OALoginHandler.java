@@ -14,19 +14,19 @@ import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.Permission;
 import me.maiome.openauth.util.LogHandler;
+import me.maiome.openauth.util.LoginStatus;
 
 public interface OALoginHandler {
-
-    List<OAPlayer> active;
-    OpenAuth controller;
 
     String getStringHash(String password);
 
     boolean isPlayerLoggedIn(OAPlayer player);
     boolean isPlayerLoggedIn(String player);
 
-    boolean processPlayerLogin(OAPlayer player, String password);
-    boolean processPlayerLogout(OAPlayer player);
+    LoginStatus getPlayerStatus(OAPlayer player);
+
+    void processPlayerLogin(OAPlayer player);
+    void processPlayerLogout(OAPlayer player);
     boolean processPlayerIdentification(OAPlayer player, String password);
 
     List<OAPlayer> getActivePlayers();
