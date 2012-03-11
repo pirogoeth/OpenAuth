@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 
 // bukkit imports
 import org.bukkit.Bukkit;
@@ -13,6 +15,7 @@ import org.bukkit.World;
 
 // internal imports
 import me.maiome.openauth.bukkit.OpenAuth;
+import me.maiome.openauth.handlers.*;
 import me.maiome.openauth.util.Permission;
 import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.ConfigInventory;
@@ -21,9 +24,11 @@ import me.maiome.openauth.util.LoginStatus;
 import me.maiome.openauth.util.WhitelistStatus;
 
 public class OAServer {
+
     public Server server;
     private OpenAuth plugin;
     private LogHandler log = new LogHandler();
+    private OALoginHandler loginHandler;
 
     // ban containers
     private Map<String, String> ip_bans = new HashMap<String, String>();
@@ -32,6 +37,7 @@ public class OAServer {
     public OAServer(OpenAuth plugin, Server server) {
         this.plugin = plugin;
         this.server = server;
+        this.setupDefaultLoginHandler();
     }
 
     // scheduling
@@ -54,6 +60,20 @@ public class OAServer {
         return this.server;
     }
 
+    // setup of handlers
+
+    public void setLoginHandler(OALoginHandler lh) {
+        this.loginHandler = lh;
+    }
+
+    public OALoginHandler getLoginHandler() {
+        return this.loginHandler;
+    }
+
+    public void setupDefaultLoginHandler() {
+        this.loginHandler = new OAActiveLoginHandler(this.controller);
+    }
+
     // oa methods
 
     public void kickPlayer(final OAPlayer player) {
@@ -70,7 +90,7 @@ public class OAServer {
 
     public void banPlayerByIP(final OAPlayer player) {
         if (!(this.ip_bans.containsKey(player.getIP()))) {
-            this.ip_bans.put(player.getIP(), null);
+            this.ip_bans.put(player.getIP(), "No reason given.");
         }
     }
 
@@ -82,7 +102,7 @@ public class OAServer {
 
     public void banPlayerByIP(final String IP) {
         if (!(this.ip_bans.containsKey(IP))) {
-            this.ip_bans.put(IP, null);
+            this.ip_bans.put(IP, "No reason given.");
         }
     }
 
@@ -106,7 +126,7 @@ public class OAServer {
 
     public void banPlayerByName(final OAPlayer player) {
         if (!(this.name_bans.containsKey(player.getName()))) {
-            this.name_bans.put(player.getName(), null);
+            this.name_bans.put(player.getName(), "No reason given.");
         }
     }
 
@@ -118,7 +138,7 @@ public class OAServer {
 
     public void banPlayerByName(final String player) {
         if (!(this.name_bans.containsKey(player))) {
-            this.name_bans.put(player, null);
+            this.name_bans.put(player, "No reason given.");
         }
     }
 
@@ -140,6 +160,22 @@ public class OAServer {
         }
     }
 
+    public boolean hasNameBan(final String name) {
+        return this.name_bans.containsKey(name);
+    }
+
+    public String getNameBanReason(final String name) {
+        return this.name_bans.get(name);
+    }
+
+    public boolean hasIPBan(final String IP) {
+        return this.ip_bans.containsKey(IP);
+    }
+
+    public String getIPBanReason(final String IP) {
+        return this.ip_bans.get(IP);
+    }
+
     // whitelisting, login status methods
 
     public WhitelistStatus getPlayerWhitelistStatus(final OAPlayer player) {
@@ -148,8 +184,7 @@ public class OAServer {
     }
 
     public LoginStatus getPlayerLoginStatus(final OAPlayer player) {
-        // return this.loginHandler.getPlayerStatus(player);
-        return LoginStatus.UNKNOWN;
+        return this.loginHandler.getPlayerStatus(player);
     }
 }
 

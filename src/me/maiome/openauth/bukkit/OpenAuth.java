@@ -20,7 +20,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-// core
+// core imports
 import me.maiome.openauth.commands.*;
 import me.maiome.openauth.event.*;
 import me.maiome.openauth.util.Permission;
@@ -190,6 +190,13 @@ public class OpenAuth extends JavaPlugin {
      */
     public OAServer getOAServer() {
         return this.oaserver;
+    }
+
+    /**
+     * Returns the session controller instance.
+     */
+    public SessionController getSessionController() {
+        return this.sc;
     }
 
     /**

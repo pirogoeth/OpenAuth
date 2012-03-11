@@ -28,7 +28,7 @@ public class OAListener implements Listener {
     private final OpenAuth oa;
 
     public OAListener(OpenAuth oa) {
-        this.oa = oa;
+        this.controller = oa;
     }
 
     /**
@@ -43,7 +43,7 @@ public class OAListener implements Listener {
         String[] split = event.getMessage().split(" ");
 
         if (split.length > 0) {
-            split = this.oa.detectCommands(split);
+            split = this.controller.detectCommands(split);
             final String label = split[0];
             split[0] = "/" + split[0];
         }
@@ -51,10 +51,10 @@ public class OAListener implements Listener {
         final String new_message = StringUtil.joinString(split, " ");
         if (!(new_message.equals(event.getMessage()))) {
             event.setMessage(new_message);
-            this.oa.getServer().getPluginManager().callEvent(event);
+            this.controller.getServer().getPluginManager().callEvent(event);
             if (!(event.isCancelled())) {
                 if (event.getMessage().length() > 0) {
-                    this.oa.getServer().dispatchCommand(
+                    this.controller.getServer().dispatchCommand(
                         event.getPlayer(),
                         event.getMessage().substring(1));
                 }
@@ -70,7 +70,9 @@ public class OAListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        // this is a STUUUUB
-	return;
+        OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
+        this.controller.getOAServer().getLoginHandler().processPlayerLogin(player);
+        player.initSession();
+        return;
     }
 }

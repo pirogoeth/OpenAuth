@@ -18,15 +18,16 @@ import me.maiome.openauth.util.LogHandler;
 public interface OALoginHandler {
 
     List<OAPlayer> active;
-    OpenAuth plugin;
+    OpenAuth controller;
 
-    String getStringHash(String string);
+    String getStringHash(String password);
 
     boolean isPlayerLoggedIn(OAPlayer player);
     boolean isPlayerLoggedIn(String player);
 
     boolean processPlayerLogin(OAPlayer player, String password);
     boolean processPlayerLogout(OAPlayer player);
+    boolean processPlayerIdentification(OAPlayer player, String password);
 
     List<OAPlayer> getActivePlayers();
 

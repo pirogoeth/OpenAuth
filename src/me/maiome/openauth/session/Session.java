@@ -5,8 +5,10 @@ import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 // internal imports
+import me.maiome.openauth.actions.*;
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAPlayer;
 import me.maiome.openauth.bukkit.OAServer;
@@ -22,6 +24,8 @@ public class Session {
     private SessionController sc;
     private OAPlayer player;
     private OAServer server;
+    private Action action = null;
+    private List<Action> actions = new ArrayList<Action>();
 
     protected int wand_id = ConfigInventory.MAIN.getConfig().getInt("wand-id");
 
@@ -46,5 +50,13 @@ public class Session {
 
     public boolean playerUsingWand() {
         return (this.player.getItemInHand() == this.wand_id) ? true : false;
+    }
+
+    public Action getCurrentAction() {
+        return (this.action != null) ? this.action : null;
+    }
+
+    public void setAction(Action action) {
+        this.action = action;
     }
 }
