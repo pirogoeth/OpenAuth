@@ -26,6 +26,13 @@ public class SessionController {
     private LogHandler log = new LogHandler();
     private OpenAuth controller;
     private OAServer server;
+    private boolean started_tasks = false;
+
+    // task fields
+    private final long prune_delay = ConfigInventory.MAIN.getConfig().getLong("session-prune-delay", 900L);
+    private final long prune_period = ConfigInventory.MAIN.getConfig().getLong("session-prune-period", 1800L);
+
+    // scheduler tasks
     private Runnable pruning_task = new Runnable () {
         public void run () {
 
@@ -47,7 +54,13 @@ public class SessionController {
     public SessionController (OpenAuth controller) {
         this.controller = controller;
         this.server = this.controller.getOAServer();
-        this.server.scheduleAsynchronousRepeatingTask(900L, 1800L, this.pruning_task);
+    }
+
+    public void startSchedulerTasks() {
+        if (this.started_tasks == true) return;
+        this.started_tasks = true;
+        // run scheduler tasks
+        this.server.scheduleAsynchronousRepeatingTask(this.prune_delay, this.prune_period, this.pruning_task);
     }
 
     public OpenAuth getController() {
@@ -76,16 +89,18 @@ public class SessionController {
         this.session_bag.put(session.getPlayer(), session);
     }
 
-    public void forget(Session session) {
+    private void _forget(Session session) {
         this.session_bag.remove(session.getPlayer());
     }
 
-    public void forget(OAPlayer player) {
-        this.session_bag.remove(player);
-    }
-
     public void forget(Object session) {
-        this.forget((Session) session);
+        if (session instanceof Session) {
+            this._forget((Session) session);
+        } else if (session instanceof OAPlayer) {
+            this._forget((Session) ((OAPlayer) session).getSession());
+        } else if (session instanceof Player) {
+            this._forget(this.get((Player) session));
+        }
     }
 
     public Session get(OAPlayer player) {

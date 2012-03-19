@@ -53,6 +53,16 @@ public class OAActiveLoginHandler implements OALoginHandler {
 
     public void processPlayerLogin(OAPlayer player) {
         player.setOnline();
+        StringBuffer s = new StringBuffer();
+        try {
+            s.append(String.format("controller: (%s)\n", this.controller.toString()));
+            s.append(String.format("oaserver: (%s)\n", this.controller.getOAServer().toString()));
+            s.append(String.format("login handler: (%s)\n", this.toString()));
+        } catch (java.lang.NullPointerException e) {
+            e.printStackTrace();
+        } finally {
+            this.log.exDebug(s.toString());
+        }
         if (this.controller.getOAServer().hasNameBan(player.getName())) {
             this.controller.getOAServer().kickPlayer(
                 player,

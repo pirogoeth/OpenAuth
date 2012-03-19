@@ -9,6 +9,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -16,7 +18,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -76,5 +78,16 @@ public class OAListener implements Listener {
         this.controller.getOAServer().getLoginHandler().processPlayerLogin(player);
         player.initSession();
         return;
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
+        OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
+        Entity targ_e = event.getRightClicked();
+        if (player.getSession().playerUsingWand() &&
+            targ_e instanceof Player && player.getSession().hasAction()) {
+
+            player.getSession().runAction(this.controller.wrapOAPlayer((Player) targ_e));
+        }
     }
 }

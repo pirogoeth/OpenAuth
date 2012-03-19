@@ -28,9 +28,6 @@ import me.maiome.openauth.util.Permission;
 import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.LogHandler;
 
-// event listeners
-// import me.pirogoeth.openauth.event.OAuthPlayerListener;
-
 // bundled imports
 import com.sk89q.bukkit.util.CommandRegistration; // dynamic command registry
 import com.sk89q.util.*;
@@ -42,6 +39,12 @@ import com.sk89q.minecraft.util.commands.*; // command framework
  * @author pirogoeth
  */
 public class OpenAuth extends JavaPlugin {
+
+    /**
+     * Initialises configurations and writes defaults.
+     */
+    private Config configurationManager = new Config(this, false);
+
     /**
      * Logger for everything that might need to be spilled
      * into the console.
@@ -56,7 +59,7 @@ public class OpenAuth extends JavaPlugin {
     /**
      * Holds an OAServer instance.
      */
-    public final OAServer oaserver = new OAServer(this, this.getServer());
+    public OAServer oaserver;
 
     /**
      * Holds OAPlayer instances.
@@ -66,17 +69,12 @@ public class OpenAuth extends JavaPlugin {
     /**
      * Session controller.
      */
-    public final SessionController sc = new SessionController(this);
+    public SessionController sc;
 
     /**
      * Holds the gateway to all permission verification.
      */
     private Permission permissionsManager;
-
-    /**
-     * Initialises configurations and writes defaults.
-     */
-    private Config configurationManager;
 
     /**
      * Manages commands.
@@ -92,21 +90,39 @@ public class OpenAuth extends JavaPlugin {
      * Plugin setup.
      */
     public void onEnable() {
+        log.setExtraneousDebugging(true);
+
+        // initialise the configuration
+        this.configurationManager.initialise();
+        // initialise our OAServer instance
+        this.oaserver = new OAServer(this, this.getServer());
+        // initialise out session controller
+        this.sc = new SessionController(this);
+
         // initialise permissions manager and config manager as well as dynamic command registration
         this.permissionsManager = new Permission(this);
-        this.configurationManager = new Config(this);
         this.dynamicCommandRegistry = new CommandRegistration(this);
 
         // set version number
         this.version = this.getDescription().getVersion();
 
+        // start scheduler tasks
+        this.oaserver.startSchedulerTasks();
+        this.sc.startSchedulerTasks();
+
         // register our command manager.
         this.commands = new CommandsManager<CommandSender>() {
             @Override
-            public boolean hasPermission(CommandSender player, String perm) {
-                return Permission.has((Player) player, perm);
+            public boolean hasPermission(CommandSender sender, String perm) {
+                if (sender instanceof org.bukkit.command.ConsoleCommandSender) {
+                    return true;
+                }
+                return Permission.has((Player) sender, perm);
             }
         };
+
+        // load ALL the bans!
+        this.oaserver.loadBans();
 
         // setup instance injector
         this.commands.setInjector(new SimpleInjector(this));
@@ -126,6 +142,8 @@ public class OpenAuth extends JavaPlugin {
      */
     @Override
     public void onDisable () {
+        // save ALL the bans!
+        this.oaserver.saveBans();
         log.info("Disabled version " + version + ".");
     }
 
@@ -221,6 +239,7 @@ public class OpenAuth extends JavaPlugin {
      * Wraps a player into an OAPlayer instance.
      */
     public OAPlayer wrapOAPlayer(Player player) {
+        if (!(player instanceof org.bukkit.entity.LivingEntity) && (player instanceof org.bukkit.entity.Player)) return null;
         if(!(players.containsKey(player.getName()))) {
             OAPlayer _player = new OAPlayer(this.oaserver, player);
             players.put(player.getName(), _player);
@@ -242,5 +261,13 @@ public class OpenAuth extends JavaPlugin {
             return players.get(player.getName());
         }
         return null;
+    }
+
+    public OAPlayer forciblyWrapOAPlayer(String _player) {
+        if (!(players.containsKey(_player))) {
+            return null;
+        } else {
+            return players.get(_player);
+        }
     }
 }

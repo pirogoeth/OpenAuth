@@ -1,0 +1,5 @@
+# this file is not meant for configuration by the end user, this is meant for storage and usage by the plugin itself
+
+ban_storage:
+    ip: null
+    name: null

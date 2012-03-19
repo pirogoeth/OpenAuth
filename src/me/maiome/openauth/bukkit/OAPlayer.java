@@ -68,6 +68,10 @@ public class OAPlayer {
         return this.player.getItemInHand().getTypeId();
     }
 
+    public void sendMessage(String message) {
+        this.player.sendMessage(message);
+    }
+
     // movement-type methods
 
     public float getPitch() {
@@ -165,7 +169,7 @@ public class OAPlayer {
     // session methods
 
     public void initSession() {
-        this.session = (this.session == null) ? this.sc.get(this) : this.session;
+        this.session = this.sc.get(this);
     }
 
     public Session getSession() {

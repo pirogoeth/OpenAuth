@@ -26,22 +26,40 @@ import me.maiome.openauth.util.WhitelistStatus;
 
 public class OAServer {
 
-    public Server server;
     private OpenAuth controller;
+    private Server server;
     private LogHandler log = new LogHandler();
     private OALoginHandler loginHandler;
+    private boolean started_tasks = false;
 
     // ban containers
     private Map<String, String> ip_bans = new HashMap<String, String>();
     private Map<String, String> name_bans = new HashMap<String, String>();
 
+    // setup of fields for handlers
+    private final boolean lh_enabled = (ConfigInventory.MAIN.getConfig().getString("login-handler", "off").equals("off")) ? false : true;
+    private final boolean wh_enabled = (ConfigInventory.MAIN.getConfig().getString("whitelist-handler", "off").equals("off")) ? false : true;
+    private final boolean lh_extendable = (ConfigInventory.MAIN.getConfig().getString("login-handler", "default").equals("extended")) ? true : false;
+    private final boolean wh_extendable = (ConfigInventory.MAIN.getConfig().getString("whitelist-handler", "default").equals("extended")) ? true : false;
+
+    // time variables for scheduler tasks
+    public final long autosave_delay = ConfigInventory.MAIN.getConfig().getLong("save-ban-delay", 900L);
+    public final long autosave_period = ConfigInventory.MAIN.getConfig().getLong("save-ban-period", 5400L);
+
     public OAServer(OpenAuth controller, Server server) {
         this.controller = controller;
         this.server = server;
-        this.setupDefaultLoginHandler();
+        this.loginHandler = new OAActiveLoginHandler(this.controller);
     }
 
     // scheduling
+
+    public void startSchedulerTasks() {
+        if (this.started_tasks == true) return;
+        this.started_tasks = true;
+        // runs scheduler tasks
+        this.scheduleAsynchronousRepeatingTask(this.autosave_delay, this.autosave_period, this.autosave_task);
+    }
 
     public int scheduleSyncRepetitiveTask(long delay, long period, Runnable task) {
         return Bukkit.getScheduler().scheduleSyncRepeatingTask(this.controller, task, delay, period);
@@ -69,7 +87,31 @@ public class OAServer {
         return this.controller.getSessionController();
     }
 
+    public Map<String, String> getNameBans() {
+        return new HashMap<String, String>(this.name_bans);
+    }
+
+    public Map<String, String> getIPBans() {
+        return new HashMap<String, String>(this.ip_bans);
+    }
+
+    // scheduled tasks.
+
+    private Runnable autosave_task = new Runnable () {
+        public void run() {
+            saveBans();
+        }
+    };
+
     // setup of handlers
+
+    public boolean isLHExtendable() {
+        return this.lh_extendable;
+    }
+
+    public boolean isLHEnabled() {
+        return this.lh_enabled;
+    }
 
     public void setLoginHandler(OALoginHandler lh) {
         this.loginHandler = lh;
@@ -79,11 +121,15 @@ public class OAServer {
         return this.loginHandler;
     }
 
-    public void setupDefaultLoginHandler() {
-        this.loginHandler = new OAActiveLoginHandler(this.controller);
+    public boolean isWHExtendable() {
+        return this.wh_extendable;
     }
 
-    // oa methods
+    public boolean isWHEnabled() {
+        return this.wh_enabled;
+    }
+
+    // player-management methods
 
     public void kickPlayer(final OAPlayer player) {
         player.getPlayer().kickPlayer("No reason.");
@@ -183,6 +229,29 @@ public class OAServer {
 
     public String getIPBanReason(final String IP) {
         return this.ip_bans.get(IP);
+    }
+
+    public void saveBans() {
+        try {
+            ConfigInventory.DATA.getConfig().set("ban_storage.ip", this.ip_bans);
+            ConfigInventory.DATA.getConfig().set("ban_storage.name", this.name_bans);
+            log.info("Successfully saved bans.");
+        } catch (java.lang.Exception e) {
+            log.exDebug("Exception occurred while saving bans (this could just mean you have no bans to save).");
+            log.exDebug(e.getMessage());
+            return;
+        }
+    }
+
+    public void loadBans() {
+        try {
+            this.ip_bans = (Map<String, String>) ConfigInventory.DATA.getConfig().get("ban_storage.ip", new HashMap<String, String>());
+            this.name_bans = (Map<String, String>) ConfigInventory.DATA.getConfig().get("ban_storage.name", new HashMap<String, String>());
+        } catch (java.lang.Exception e) {
+            log.exDebug("Exception occurred while loading bans (this could just mean you have no bans to load).");
+            log.exDebug(e.getMessage());
+            return;
+        }
     }
 
     // whitelisting, login status methods

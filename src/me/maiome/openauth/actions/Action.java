@@ -16,8 +16,12 @@ import me.maiome.openauth.util.Permission;
 
 public interface Action {
 
+    // fields
+    String name = null;
+
     // methods
     boolean allowed();
+    boolean isUsed();
 
     void run(final OAPlayer player);
 

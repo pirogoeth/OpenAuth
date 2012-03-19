@@ -2,6 +2,7 @@ package me.maiome.openauth.util;
 
 // java imports
 import java.io.File;
+import java.io.InputStream;
 
 // bukkit imports
 import org.bukkit.configuration.Configuration;
@@ -13,11 +14,12 @@ import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
 
 public class Config {
+
     // main
-    public static OpenAuth plugin;
+    private static OpenAuth controller;
     public static String version;
-    public final static LogHandler log = new LogHandler();
-    public final static String plugindir = "plugins/OpenAuth";
+    private final static LogHandler log = new LogHandler();
+    public final static String plugindir = "plugins" + File.separator + "OpenAuth";
     // dynamic
     public static String extension = ".yml";
     public static boolean loaded = false;
@@ -29,40 +31,36 @@ public class Config {
     public static File dataf;
 
     // construct
-    public Config (OpenAuth instance) {
-        this.plugin = instance;
+    public Config(OpenAuth instance, boolean initialise) {
+        this.controller = instance;
         // create the plugin directory if it does not already exist
         new File(this.plugindir).mkdir();
-        // make the plugin data directory
-        new File(this.plugindir + File.separator + "/data").mkdir();
         // check for .usetxt for assumed clanforge support
-        if (new File(this.plugin + File.separator + ".usetxt").exists() == true) {
-            this.log.info("Found .usetxt, changing config extension to .txt");
+        if (new File(this.plugindir + File.separator + ".usetxt").exists() == true) {
+            log.info("Found .usetxt, changing config extension to .txt");
             this.extension = ".txt";
         }
         // initialise our configurations here
-        initialise();
+        if (initialise) this.initialise();
     }
 
     // (convenience) File instantiator
-    private File getFile (String name) {
+    private File getFile(String name) {
         return new File(this.plugindir + File.separator + name + this.extension);
     }
 
     // opens all the files necessary and loads each config
     //   also runs the version checker
-    public boolean initialise () {
-        if (!loaded) return false;
+    public void initialise() {
+        if (loaded) return;
+        loaded = true;
 
-        this.log.info("Initialising configurations...");
+        log.info("Initialising configurations...");
         // create all config file objects
         try {
-            mainf = this.getFile("config.yml");
-            dataf = this.getFile("data/data.yml");
-        } catch (java.lang.Exception e) {
-            e.printStackTrace();
-            return false;
-        }
+            mainf = this.getFile("config");
+            dataf = this.getFile("data");
+        } catch (java.lang.Exception e) {}
 
         // create configuration objects
         main = new YamlConfiguration();
@@ -72,17 +70,24 @@ public class Config {
         try {
             main.load(mainf);
             data.load(dataf);
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-            return false;
+        } catch (java.io.FileNotFoundException e) {
+            log.info("Configuration files do not exist, creating them.");
+            try {
+                this.controller.saveResource("config.yml", true);
+                this.controller.saveResource("data.yml", true);
+            } catch (java.lang.Exception ex) {
+                log.info("Could not create new configuration files:");
+                ex.printStackTrace();
+            }
         } catch (java.lang.Exception e) {
             e.printStackTrace();
-            return false;
+            return;
         }
-        return true;
+        this.check();
+        return;
     }
 
-    public static void save () {
+    public static void save() {
         try{
             main.save(mainf);
             data.save(dataf);
@@ -97,5 +102,8 @@ public class Config {
         return;
     }
 
-    // TODO - need this.load(), this.checkv()
+    public void check() {
+        // stub
+        return;
+    }
 }
