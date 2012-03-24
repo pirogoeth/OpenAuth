@@ -32,7 +32,7 @@ public class OAActionCommands {
         controller = openauth;
     }
 
-    @Command(aliases = {"action", "set-action"}, usage = "<action name>", min = 0, max = 1,
+    @Command(aliases = {"set-action"}, usage = "<action name>", min = 1, max = 1,
              flags = "c", desc = "Sets the action performed by the OAWand.")
     @CommandPermissions({"openauth.wand.set-action"})
     public static void setaction(CommandContext args, CommandSender sender) {
@@ -51,5 +51,26 @@ public class OAActionCommands {
             player.sendMessage(ChatColor.RED + "That action does not exist.");
             return;
         }
+    }
+
+    @Command(aliases = {"clear-action"}, usage = "", max = 0,
+             desc = "Clears the user's current action.")
+    @CommandPermissions({"openauth.wand.clear-action"})
+    public static void clearaction(CommandContext args, CommandSender sender) {
+        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+
+        player.getSession().clearAction();
+        player.sendMessage(ChatColor.BLUE + "Cleared wand action.");
+        return;
+    }
+
+    @Command(aliases = {"undo-action"}, usage = "", max = 0,
+             desc = "Undo the last action on the list.")
+    @CommandPermissions({"openauth.wand.undo-action"})
+    public static void undoaction(CommandContext args, CommandSender sender) {
+        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+
+        player.getSession().undoLastAction();
+        player.sendMessage(ChatColor.BLUE + "Action has been undone.");
     }
 }

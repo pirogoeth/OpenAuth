@@ -3,6 +3,7 @@ package me.maiome.openauth.actions;
 // bukkit imports
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 
 // internal imports
 import me.maiome.openauth.bukkit.OpenAuth;
@@ -22,9 +23,13 @@ public interface Action {
     // methods
     boolean allowed();
     boolean isUsed();
+    boolean requiresEntityTarget();
+
+    void setSender(final OAPlayer sender);
 
     void run(final OAPlayer player);
+    void run(final Block block);
 
-    void undo(final OAPlayer player);
+    void undo();
 
 }

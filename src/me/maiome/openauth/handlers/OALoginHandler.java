@@ -28,6 +28,7 @@ public interface OALoginHandler {
     void processPlayerLogin(OAPlayer player);
     void processPlayerLogout(OAPlayer player);
     boolean processPlayerIdentification(OAPlayer player, String password);
+    void processPlayerRegistration(OAPlayer player, String password);
 
     List<OAPlayer> getActivePlayers();
 

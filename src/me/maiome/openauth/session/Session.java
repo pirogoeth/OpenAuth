@@ -9,6 +9,7 @@ import java.util.Iterator;
 
 // bukkit imports
 import org.bukkit.ChatColor;
+import org.bukkit.block.Block;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -30,6 +31,9 @@ public class Session {
     private OAPlayer player;
     private OAServer server;
     private Action action = null;
+    private boolean freeze = (ConfigInventory.MAIN.getConfig().getBoolean("auth.required", false) == true) ? true : false;
+    private boolean frozen = (this.freeze == false) ? false : true;
+    private boolean identified = false;
     private List<Action> actions = new ArrayList<Action>();
 
     protected final int wand_id = ConfigInventory.MAIN.getConfig().getInt("wand-id");
@@ -53,6 +57,27 @@ public class Session {
         return this.player.getPlayer().isOnline();
     }
 
+    // identification related methods
+
+    public boolean isIdentified() {
+        return this.identified;
+    }
+
+    public void setIdentified(boolean identified, boolean update) {
+        if (update) {
+            this.frozen = (identified == true) ? false : true;
+        }
+        this.identified = identified;
+    }
+
+    public boolean isFrozen() {
+        return this.frozen;
+    }
+
+    public void setFrozen(boolean frozen) {
+        this.frozen = frozen;
+    }
+
     // wand methods
 
     public void giveWand() {
@@ -69,15 +94,29 @@ public class Session {
 
     // action methods
 
-    public Action getCurrentAction() {
+    public Action getAction() {
         return (this.action != null) ? this.action : null;
     }
 
     public boolean hasAction() {
-        return (this.getCurrentAction() != null) ? true : false;
+        return (this.getAction() != null) ? true : false;
     }
 
     public void runAction(final OAPlayer target) {
+        if (this.action != null) {
+            this.action.run(target);
+        } else {
+            return;
+        }
+        this.actions.add(0, action);
+        try {
+            this.setAction((String) this.action.getClass().getField("name").get(this.action));
+        } catch (java.lang.Exception e) {
+            this.action = null;
+        }
+    }
+
+    public void runAction(final Block target) {
         if (this.action != null) {
             this.action.run(target);
         } else {
@@ -103,7 +142,7 @@ public class Session {
     }
 
     public void undoLastAction() {
-        this.actions.get(0).undo(this.getPlayer());
+        this.actions.get(0).undo();
         this.actions.remove(0);
     }
 }

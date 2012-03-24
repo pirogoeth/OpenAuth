@@ -13,6 +13,22 @@
 #   off - turns off the handler
 #   extended - modified 'default' state, allows setting of the handler by an outside plugin
 #     for say, a plugin that extends this one by providing a separate set of handlers
+# auth:
+#   require - whether auth is required to be able to play, if so, user
+#             will be frozen [default: true]
+#   freeze-actions - actions that the player takes that will be
+#                    frozen.
+#     chat - freeze chat? [default: true]
+#     commands - freeze all commands OTHER THAN openauth? [default: true]
+#     interact - freeze all player interactions? [default: true]
+#     block-interact - freeze all block interactions? [default: true]
+#     movement - freeze all player movement? [default: true]
+#     teleport - freeze player teleportation? [default: true]
+# actions:
+#   ban - settings for the ban action
+#     kick - whether or not to kick the user when the ban action is used [default: true]
+#   boom - settings for the boom action
+#     power - power of the explosion as a double [default: 2.0D]
 
 version: 1.0
 save-ban-delay: 900
@@ -22,3 +38,17 @@ session-prune-period: 1800
 wand-id: 369
 login-handler: default
 whitelist-handler: off
+auth:
+    require: true
+    freeze-actions:
+        chat: true
+        commands: true
+        interact: true
+        block-interact: true
+        movement: true
+        teleport: true
+actions:
+    ban:
+        kick: true
+    boom:
+        power: 2.0D

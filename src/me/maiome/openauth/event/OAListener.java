@@ -19,6 +19,7 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -88,6 +89,21 @@ public class OAListener implements Listener {
             targ_e instanceof Player && player.getSession().hasAction()) {
 
             player.getSession().runAction(this.controller.wrapOAPlayer((Player) targ_e));
+        }
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerInteractEvent(PlayerInteractEvent event) {
+        OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
+        Block targ_b = (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) ?
+            event.getClickedBlock() : null;
+        // if (player.getSession().playerUsingWand() &&
+        //    player.getSession().hasAction() &&
+        //    player.getSession().getAction().requiresEntityTarget() == false &&
+        //    targ_b != null) {//
+
+           player.getSession().runAction(targ_b);
+
         }
     }
 }

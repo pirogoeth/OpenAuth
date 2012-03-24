@@ -53,23 +53,13 @@ public class OAActiveLoginHandler implements OALoginHandler {
 
     public void processPlayerLogin(OAPlayer player) {
         player.setOnline();
-        StringBuffer s = new StringBuffer();
-        try {
-            s.append(String.format("controller: (%s)\n", this.controller.toString()));
-            s.append(String.format("oaserver: (%s)\n", this.controller.getOAServer().toString()));
-            s.append(String.format("login handler: (%s)\n", this.toString()));
-        } catch (java.lang.NullPointerException e) {
-            e.printStackTrace();
-        } finally {
-            this.log.exDebug(s.toString());
-        }
         if (this.controller.getOAServer().hasNameBan(player.getName())) {
             this.controller.getOAServer().kickPlayer(
                 player,
                 this.controller.getOAServer().getNameBanReason(player.getName()));
             return;
         } else {
-            this.log.exDebug(String.format("%s successfully matched no name bans!", player.getName()));
+            this.log.exDebug(String.format("%s matched no name bans!", player.getName()));
         }
         if (this.controller.getOAServer().hasIPBan(player.getIP())) {
             this.controller.getOAServer().kickPlayer(
@@ -77,7 +67,7 @@ public class OAActiveLoginHandler implements OALoginHandler {
                 this.controller.getOAServer().getIPBanReason(player.getIP()));
             return;
         } else {
-            this.log.exDebug(String.format("%s(%s) successfully matched no IP bans!", player.getIP(), player.getName()));
+            this.log.exDebug(String.format("%s (%s) matched no IP bans!", player.getIP(), player.getName()));
         }
         return;
     }
@@ -89,6 +79,10 @@ public class OAActiveLoginHandler implements OALoginHandler {
     public boolean processPlayerIdentification(OAPlayer player, String password) {
         String match = ConfigInventory.DATA.getConfig().getString(String.format("credentials.%s.password"));
         return ((this.getStringHash(password)).equals(match)) ? true : false;
+    }
+
+    public void processPlayerRegistration(OAPlayer player, String password) {
+        ConfigInventory.DATA.getConfig().set(String.format("credentials.%s.password", player.getName()), this.getStringHash(password));
     }
 
     public List<OAPlayer> getActivePlayers() {

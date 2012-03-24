@@ -49,6 +49,20 @@ public class OACommands {
         sender.sendMessage(ChatColor.GREEN + controller.getDescription().getFullName());
     }
 
+    @Command(aliases = {"login"}, usage = "<username> <password>", desc = "Login to the server.",
+             min = 2, max = 2)
+    public static void login(CommandContext args, CommandSender sender) throws CommandException {
+        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+        String username = args.getString(0), password = args.getString(1);
+        if (controller.getOAServer().getLoginHandler().processPlayerIdentification(username, password)) {
+            player.sendMessage(ChatColor.GREEN + "You have been logged in as '" + username + "'.");
+            return;
+        } else {
+            player.sendMessage(ChatColor.RED + "Invalid username/password.");
+            return;
+        }
+    }
+
     @Console
     @Command(aliases = {"ban-ip"}, usage = "<user> [reason]", desc = "Allows banning of a user by IP.",
              min = 1, max = -1)
@@ -104,6 +118,9 @@ public class OACommands {
             for (Map.Entry<String, String> entry : name_bans.entrySet()) {
                 list += " - " + entry.getKey() + " : " + entry.getValue() + "\n";
             }
+            if (list.length() == 0) {
+                list = " - No bans exist.\n";
+            }
             Pager.beginPaging(
                 sender,
                 "===[OpenAuth] Name ban list===",
@@ -117,6 +134,9 @@ public class OACommands {
             String list = new String();
             for (Map.Entry<String, String> entry : ip_bans.entrySet()) {
                 list += " - " + entry.getKey() + " : " + entry.getValue() + "\n";
+            }
+            if (list.length() == 0) {
+                list = " - No bans exist.\n";
             }
             Pager.beginPaging(
                 sender,

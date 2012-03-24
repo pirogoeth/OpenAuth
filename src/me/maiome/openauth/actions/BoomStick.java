@@ -4,6 +4,7 @@ package me.maiome.openauth.actions;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 
 // internal imports
 import me.maiome.openauth.bukkit.OpenAuth;
@@ -22,11 +23,12 @@ public class BoomStick implements Action {
     private Session attached;
     private SessionController sc;
     private final String permissible = "openauth.action.boom";
-    private final float power = 5.3F;
+    private final float power = Float(Double.toString(ConfigInventory.MAIN.getConfig().getDouble("actions.boom.power", 5.3D)));
     private OAServer server;
     private boolean used = false;
 
-    protected OAPlayer target;
+    protected OAPlayer sender;
+    protected Object target;
 
     public BoomStick(OAServer server, Session attached) {
         this.server = server;
@@ -42,14 +44,29 @@ public class BoomStick implements Action {
         return this.used;
     }
 
+    public boolean requiresEntityTarget() {
+        return false;
+    }
+
+    public void setSender(final OAPlayer sender) {
+        this.sender = sender;
+    }
+
     public void run(final OAPlayer player) {
         this.target = player;
-        this.target.getPlayer().getLocation().getWorld().createExplosion(
-            this.target.getLocation(), this.power, true);
+        player.getPlayer().getLocation().getWorld().createExplosion(
+            player.getLocation(), this.power, true);
         this.used = true;
     }
 
-    public void undo(final OAPlayer player) {
-        player.getPlayer().sendMessage(ChatColor.BLUE + "You can't undo an explosion ;p");
+    public void run(final Block block) {
+        this.target = block;
+        block.getLocation().getWorld().createExplosion(
+            block.getLocation(), this.power, true);
+        this.used = true;
+    }
+
+    public void undo() {
+        this.sender.sendMessage(ChatColor.BLUE + "You can't undo an explosion ;p");
     }
 }
