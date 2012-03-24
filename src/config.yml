@@ -1,9 +1,13 @@
 # version:
-#   this specifies what version the config is set to, used for internal checks
-# ban saving:
+#   this specifies what version the config is set to, used for internal checks [DO NOT TOUCH]
+# override:
+#   this options basically tells openauth that it can override bukkit's internal whitelisting and etc. [default: true]
+# debug:
+#   this tells openauth whether or not to print extra debug messages [default: false]
+# save-ban: (ban saving)
 #   delay - how long to wait before starting to save bans [default: 900 == 5 minutes]
 #   period - how long to go in between running the ban saver task [default: 5400 == 30 minutes]
-# session pruning:
+# session-prune: (player session pruning)
 #   delay - how long to wait before starting the pruning task [default: 900 == 5 minutes]
 #   period - how long to go in between running the task [default: 1800 == 10 minutes]
 # wand-id:
@@ -28,9 +32,12 @@
 #   ban - settings for the ban action
 #     kick - whether or not to kick the user when the ban action is used [default: true]
 #   boom - settings for the boom action
+#     fire - whether or not the explosion causes fire [default: false]
 #     power - power of the explosion as a double [default: 2.0D]
 
 version: 1.0
+override: true
+debug: false
 save-ban-delay: 900
 save-ban-period: 5400
 session-prune-delay: 900
@@ -52,3 +59,4 @@ actions:
         kick: true
     boom:
         power: 2.0D
+        fire: false

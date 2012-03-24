@@ -23,7 +23,8 @@ public class BoomStick implements Action {
     private Session attached;
     private SessionController sc;
     private final String permissible = "openauth.action.boom";
-    private final float power = Float(Double.toString(ConfigInventory.MAIN.getConfig().getDouble("actions.boom.power", 5.3D)));
+    private final float power = (float) ConfigInventory.MAIN.getConfig().getDouble("actions.boom.power", 2.0D);
+    private final boolean fire = ConfigInventory.MAIN.getConfig().getBoolean("actions.boom.fire", false);
     private OAServer server;
     private boolean used = false;
 
@@ -55,14 +56,14 @@ public class BoomStick implements Action {
     public void run(final OAPlayer player) {
         this.target = player;
         player.getPlayer().getLocation().getWorld().createExplosion(
-            player.getLocation(), this.power, true);
+            player.getLocation(), this.power, this.fire);
         this.used = true;
     }
 
     public void run(final Block block) {
         this.target = block;
         block.getLocation().getWorld().createExplosion(
-            block.getLocation(), this.power, true);
+            block.getLocation(), this.power, this.fire);
         this.used = true;
     }
 

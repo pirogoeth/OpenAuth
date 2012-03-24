@@ -26,6 +26,7 @@ import me.maiome.openauth.event.*;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.Permission;
 import me.maiome.openauth.util.Config;
+import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
 
 // bundled imports
@@ -90,14 +91,26 @@ public class OpenAuth extends JavaPlugin {
      * Plugin setup.
      */
     public void onEnable() {
-        log.setExtraneousDebugging(true);
-
         // initialise the configuration
         this.configurationManager.initialise();
+
+        // set logging level
+        log.setExtraneousDebugging((ConfigInventory.MAIN.getConfig().getBoolean("debug", false) == false) ? false : true);
+
         // initialise our OAServer instance
         this.oaserver = new OAServer(this, this.getServer());
         // initialise out session controller
         this.sc = new SessionController(this);
+
+        // check if we need to override.
+        if (ConfigInventory.MAIN.getConfig().getBoolean("override", false) == true) {
+            log.info("Disabling Bukkit components!");
+            if (this.getServer().hasWhitelist() == true) { // override the whitelisting in Bukkit for mine?
+                this.getServer().setWhitelist(false);
+                log.info(" => Bukkit whitelisting is now OFF!");
+            }
+            log.info("Bukkit components have been turned off.");
+        }
 
         // initialise permissions manager and config manager as well as dynamic command registration
         this.permissionsManager = new Permission(this);
@@ -144,6 +157,8 @@ public class OpenAuth extends JavaPlugin {
     public void onDisable () {
         // save ALL the bans!
         this.oaserver.saveBans();
+        // save the configs as our last step.
+        Config.save();
         log.info("Disabled version " + version + ".");
     }
 

@@ -97,12 +97,12 @@ public class OAListener implements Listener {
         OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
         Block targ_b = (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) ?
             event.getClickedBlock() : null;
-        // if (player.getSession().playerUsingWand() &&
-        //    player.getSession().hasAction() &&
-        //    player.getSession().getAction().requiresEntityTarget() == false &&
-        //    targ_b != null) {//
+        if (player.getSession().playerUsingWand() &&
+            player.getSession().hasAction() &&
+            player.getSession().getAction().requiresEntityTarget() == false &&
+            targ_b != null) {
 
-           player.getSession().runAction(targ_b);
+            player.getSession().runAction(targ_b);
 
         }
     }

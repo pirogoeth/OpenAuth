@@ -12,6 +12,7 @@ import java.net.NetworkInterface;
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.World;
+import org.bukkit.configuration.MemorySection;
 
 // internal imports
 import me.maiome.openauth.bukkit.OpenAuth;
@@ -33,8 +34,8 @@ public class OAServer {
     private boolean started_tasks = false;
 
     // ban containers
-    private Map<String, String> ip_bans = new HashMap<String, String>();
-    private Map<String, String> name_bans = new HashMap<String, String>();
+    private Map<String, Object> ip_bans = new HashMap<String, Object>();
+    private Map<String, Object> name_bans = new HashMap<String, Object>();
 
     // setup of fields for handlers
     private final boolean lh_enabled = (ConfigInventory.MAIN.getConfig().getString("login-handler", "off").equals("off")) ? false : true;
@@ -50,6 +51,9 @@ public class OAServer {
         this.controller = controller;
         this.server = server;
         this.loginHandler = new OAActiveLoginHandler(this.controller);
+        log.exDebug(String.format("AutoSave: {DELAY: %s, PERIOD: %S}", Long.toString(autosave_delay), Long.toString(autosave_period)));
+        log.exDebug(String.format("LoginHandler: {ENABLED: %s, EXTENDABLE: %s}", Boolean.toString(lh_enabled), Boolean.toString(lh_extendable)));
+        log.exDebug(String.format("WhitelistHandler: {ENABLED: %s, EXTENDABLE: %s}", Boolean.toString(wh_enabled), Boolean.toString(wh_extendable)));
     }
 
     // scheduling
@@ -87,12 +91,12 @@ public class OAServer {
         return this.controller.getSessionController();
     }
 
-    public Map<String, String> getNameBans() {
-        return new HashMap<String, String>(this.name_bans);
+    public Map<String, Object> getNameBans() {
+        return new HashMap<String, Object>(this.name_bans);
     }
 
-    public Map<String, String> getIPBans() {
-        return new HashMap<String, String>(this.ip_bans);
+    public Map<String, Object> getIPBans() {
+        return new HashMap<String, Object>(this.ip_bans);
     }
 
     // scheduled tasks.
@@ -144,38 +148,40 @@ public class OAServer {
     }
 
     public void banPlayerByIP(final OAPlayer player) {
-        if (!(this.ip_bans.containsKey(player.getIP()))) {
-            this.ip_bans.put(player.getIP(), "No reason given.");
+        if (!(this.ip_bans.containsKey(player.getIP().replace('.', ',')))) {
+            this.ip_bans.put(player.getIP().replace('.', ','), "No reason given.");
         }
     }
 
     public void banPlayerByIP(final OAPlayer player, final String reason) {
-        if (!(this.ip_bans.containsKey(player.getIP()))) {
-            this.ip_bans.put(player.getIP(), reason);
+        if (!(this.ip_bans.containsKey(player.getIP().replace('.', ',')))) {
+            this.ip_bans.put(player.getIP().replace('.', ','), reason);
         }
     }
 
     public void banPlayerByIP(final String IP) {
-        if (!(this.ip_bans.containsKey(IP))) {
-            this.ip_bans.put(IP, "No reason given.");
+        if (!(this.ip_bans.containsKey(IP.replace('.', ',')))) {
+            this.ip_bans.put(IP.replace('.', ','), "No reason given.");
         }
     }
 
     public void banPlayerByIP(final String IP, final String reason) {
-        if (!(this.ip_bans.containsKey(IP))) {
-            this.ip_bans.put(IP, reason);
+        if (!(this.ip_bans.containsKey(IP.replace('.', ',')))) {
+            this.ip_bans.put(IP.replace('.', ','), reason);
         }
     }
 
     public void unbanPlayerByIP(final OAPlayer player) {
-        if (!(this.ip_bans.containsKey(player.getIP()))) {
-            this.ip_bans.remove(player.getIP());
+        if (this.ip_bans.containsKey(player.getIP().replace('.', ','))) {
+            this.ip_bans.remove(player.getIP().replace('.', ','));
+            log.info(String.format("Removed ban for %s(%s).", player.getName(), player.getIP()));
         }
     }
 
     public void unbanPlayerByIP(final String IP) {
-        if (!(this.ip_bans.containsKey(IP))) {
-            this.ip_bans.remove(IP);
+        if (this.ip_bans.containsKey(IP.replace('.', ','))) {
+            this.ip_bans.remove(IP.replace('.', ','));
+            log.info(String.format("Removed ban for %s.", IP));
         }
     }
 
@@ -204,14 +210,16 @@ public class OAServer {
     }
 
     public void unbanPlayerByName(final OAPlayer player) {
-        if (!(this.name_bans.containsKey(player.getName()))) {
+        if (this.name_bans.containsKey(player.getName())) {
             this.name_bans.remove(player.getName());
+            log.info(String.format("Removed ban for %s.", player.getName()));
         }
     }
 
     public void unbanPlayerByName(final String player) {
-        if (!(this.name_bans.containsKey(player))) {
+        if (this.name_bans.containsKey(player)) {
             this.name_bans.remove(player);
+            log.info(String.format("Removed ban for %s.", player));
         }
     }
 
@@ -220,15 +228,15 @@ public class OAServer {
     }
 
     public String getNameBanReason(final String name) {
-        return this.name_bans.get(name);
+        return (String) this.name_bans.get(name);
     }
 
     public boolean hasIPBan(final String IP) {
-        return this.ip_bans.containsKey(IP);
+        return this.ip_bans.containsKey(IP.replace('.', ','));
     }
 
     public String getIPBanReason(final String IP) {
-        return this.ip_bans.get(IP);
+        return (String) this.ip_bans.get(IP.replace('.', ','));
     }
 
     public void saveBans() {
@@ -245,8 +253,8 @@ public class OAServer {
 
     public void loadBans() {
         try {
-            this.ip_bans = (Map<String, String>) ConfigInventory.DATA.getConfig().get("ban_storage.ip", new HashMap<String, String>());
-            this.name_bans = (Map<String, String>) ConfigInventory.DATA.getConfig().get("ban_storage.name", new HashMap<String, String>());
+            this.ip_bans = (Map<String, Object>) ConfigInventory.DATA.getConfig().getConfigurationSection("ban_storage.ip").getValues(true);
+            this.name_bans = (Map<String, Object>) ConfigInventory.DATA.getConfig().getConfigurationSection("ban_storage.name").getValues(true);
         } catch (java.lang.Exception e) {
             log.exDebug("Exception occurred while loading bans (this could just mean you have no bans to load).");
             log.exDebug(e.getMessage());

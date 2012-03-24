@@ -3,3 +3,4 @@
 ban_storage:
     ip: null
     name: null
+whitelist: null

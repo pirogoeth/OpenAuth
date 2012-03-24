@@ -53,7 +53,6 @@ public class Config {
     //   also runs the version checker
     public void initialise() {
         if (loaded) return;
-        loaded = true;
 
         log.info("Initialising configurations...");
         // create all config file objects
@@ -75,6 +74,8 @@ public class Config {
             try {
                 this.controller.saveResource("config.yml", true);
                 this.controller.saveResource("data.yml", true);
+                initialise();
+                return;
             } catch (java.lang.Exception ex) {
                 log.info("Could not create new configuration files:");
                 ex.printStackTrace();
@@ -84,6 +85,7 @@ public class Config {
             return;
         }
         this.check();
+        loaded = true;
         return;
     }
 

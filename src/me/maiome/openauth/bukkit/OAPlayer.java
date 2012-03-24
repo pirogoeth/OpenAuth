@@ -173,6 +173,10 @@ public class OAPlayer {
     }
 
     public Session getSession() {
+        if (this.session == null && this.state == PlayerState.ONLINE) {
+            this.initSession();
+            log.exDebug(String.format("Had to force a session for online player %s.", this.getName()));
+        }
         return this.session;
     }
 
