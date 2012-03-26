@@ -10,6 +10,7 @@ import java.util.Iterator;
 // bukkit imports
 import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -43,6 +44,10 @@ public class Session {
         this.server = player.getServer();
         this.sc = sc;
         this.player = player;
+        if (this.freeze) {
+            this.setFrozen(true);
+            this.player.sendMessage(ChatColor.RED + "You must identify to continue.");
+        }
     }
 
     public OAPlayer getPlayer() {
@@ -89,7 +94,7 @@ public class Session {
     }
 
     public boolean playerUsingWand() {
-        return (this.player.getItemInHand() == this.wand_id) ? true : false;
+        return (this.player.getItemInHand() == this.wand_id && !(this.isFrozen())) ? true : false;
     }
 
     // action methods
@@ -103,6 +108,20 @@ public class Session {
     }
 
     public void runAction(final OAPlayer target) {
+        if (this.action != null) {
+            this.action.run(target);
+        } else {
+            return;
+        }
+        this.actions.add(0, action);
+        try {
+            this.setAction((String) this.action.getClass().getField("name").get(this.action));
+        } catch (java.lang.Exception e) {
+            this.action = null;
+        }
+    }
+
+    public void runAction(final Entity target) {
         if (this.action != null) {
             this.action.run(target);
         } else {

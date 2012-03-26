@@ -4,6 +4,7 @@ package me.maiome.openauth.actions;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 
 // internal imports
 import me.maiome.openauth.bukkit.OpenAuth;
@@ -24,9 +25,11 @@ public interface Action {
     boolean allowed();
     boolean isUsed();
     boolean requiresEntityTarget();
+    boolean allowsAnyEntityTarget();
 
     void setSender(final OAPlayer sender);
 
+    void run(final Entity entity);
     void run(final OAPlayer player);
     void run(final Block block);
 

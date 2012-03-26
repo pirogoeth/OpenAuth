@@ -5,6 +5,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.Tameable;
 
 // internal imports
 import me.maiome.openauth.bukkit.OpenAuth;
@@ -35,6 +37,7 @@ public class BoomStick implements Action {
         this.server = server;
         this.sc = server.getController().getSessionController();
         this.attached = attached;
+        this.setSender(this.attached.getPlayer());
     }
 
     public boolean allowed() {
@@ -47,6 +50,10 @@ public class BoomStick implements Action {
 
     public boolean requiresEntityTarget() {
         return false;
+    }
+
+    public boolean allowsAnyEntityTarget() {
+        return true;
     }
 
     public void setSender(final OAPlayer sender) {
@@ -64,6 +71,20 @@ public class BoomStick implements Action {
         this.target = block;
         block.getLocation().getWorld().createExplosion(
             block.getLocation(), this.power, this.fire);
+        this.used = true;
+    }
+
+    public void run(final Entity entity) {
+        this.target = entity;
+        if (entity instanceof Tameable) {
+            if (((Tameable) entity).isTamed()) {
+                this.sender.sendMessage(ChatColor.RED + "You can't blow up a tamed animal..That's cruelty :/");
+                this.used = true;
+                return;
+            }
+        }
+        entity.getLocation().getWorld().createExplosion(
+            entity.getLocation(), this.power, this.fire);
         this.used = true;
     }
 

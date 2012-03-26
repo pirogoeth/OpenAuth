@@ -6,6 +6,7 @@ import java.util.logging.Logger; // java logging module
 
 // bukkit imports
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -39,11 +40,18 @@ public class OAListener implements Listener {
     /**
      * Called when a player tries to use a command.
      *
-     * Most of this method is "borrowed" from WorldEdit.
+     * Some of this method is "borrowed" from WorldEdit.
      */
-    @EventHandler(priority = EventPriority.LOW)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         if (event.isCancelled()) return;
+
+        OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
+        if (player.getSession().isFrozen() == true) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You must identify first to use commands.");
+            return;
+        }
 
         String[] split = event.getMessage().split(" ");
 
@@ -81,6 +89,9 @@ public class OAListener implements Listener {
         return;
     }
 
+    /**
+     * Called when a player interacts with another entity.
+     */
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
         OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
@@ -89,9 +100,18 @@ public class OAListener implements Listener {
             targ_e instanceof Player && player.getSession().hasAction()) {
 
             player.getSession().runAction(this.controller.wrapOAPlayer((Player) targ_e));
+        } else if (player.getSession().playerUsingWand() &&
+            player.getSession().hasAction() &&
+            player.getSession().getAction().allowsAnyEntityTarget() == true &&
+            targ_e instanceof Entity) {
+
+            player.getSession().runAction(targ_e);
         }
     }
 
+    /**
+     * Called when a player interacts with a block-type entity (blocks, levers, etc).
+     */
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteractEvent(PlayerInteractEvent event) {
         OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());

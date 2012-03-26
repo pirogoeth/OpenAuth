@@ -4,6 +4,7 @@ package me.maiome.openauth.actions;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Entity;
 
 // internal imports
 import me.maiome.openauth.bukkit.OpenAuth;
@@ -32,6 +33,7 @@ public class BanStick implements Action {
         this.server = server;
         this.sc = server.getController().getSessionController();
         this.attached = attached;
+        this.setSender(this.attached.getPlayer());
     }
 
     public boolean allowed() {
@@ -46,6 +48,10 @@ public class BanStick implements Action {
         return true;
     }
 
+    public boolean allowsAnyEntityTarget() {
+        return false;
+    }
+
     public void setSender(final OAPlayer sender) {
         this.sender = sender;
     }
@@ -58,6 +64,7 @@ public class BanStick implements Action {
     }
 
     public void run(final Block block) {} //stub to complete implementation
+    public void run(final Entity entity) {} //stub to complete implementation
 
     public void undo() {
         this.server.unbanPlayerByName(this.target);
