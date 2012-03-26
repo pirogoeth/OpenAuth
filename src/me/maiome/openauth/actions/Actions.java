@@ -26,10 +26,16 @@ public enum Actions {
         this.action = action;
     }
 
+    /**
+     * Returns the Class for the current action.
+     */
     public Class getAction() {
         return this.action;
     }
 
+    /**
+     * Instantiates an Action by the specified name.
+     */
     public static Action getActionByName(final String name, final Session attachable) {
         Action a;
         try {
@@ -47,7 +53,10 @@ public enum Actions {
         return a;
     }
 
-    protected Action getInstance(Session attachable) {
+    /**
+     * Instantiates the specified Action.
+     */
+    public Action getInstance(Session attachable) {
         try {
             Constructor c = this.action.getConstructor(action_cons_types);
             return (Action) c.newInstance(attachable.getServer(), attachable);
@@ -58,14 +67,56 @@ public enum Actions {
         }
     }
 
+    /**
+     * Tells whether an Action exists or not.
+     */
     public static boolean actionExists(String name) {
         return store.containsKey(name);
     }
 
+    /**
+     * Returns a full list of registered actions.
+     */
     public static Set<String> getActions() {
         return (Set<String>) store.keySet();
     }
 
+
+    /**
+     * This allows an external plugin to register an Action.
+     *
+     * Example:
+     *   import me.maiome.openauth.actions.Actions;
+     *   ...
+     *   Actions.registerAction(ShitStick.class);
+     */
+    public static void registerAction(Class a) {
+        try {
+            store.put((String) a.getField("name").get(a), a);
+        } catch (java.lang.Exception e) {
+            log.info("Exception occurred while registering an Action.");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * This allows an external plugin to deregister/purge an Action.
+     *
+     * Example:
+     *   import me.maiome.openauth.actions.Actions;
+     *   ...
+     *   Actions.purgeAction(ShitStick.class);
+     */
+    public static void purgeAction(Class a) {
+        try {
+            store.remove((String) a.getField("name").get(a));
+        } catch (java.lang.Exception e) {
+            log.info("Exception occurred while purging an Action.");
+            e.printStackTrace();
+        }
+    }
+
+    // Instantiates all internal actions.
     static {
         for (Actions a : Actions.values()) {
             try {

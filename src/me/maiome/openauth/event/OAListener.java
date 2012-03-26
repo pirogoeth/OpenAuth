@@ -28,6 +28,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAPlayer;
 import me.maiome.openauth.bukkit.OAServer;
+import me.maiome.openauth.util.ConfigInventory;
 
 public class OAListener implements Listener {
 
@@ -45,13 +46,6 @@ public class OAListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         if (event.isCancelled()) return;
-
-        OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
-        if (player.getSession().isFrozen() == true) {
-            event.setCancelled(true);
-            player.sendMessage(ChatColor.RED + "You must identify first to use commands.");
-            return;
-        }
 
         String[] split = event.getMessage().split(" ");
 
@@ -88,6 +82,23 @@ public class OAListener implements Listener {
         player.initSession();
         return;
     }
+    
+    /**
+     * Called when a player chats.
+     */
+    public void onPlayerChat(PlayerChatEvent event) {
+        OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
+
+        if (player.getSession().isFrozen() == true &&
+            ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.chat", true) == true) {
+
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You must identify first to chat.");
+            return;
+        }
+        return;
+    }
+
 
     /**
      * Called when a player interacts with another entity.

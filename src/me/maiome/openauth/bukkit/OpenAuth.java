@@ -142,6 +142,7 @@ public class OpenAuth extends JavaPlugin {
 
         // register listener(s)
         this.registerEvents(new OAListener(this));
+        this.registerEvents(new OAExplosionListener(this));
 
         // register command classes.
         this.registerCommands(this.commands.registerAndReturn(OACommands.OAParentCommand.class));

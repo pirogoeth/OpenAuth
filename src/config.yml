@@ -34,6 +34,8 @@
 #   boom - settings for the boom action
 #     fire - whether or not the explosion causes fire [default: false]
 #     power - power of the explosion as a double [default: 2.0D]
+#     animal-cruelty - allows(true)/disallows(false) targeting of animals (cows, sheep, pigs, etc..
+#                        monsters will always be targetable. [default: false]
 
 version: 1.0
 override: true
@@ -60,3 +62,4 @@ actions:
     boom:
         power: 2.0D
         fire: false
+        animal-cruelty: false
