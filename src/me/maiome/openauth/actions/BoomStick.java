@@ -30,6 +30,7 @@ public class BoomStick implements Action {
 
     private Session attached;
     private SessionController sc;
+    private final LogHandler log = new LogHandler();
     private final String permissible = "openauth.action.boom";
     private final float power = (float) ConfigInventory.MAIN.getConfig().getDouble("actions.boom.power", 2.0D);
     private final boolean fire = ConfigInventory.MAIN.getConfig().getBoolean("actions.boom.fire", false);
@@ -70,6 +71,7 @@ public class BoomStick implements Action {
     public void run(final OAPlayer player) {
         this.target = player;
         this.t_location = player.getLocation();
+        OAExplosionListener.addOAOrigin(player.getLocation());
         player.getLocation().getWorld().createExplosion(
             player.getLocation(), this.power, this.fire);
         this.used = true;
@@ -78,6 +80,7 @@ public class BoomStick implements Action {
     public void run(final Block block) {
         this.target = block;
         this.t_location = block.getLocation();
+        OAExplosionListener.addOAOrigin(block.getLocation());
         block.getLocation().getWorld().createExplosion(
             block.getLocation(), this.power, this.fire);
         this.used = true;
@@ -93,6 +96,7 @@ public class BoomStick implements Action {
             }
         }
         this.t_location = entity.getLocation();
+        OAExplosionListener.addOAOrigin(entity.getLocation());
         entity.getLocation().getWorld().createExplosion(
             entity.getLocation(), this.power, this.fire);
         this.used = true;
@@ -104,8 +108,10 @@ public class BoomStick implements Action {
             List<BlockState> blocks = OAExplosionListener.getExplosion(this.t_location);
             Iterator blockstate_i = blocks.iterator();
             while (blockstate_i.hasNext()) {
-                // flush the blockstates back to the block.
-                ((BlockState) blockstate_i.next()).update();
+                BlockState b = (BlockState) blockstate_i.next();
+                // manually flush the blockstates back to the block.
+                b.getBlock().setTypeIdAndData(
+                    b.getTypeId(), b.getRawData(), true);
             }
             // destroy remnants of the explosion.
             OAExplosionListener.purgeExplosion(this.t_location);

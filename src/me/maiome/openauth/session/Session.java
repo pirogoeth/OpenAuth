@@ -164,4 +164,19 @@ public class Session {
         this.actions.get(0).undo();
         this.actions.remove(0);
     }
+
+    public void undoLastActions(int i) {
+        for (int c = 0; c <= (i - 1); c++) { // using (i - 1) since lists are zero indexed.
+            try {
+                this.actions.get(c).undo();
+                this.actions.remove(c);
+            } catch (java.lang.IndexOutOfBoundsException e) {
+                this.player.sendMessage(ChatColor.BLUE + String.format(
+                    "I was only able to undo your last %d actions. Actions %d through %d don't exist.",
+                    (c - 1), (c + 1), (i)
+                ));
+                break;
+            }
+        }
+    }
 }

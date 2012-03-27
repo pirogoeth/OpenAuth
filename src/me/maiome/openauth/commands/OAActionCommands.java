@@ -43,7 +43,9 @@ public class OAActionCommands {
             return;
         }
         if (Actions.actionExists(args.getString(0).toLowerCase())) {
-            player.getSession().clearAction();
+            try {
+                player.getSession().clearAction();
+            } catch (java.lang.NullPointerException e) {} // the player has no session.
             player.getSession().setAction(args.getString(0).toLowerCase());
             player.sendMessage(ChatColor.BLUE + String.format("Action %s has been activated.", args.getString(0).toLowerCase()));
             return;
@@ -64,11 +66,17 @@ public class OAActionCommands {
         return;
     }
 
-    @Command(aliases = {"undo-action"}, usage = "", max = 0,
-             desc = "Undo the last action on the list.")
+    @Command(aliases = {"undo-action"}, usage = "", min = 0, max = 2,
+             flags = "i", desc = "Undo the last action on the list.")
     @CommandPermissions({"openauth.wand.undo-action"})
     public static void undoaction(CommandContext args, CommandSender sender) {
         OAPlayer player = controller.wrapOAPlayer((Player) sender);
+        if (args.hasFlag('i')) {
+            // this means the player is going to undo the last 'i' actions.
+            player.getSession().undoLastActions(new Integer(args.getString(0)));
+            player.sendMessage(ChatColor.BLUE + String.format("Your last %s actions have been undone.", args.getString(0)));
+            return;
+        }
 
         player.getSession().undoLastAction();
         player.sendMessage(ChatColor.BLUE + "Action has been undone.");

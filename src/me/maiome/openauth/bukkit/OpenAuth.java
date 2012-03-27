@@ -147,6 +147,9 @@ public class OpenAuth extends JavaPlugin {
         // register command classes.
         this.registerCommands(this.commands.registerAndReturn(OACommands.OAParentCommand.class));
 
+        // init player sessions
+        this.oaserver.loadOnlinePlayers();
+
         // loaded.
         log.info("Enabled version " + version + ".");
     };
