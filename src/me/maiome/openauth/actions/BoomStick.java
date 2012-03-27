@@ -111,7 +111,13 @@ public class BoomStick implements Action {
                 BlockState b = (BlockState) blockstate_i.next();
                 // manually flush the blockstates back to the block.
                 b.getBlock().setTypeIdAndData(
-                    b.getTypeId(), b.getRawData(), true);
+                    b.getTypeId(), b.getRawData(), false);
+            }
+            blockstate_i = blocks.iterator();
+            while (blockstate_i.hasNext()) {
+                Block b = ((BlockState) blockstate_i.next()).getBlock();
+                // now update each block's physics
+                b.setData(b.getData(), true);
             }
             // destroy remnants of the explosion.
             OAExplosionListener.purgeExplosion(this.t_location);

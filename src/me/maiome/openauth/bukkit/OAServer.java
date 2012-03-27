@@ -100,16 +100,6 @@ public class OAServer {
         return new HashMap<String, Object>(this.ip_bans);
     }
 
-    public void loadOnlinePlayers() {
-        log.exDebug("Loading sessions for online players...");
-        int i = 0;
-        for (Player player : this.getServer().getOnlinePlayers()) {
-            this.controller.wrapOAPlayer(player).initSession();
-            i++;
-        }
-        log.exDebug(String.format("Initialised %d sessions.", i));
-    }
-
     // scheduled tasks.
 
     private Runnable autosave_task = new Runnable () {

@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Collections;
 
 public class OAExplosionListener implements Listener {
 
@@ -91,25 +92,20 @@ public class OAExplosionListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityExplode(EntityExplodeEvent event) {
-        // debugging message
-        log.exDebug(String.format("Explosion at {%s, %f, %f, %f}.",
-            event.getLocation().getWorld().getName(), event.getLocation().getX(), event.getLocation().getY(), event.getLocation().getZ()));
-        // heres our list for the block states
-        List<BlockState> blockstates = new ArrayList<BlockState>();
         // check if we need to watch for this event to be called again
         if (!(isWatching(event.getLocation())) && hasOAOrigin(event.getLocation())) {
-            log.exDebug("a");
             // cancel the event
             event.setCancelled(true);
             addWatching(event.getLocation()); // watch the location for another event
             removeOAOrigin(event.getLocation()); // remove the location from the origin indicator
         } else if (isWatching(event.getLocation())) {
-            log.exDebug("b");
             stopWatching(event.getLocation());
             return;
         } else if (!(hasOAOrigin(event.getLocation()))) {
             return;
         }
+        // heres our list for the block states
+        List<BlockState> blockstates = new ArrayList<BlockState>();
         // so first, we're going to gather the block list;
         List<Block> blocks = event.blockList();
         // now, we're going to harvest blockstates before the event completes
@@ -119,7 +115,7 @@ public class OAExplosionListener implements Listener {
             blockstates.add((BlockState) ((Block) block_i.next()).getState());
         }
         // we have our blockstates. now, lets put this explosion in the map
-        explosions.put(event.getLocation(), blockstates);
+        explosions.put(event.getLocation(), Collections.reverse(blockstates));
         // restart the explosion.
         event.getLocation().getWorld().createExplosion(event.getLocation(), this.power, this.fire);
     }

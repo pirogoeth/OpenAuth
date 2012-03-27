@@ -104,12 +104,10 @@ public class OpenAuth extends JavaPlugin {
 
         // check if we need to override.
         if (ConfigInventory.MAIN.getConfig().getBoolean("override", false) == true) {
-            log.info("Disabling Bukkit components!");
             if (this.getServer().hasWhitelist() == true) { // override the whitelisting in Bukkit for mine?
                 this.getServer().setWhitelist(false);
                 log.info(" => Bukkit whitelisting is now OFF!");
             }
-            log.info("Bukkit components have been turned off.");
         }
 
         // initialise permissions manager and config manager as well as dynamic command registration
@@ -147,9 +145,6 @@ public class OpenAuth extends JavaPlugin {
         // register command classes.
         this.registerCommands(this.commands.registerAndReturn(OACommands.OAParentCommand.class));
 
-        // init player sessions
-        this.oaserver.loadOnlinePlayers();
-
         // loaded.
         log.info("Enabled version " + version + ".");
     };
@@ -161,6 +156,7 @@ public class OpenAuth extends JavaPlugin {
     public void onDisable () {
         // save ALL the bans!
         this.oaserver.saveBans();
+
         // save the configs as our last step.
         Config.save();
         log.info("Disabled version " + version + ".");

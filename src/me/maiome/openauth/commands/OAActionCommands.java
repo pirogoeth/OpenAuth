@@ -45,8 +45,11 @@ public class OAActionCommands {
         if (Actions.actionExists(args.getString(0).toLowerCase())) {
             try {
                 player.getSession().clearAction();
-            } catch (java.lang.NullPointerException e) {} // the player has no session.
-            player.getSession().setAction(args.getString(0).toLowerCase());
+                player.getSession().setAction(args.getString(0).toLowerCase());
+            } catch (java.lang.NullPointerException e) {
+                player.initSession();
+                player.sendMessage(ChatColor.RED + "An error occurred while setting your action.");
+            } // the player has no session.
             player.sendMessage(ChatColor.BLUE + String.format("Action %s has been activated.", args.getString(0).toLowerCase()));
             return;
         } else {
