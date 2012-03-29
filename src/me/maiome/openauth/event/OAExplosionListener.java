@@ -93,13 +93,15 @@ public class OAExplosionListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityExplode(EntityExplodeEvent event) {
         // check if we need to watch for this event to be called again
-        if (!(isWatching(event.getLocation())) && hasOAOrigin(event.getLocation())) {
+        if (!(isWatching(event.getLocation())) && hasOAOrigin(event.getLocation()) && !(event.isCancelled())) {
             // cancel the event
             event.setCancelled(true);
             addWatching(event.getLocation()); // watch the location for another event
             removeOAOrigin(event.getLocation()); // remove the location from the origin indicator
-        } else if (isWatching(event.getLocation())) {
+        } else if (isWatching(event.getLocation()) && !(event.isCancelled())) {
             stopWatching(event.getLocation());
+            // set the block drop yield to 0%
+            event.setYield(0F);
             return;
         } else if (!(hasOAOrigin(event.getLocation()))) {
             return;
@@ -114,8 +116,10 @@ public class OAExplosionListener implements Listener {
             // write each blocks blockstate to the new arraylist
             blockstates.add((BlockState) ((Block) block_i.next()).getState());
         }
+        // reverse the blockstates
+        Collections.reverse(blockstates);
         // we have our blockstates. now, lets put this explosion in the map
-        explosions.put(event.getLocation(), Collections.reverse(blockstates));
+        explosions.put(event.getLocation(), blockstates);
         // restart the explosion.
         event.getLocation().getWorld().createExplosion(event.getLocation(), this.power, this.fire);
     }
