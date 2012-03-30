@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
+import org.bukkit.entity.Animals;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Tameable;
 
@@ -34,6 +35,7 @@ public class BoomStick implements Action {
     private final String permissible = "openauth.action.boom";
     private final float power = (float) ConfigInventory.MAIN.getConfig().getDouble("actions.boom.power", 2.0D);
     private final boolean fire = ConfigInventory.MAIN.getConfig().getBoolean("actions.boom.fire", false);
+    private final boolean acruelty = ConfigInventory.MAIN.getConfig().getBoolean("actions.boom.animal-cruelty", false);
     private OAServer server;
     private boolean used = false;
 
@@ -71,18 +73,18 @@ public class BoomStick implements Action {
     public void run(final OAPlayer player) {
         this.target = player;
         this.t_location = player.getLocation();
-        OAExplosionListener.addOAOrigin(player.getLocation());
+        OAExplosionListener.addOAOrigin(this.t_location);
         player.getLocation().getWorld().createExplosion(
-            player.getLocation(), this.power, this.fire);
+            this.t_location, this.power, this.fire);
         this.used = true;
     }
 
     public void run(final Block block) {
         this.target = block;
         this.t_location = block.getLocation();
-        OAExplosionListener.addOAOrigin(block.getLocation());
+        OAExplosionListener.addOAOrigin(this.t_location);
         block.getLocation().getWorld().createExplosion(
-            block.getLocation(), this.power, this.fire);
+            this.t_location, this.power, this.fire);
         this.used = true;
     }
 
@@ -90,15 +92,19 @@ public class BoomStick implements Action {
         this.target = entity;
         if (entity instanceof Tameable) {
             if (((Tameable) entity).isTamed()) {
-                this.sender.sendMessage(ChatColor.RED + "You can't blow up a tamed animal..That's cruelty :/");
+                this.sender.sendMessage(ChatColor.RED + "You can't blow up a tamed animal..that's cruelty :/");
                 this.used = true;
                 return;
             }
+        } else if (entity instanceof Animals && this.acruelty == false) {
+           this.sender.sendMessage(ChatColor.RED + "Animal cruelty is disabled..you sick monster >:(");
+           this.used = true;
+           return;
         }
         this.t_location = entity.getLocation();
-        OAExplosionListener.addOAOrigin(entity.getLocation());
+        OAExplosionListener.addOAOrigin(this.t_location);
         entity.getLocation().getWorld().createExplosion(
-            entity.getLocation(), this.power, this.fire);
+            this.t_location, this.power, this.fire);
         this.used = true;
     }
 

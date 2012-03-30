@@ -146,7 +146,7 @@ public class OAServer {
         return this.wh_enabled;
     }
 
-    public setWhitelistHandler(OAWhitelistHandler wh) {
+    public void setWhitelistHandler(OAWhitelistHandler wh) {
         this.whitelistHandler = wh;
     }
 
