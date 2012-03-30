@@ -157,8 +157,8 @@ public class OpenAuth extends JavaPlugin {
         // save ALL the bans!
         this.oaserver.saveBans();
 
-        // save the configs as our last step.
-        Config.save();
+        // save the data as our last step.
+        Config.save_data();
         log.info("Disabled version " + version + ".");
     }
 

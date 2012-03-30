@@ -108,13 +108,10 @@ public class OAExplosionListener implements Listener {
         }
         // heres our list for the block states
         List<BlockState> blockstates = new ArrayList<BlockState>();
-        // so first, we're going to gather the block list;
-        List<Block> blocks = event.blockList();
         // now, we're going to harvest blockstates before the event completes
-        Iterator block_i = blocks.iterator();
-        while (block_i.hasNext()) {
+        for (Block block : event.blockList()) {
             // write each blocks blockstate to the new arraylist
-            blockstates.add((BlockState) ((Block) block_i.next()).getState());
+            blockstates.add(block.getState());
         }
         // reverse the blockstates
         Collections.reverse(blockstates);

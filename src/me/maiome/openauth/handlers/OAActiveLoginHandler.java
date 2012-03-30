@@ -23,9 +23,18 @@ public class OAActiveLoginHandler implements OALoginHandler {
     private List<OAPlayer> active = new ArrayList<OAPlayer>();
     private OpenAuth controller;
     private LogHandler log = new LogHandler();
+    protected boolean enabled = false;
 
     public OAActiveLoginHandler(OpenAuth controller) {
         this.controller = controller;
+    }
+
+    public void setEnabled(boolean b) {
+        this.enabled = b;
+    }
+
+    public boolean isEnabled() {
+        return this.enabled;
     }
 
     public String getStringHash(String password) {

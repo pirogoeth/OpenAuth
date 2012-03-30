@@ -18,6 +18,9 @@ import me.maiome.openauth.util.LoginStatus;
 
 public interface OALoginHandler {
 
+    void setEnabled(boolean b);
+    boolean isEnabled();
+
     String getStringHash(String password);
 
     boolean isPlayerLoggedIn(OAPlayer player);

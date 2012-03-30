@@ -90,7 +90,7 @@ public class Config {
     }
 
     public static void save() {
-        try{
+        try {
             main.save(mainf);
             data.save(dataf);
         } catch (java.io.IOException e) {
@@ -102,6 +102,20 @@ public class Config {
         }
         log.info("Saved configurations.");
         return;
+    }
+
+    public static void save_data() {
+       try {
+           data.save(dataf);
+       } catch (java.io.IOException e) {
+           e.printStackTrace();
+           return;
+       } catch (java.lang.Exception e) {
+           e.printStackTrace();
+           return;
+       }
+       log.info("Saved data configuration.");
+       return;
     }
 
     public void check() {

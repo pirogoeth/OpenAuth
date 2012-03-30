@@ -6,7 +6,10 @@
 #   this tells openauth whether or not to print extra debug messages [default: false]
 # save-ban: (ban saving)
 #   delay - how long to wait before starting to save bans [default: 900 == 5 minutes]
-#   period - how long to go in between running the ban saver task [default: 5400 == 30 minutes]
+#   period - how long to go in between running the ban saving task [default: 5400 == 30 minutes]
+# save-whitelist: (whitelist saving)
+#   delay - how long to wait before starting to save the whitelist [default: 2700 == 15 minutes]
+#   period - how long to go in between running the whitelist saving task [default: 10800 == 60 minutes/1 hour]
 # session-prune: (player session pruning)
 #   delay - how long to wait before starting the pruning task [default: 900 == 5 minutes]
 #   period - how long to go in between running the task [default: 1800 == 10 minutes]
@@ -42,6 +45,8 @@ override: true
 debug: false
 save-ban-delay: 900
 save-ban-period: 5400
+save-whitelist-delay: 2700
+save-whitelist-period: 10800
 session-prune-delay: 900
 session-prune-period: 1800
 wand-id: 369

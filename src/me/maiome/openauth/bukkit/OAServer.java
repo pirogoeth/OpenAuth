@@ -32,6 +32,7 @@ public class OAServer {
     private Server server;
     private LogHandler log = new LogHandler();
     private OALoginHandler loginHandler;
+    private OAWhitelistHandler whitelistHandler;
     private boolean started_tasks = false;
 
     // ban containers
@@ -47,12 +48,16 @@ public class OAServer {
     // time variables for scheduler tasks
     public final long autosave_delay = ConfigInventory.MAIN.getConfig().getLong("save-ban-delay", 900L);
     public final long autosave_period = ConfigInventory.MAIN.getConfig().getLong("save-ban-period", 5400L);
+    public final long wlsave_delay = ConfigInventory.MAIN.getConfig().getLong("save-whitelist-delay", 2700L);
+    public final long wlsave_period = ConfigInventory.MAIN.getConfig().getLong("save-whitelist-period", 10800L);
 
     public OAServer(OpenAuth controller, Server server) {
         this.controller = controller;
         this.server = server;
         this.loginHandler = new OAActiveLoginHandler(this.controller);
-        log.exDebug(String.format("AutoSave: {DELAY: %s, PERIOD: %S}", Long.toString(autosave_delay), Long.toString(autosave_period)));
+        this.whitelistHandler = new OAActiveWhitelistHandler(this.controller);
+        log.exDebug(String.format("AutoSave: {DELAY: %s, PERIOD: %s}", Long.toString(autosave_delay), Long.toString(autosave_period)));
+        log.exDebug(String.format("WhitelistSave: {DELAY: %s, PERIOD: %s}", Long.toString(wlsave_delay), Long.toString(wlsave_period)));
         log.exDebug(String.format("LoginHandler: {ENABLED: %s, EXTENDABLE: %s}", Boolean.toString(lh_enabled), Boolean.toString(lh_extendable)));
         log.exDebug(String.format("WhitelistHandler: {ENABLED: %s, EXTENDABLE: %s}", Boolean.toString(wh_enabled), Boolean.toString(wh_extendable)));
     }
@@ -64,6 +69,7 @@ public class OAServer {
         this.started_tasks = true;
         // runs scheduler tasks
         this.scheduleAsynchronousRepeatingTask(this.autosave_delay, this.autosave_period, this.autosave_task);
+        this.scheduleAsynchronousRepeatingTask(this.wlsave_delay, this.wlsave_period, this.whitelistsave_task);
     }
 
     public int scheduleSyncRepetitiveTask(long delay, long period, Runnable task) {
@@ -108,6 +114,12 @@ public class OAServer {
         }
     };
 
+    private Runnable whitelistsave_task = new Runnable () {
+        public void run() {
+            whitelistHandler.saveWhitelist();
+        }
+    };
+
     // setup of handlers
 
     public boolean isLHExtendable() {
@@ -132,6 +144,14 @@ public class OAServer {
 
     public boolean isWHEnabled() {
         return this.wh_enabled;
+    }
+
+    public setWhitelistHandler(OAWhitelistHandler wh) {
+        this.whitelistHandler = wh;
+    }
+
+    public OAWhitelistHandler getWhitelistHandler() {
+        return this.whitelistHandler;
     }
 
     // player-management methods
@@ -244,12 +264,13 @@ public class OAServer {
         try {
             ConfigInventory.DATA.getConfig().set("ban_storage.ip", this.ip_bans);
             ConfigInventory.DATA.getConfig().set("ban_storage.name", this.name_bans);
-            log.info("Successfully saved bans.");
+            log.exDebug("Successfully saved bans.");
         } catch (java.lang.Exception e) {
             log.exDebug("Exception occurred while saving bans (this could just mean you have no bans to save).");
             log.exDebug(e.getMessage());
             return;
         }
+        Config.save_data();
     }
 
     public void loadBans() {
@@ -266,8 +287,7 @@ public class OAServer {
     // whitelisting, login status methods
 
     public WhitelistStatus getPlayerWhitelistStatus(final OAPlayer player) {
-        // return this.whitelistHandler.getPlayerStatus(player);
-        return WhitelistStatus.UNKNOWN;
+        return this.whitelistHandler.getPlayerStatus(player);
     }
 
     public LoginStatus getPlayerLoginStatus(final OAPlayer player) {

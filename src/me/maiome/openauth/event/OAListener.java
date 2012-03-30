@@ -78,6 +78,7 @@ public class OAListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerJoin(PlayerJoinEvent event) {
         OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
+        this.controller.getOAServer().getWhitelistHandler().processPlayerJoin(player);
         this.controller.getOAServer().getLoginHandler().processPlayerLogin(player);
         player.initSession();
         return;
