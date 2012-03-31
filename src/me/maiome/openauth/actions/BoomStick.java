@@ -97,7 +97,7 @@ public class BoomStick implements Action {
                 return;
             }
         } else if (entity instanceof Animals && this.acruelty == false) {
-           this.sender.sendMessage(ChatColor.RED + "Animal cruelty is disabled..you sick monster >:(");
+           this.sender.sendMessage(ChatColor.RED + "Why would you hurt this poor little animal, you sick monster >:(");
            this.used = true;
            return;
         }

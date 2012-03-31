@@ -7,6 +7,10 @@ import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+// java imports
+import java.util.ArrayList;
+import java.util.List;
+
 // internal imports
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAServer;
@@ -17,12 +21,16 @@ import me.maiome.openauth.util.LoginStatus;
 import me.maiome.openauth.util.WhitelistStatus;
 
 public class OAPlayer {
+
     private final OAServer server;
     private final Player player;
     private final LogHandler log = new LogHandler();
     private Session session = null;
     private final SessionController sc;
+    private List<String> ip_list = new ArrayList<String>();
     private PlayerState state;
+    private boolean ip_changed = false;
+    private boolean flying = false;
 
     private String player_ip = null;
 
@@ -46,6 +54,12 @@ public class OAPlayer {
         UNKNOWN
     }
 
+    // enumerate all directions a player could be facing.
+
+    public enum Direction {
+        NORTH, NORTH_EAST, EAST, SOUTH_EAST, SOUTH, SOUTH_WEST, WEST, NORTH_WEST;
+    }
+
     // wrapper methods
 
     public String getName() {
@@ -54,6 +68,20 @@ public class OAPlayer {
 
     public String getIP() {
         return this.player_ip;
+    }
+
+    public boolean hasIPChanged() {
+        return this.ip_changed;
+    }
+
+    public void updateIP() {
+        this.player_ip = (this.player.getAddress().getAddress().toString() == this.player_ip) ? this.player_ip : this.player.getAddress().getAddress().toString();
+        if (!(this.ip_list.contains(this.player_ip))) {
+            this.ip_list.add(this.player_ip);
+            this.ip_changed = true;
+        } else {
+            this.ip_changed = false;
+        }
     }
 
     public Player getPlayer() {
@@ -72,7 +100,34 @@ public class OAPlayer {
         this.player.sendMessage(message);
     }
 
-    // movement-type methods
+    public void fly(boolean f) {
+        this.player.setAllowFlight(true);
+        if (f) {
+            this.player.setFlying(true);
+        } else if (!(f)) {
+            this.player.setFlying(false);
+        }
+    }
+
+    // this is called whenever the player moves.
+    public void moved() {
+        this.flying = this.getPlayer().isFlying();
+    }
+
+    // movement/location-type methods
+
+    public void fixLocation() {
+        if (this.getLocation().getWorld().getBlockAt(this.getLocation()).getTypeId() != 0) {
+            Location loc = this.getLocation();
+            int block_id = 1;
+            while (block_id != 0) {
+                loc = new Location(loc.getWorld(), loc.getX(), loc.getY() + 1, loc.getZ());
+                block_id = loc.getWorld().getBlockAt(loc).getTypeId();
+            }
+            this.setLocation(loc);
+        }
+        return;
+    }
 
     public float getPitch() {
         return this.player.getLocation().getPitch();
@@ -138,6 +193,38 @@ public class OAPlayer {
         this.setLocation(location);
     }
 
+    /**
+     * Returns the direction the player is currently facing, split into eight possible directions.
+     */
+    public Direction getDirection() {
+        double rot = (this.getYaw() - 90) % 360;
+        if (rot < 0) rot += 360.0;
+        if (0 <= rot && rot < 22.5) return Direction.NORTH; // +z
+        else if (22.5 <= rot && rot < 67.5) return Direction.NORTH_EAST;
+        else if (67.5 <= rot && rot < 112.5) return Direction.EAST; // -x
+        else if (112.5 <= rot && rot < 157.5) return Direction.SOUTH_EAST;
+        else if (157.5 <= rot && rot < 202.5) return Direction.SOUTH; // -z
+        else if (202.5 <= rot && rot < 247.5) return Direction.SOUTH_WEST;
+        else if (247.5 <= rot && rot < 292.5) return Direction.WEST; // +x
+        else if (292.5 <= rot && rot < 337.5) return Direction.NORTH_WEST;
+        else if (337.5 <= rot && rot < 360.0) return Direction.NORTH; // +z
+        else return null;
+    }
+
+    /**
+     * Returns the direction the player is currently facing, simplified into the four basic cardinals.
+     */
+    public Direction getSimpleDirection() {
+        double rot = (this.getYaw() - 90) % 360;
+        if (rot < 0) rot += 360.0;
+        if (0 <= rot && rot < 67.5) return Direction.NORTH; // +z
+        else if (67.5 <= rot && rot < 157.5) return Direction.EAST; // -x
+        else if (157.5 <= rot && rot < 247.5) return Direction.SOUTH; // -z
+        else if (247.5 <= rot && rot < 292.5) return Direction.WEST; // +x
+        else if (292.5 <= rot && rot < 360.0) return Direction.NORTH; // +z
+        else return null;
+    }
+
     // permission methods
 
     public boolean hasPermission(String node) {
@@ -151,15 +238,21 @@ public class OAPlayer {
     // state methods
 
     public void setOnline() {
+        this.updateIP();
+        if (this.flying) this.fly(true);
         this.state = PlayerState.ONLINE;
+        // this.getServer().callEvent(new OAPlayerOnlineEvent(this));
     }
 
     public void setOffline() {
+        this.session.clearAction();
         this.state = PlayerState.OFFLINE;
+        // this.getServer().callEvent(new OAPlayerOfflineEvent(this));
     }
 
     private void setState(PlayerState state) {
         this.state = state;
+        // this.getServer().callEvent(new OAPlayerStateChangedEvent(this, state));
     }
 
     public PlayerState getState() {

@@ -21,6 +21,11 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
 
     public OAActiveWhitelistHandler(OpenAuth controller) {
         this.controller = controller;
+        this.loadWhitelist();
+        log.exDebug("Whitelist:");
+        for (String name : this.whitelist) {
+            log.exDebug(" => " + name);
+        }
     }
 
     public void setEnabled(boolean b) {
@@ -32,14 +37,15 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
     }
 
     public boolean isWhitelisted(OAPlayer player) {
-        return this.whitelist.contains(player.getName());
+        return this.isWhitelisted(player.getName());
     }
 
     public boolean isWhitelisted(Player player) {
-        return this.whitelist.contains(player.getName());
+        return this.isWhitelisted(player.getName());
     }
 
     public boolean isWhitelisted(String name) {
+        if (!(this.isEnabled())) return true;
         return this.whitelist.contains(name);
     }
 
@@ -48,6 +54,7 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
     }
 
     public void processPlayerJoin(OAPlayer player) {
+        if (!(this.isEnabled())) return;
         if (!(isWhitelisted(player))) {
             this.controller.getOAServer().kickPlayer(player, "You are not whitelisted on this server!");
             if (ConfigInventory.MAIN.getConfig().getBoolean("whitelisting.broadcast-failures", false) == true) {
@@ -76,6 +83,7 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
     }
 
     public void whitelistPlayer(String name) {
+        if (!(this.isEnabled())) return;
         if (!(this.whitelist.contains(name))) {
             this.whitelist.add(name);
         } else {
@@ -93,6 +101,7 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
     }
 
     public void unwhitelistPlayer(String name) {
+        if (!(this.isEnabled())) return;
         if (this.whitelist.contains(name)) {
             this.whitelist.remove(name);
         } else {

@@ -25,6 +25,8 @@ public interface OALoginHandler {
 
     boolean isPlayerLoggedIn(OAPlayer player);
     boolean isPlayerLoggedIn(String player);
+    boolean isRegistered(OAPlayer player);
+    boolean isRegistered(String player);
 
     LoginStatus getPlayerStatus(OAPlayer player);
 

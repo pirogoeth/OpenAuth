@@ -32,8 +32,8 @@ public class Session {
     private OAPlayer player;
     private OAServer server;
     private Action action = null;
-    private boolean freeze = (ConfigInventory.MAIN.getConfig().getBoolean("auth.required", false) == true) ? true : false;
-    private boolean frozen = (this.freeze == false) ? false : true;
+    private boolean freeze = (ConfigInventory.MAIN.getConfig().getBoolean("auth.require", false) == true) ? true : false;
+    private boolean frozen;
     private boolean identified = false;
     private List<Action> actions = new ArrayList<Action>();
 
@@ -83,12 +83,25 @@ public class Session {
         this.frozen = frozen;
     }
 
+    public void updateFreezeState() {
+        this.frozen = (identified == true) ? false : true;
+    }
+
     // wand methods
 
     public void giveWand() {
         PlayerInventory inv = this.player.getPlayer().getInventory();
         if (!(inv.contains(new ItemStack(this.wand_id)))) {
-            inv.addItem(new ItemStack(this.wand_id));
+            HashMap<Integer, ItemStack> unfitted = inv.addItem(new ItemStack(this.wand_id));
+            if (unfitted.size() != 0) {
+                // couldn't fit the wand into the users inventory.
+                this.player.sendMessage(ChatColor.RED + "There's no more room in your inventory for the OAWand, sorry :/");
+                return;
+            }
+        } else if (inv.contains(new ItemStack(this.wand_id))) {
+            // int slot = inv.first(this.wand_id);
+            inv.setItemInHand(new ItemStack(this.wand_id));
+            this.player.sendMessage(ChatColor.BLUE + "You already have a wand!");
         }
         this.player.getPlayer().updateInventory();
     }

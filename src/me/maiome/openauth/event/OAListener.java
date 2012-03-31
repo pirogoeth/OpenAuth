@@ -17,11 +17,14 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
 // internal
@@ -83,10 +86,21 @@ public class OAListener implements Listener {
         player.initSession();
         return;
     }
-    
+
+    /**
+     * Called when a player quits.
+     */
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
+        this.controller.getOAServer().getLoginHandler().processPlayerLogout(player);
+        return;
+    }
+
     /**
      * Called when a player chats.
      */
+    @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerChat(PlayerChatEvent event) {
         OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
 
@@ -100,6 +114,58 @@ public class OAListener implements Listener {
         return;
     }
 
+    /**
+     * Called when a player moves.
+     */
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerMove(PlayerMoveEvent event) {
+        OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
+
+        if (player.getSession().isFrozen() == true &&
+            ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.movement", true) == true) {
+
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You must identify first to move around.");
+            return;
+        }
+        player.moved();
+        return;
+    }
+
+    /**
+     * Called when a player tries to place blocks.
+     */
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onBlockPlace(BlockPlaceEvent event) {
+        OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
+
+        if (player.getSession().isFrozen() == true &&
+            ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.block-place", true) == true) {
+
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You must identify first to build blocks.");
+            return;
+        }
+        return;
+    }
+
+
+    /**
+     * Called when a player tries to build blocks.
+     */
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onBlockBreak(BlockBreakEvent event) {
+        OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
+
+        if (player.getSession().isFrozen() == true &&
+            ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.block-break", true) == true) {
+
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You must identify first to break blocks.");
+            return;
+        }
+        return;
+    }
 
     /**
      * Called when a player interacts with another entity.
@@ -109,15 +175,20 @@ public class OAListener implements Listener {
         OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
         Entity targ_e = event.getRightClicked();
         if (player.getSession().playerUsingWand() &&
-            targ_e instanceof Player && player.getSession().hasAction()) {
+            player.getSession().hasAction() && player.getSession().getAction().allowed() &&
+            targ_e instanceof Player) {
 
             player.getSession().runAction(this.controller.wrapOAPlayer((Player) targ_e));
         } else if (player.getSession().playerUsingWand() &&
             player.getSession().hasAction() &&
             player.getSession().getAction().allowsAnyEntityTarget() == true &&
+            player.getSession().getAction().allowed() &&
             targ_e instanceof Entity) {
 
             player.getSession().runAction(targ_e);
+        } else if (player.getSession().playerUsingWand() && player.getSession().hasAction() && !(player.getSession().getAction().allowed())) {
+            player.sendMessage(ChatColor.RED + "You don't have the permission to use this action, sorry ;p");
+            return;
         }
     }
 
@@ -130,12 +201,14 @@ public class OAListener implements Listener {
         Block targ_b = (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) ?
             event.getClickedBlock() : null;
         if (player.getSession().playerUsingWand() &&
-            player.getSession().hasAction() &&
+            player.getSession().hasAction() && player.getSession().getAction().allowed() &&
             player.getSession().getAction().requiresEntityTarget() == false &&
             targ_b != null) {
 
             player.getSession().runAction(targ_b);
-
+        } else if (player.getSession().playerUsingWand() && player.getSession().hasAction() && !(player.getSession().getAction().allowed())) {
+            player.sendMessage(ChatColor.RED + "You don't have the permission to use this action, sorry ;p");
+            return;
         }
     }
 }

@@ -38,6 +38,7 @@ public class OAActiveLoginHandler implements OALoginHandler {
     }
 
     public String getStringHash(String password) {
+        if (!(this.isEnabled())) return null;
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
             md.update(password.getBytes(), 0, password.length());
@@ -53,7 +54,16 @@ public class OAActiveLoginHandler implements OALoginHandler {
     }
 
     public boolean isPlayerLoggedIn(String player) {
+        if (!(this.isEnabled())) return true;
         return this.active.contains(this.controller.wrapOAPlayer(this.controller.getServer().getPlayer(player)));
+    }
+
+    public boolean isRegistered(OAPlayer player) {
+        return this.isRegistered(player.getName());
+    }
+
+    public boolean isRegistered(String player) {
+        return ConfigInventory.DATA.getConfig().isSet("credentials." + player);
     }
 
     public LoginStatus getPlayerStatus(OAPlayer player) {
@@ -61,7 +71,11 @@ public class OAActiveLoginHandler implements OALoginHandler {
     }
 
     public void processPlayerLogin(OAPlayer player) {
+        if (!(this.isEnabled())) return;
         player.setOnline();
+        // fix the players location.
+        player.getSession().setFrozen(false);
+        player.fixLocation();
         if (this.controller.getOAServer().hasNameBan(player.getName())) {
             this.controller.getOAServer().kickPlayer(
                 player,
@@ -78,19 +92,27 @@ public class OAActiveLoginHandler implements OALoginHandler {
         } else {
             this.log.exDebug(String.format("%s (%s) matched no IP bans!", player.getIP(), player.getName()));
         }
+        // check ip stuff.
+        if (player.hasIPChanged()) {
+            // this user may not be trusted
+            player.getSession().setIdentified(false, true);
+        }
         return;
     }
 
     public void processPlayerLogout(OAPlayer player) {
+        if (!(this.isEnabled())) return;
         player.setOffline();
     }
 
     public boolean processPlayerIdentification(OAPlayer player, String password) {
+        if (!(this.isEnabled())) return true;
         String match = ConfigInventory.DATA.getConfig().getString(String.format("credentials.%s.password"));
         return ((this.getStringHash(password)).equals(match)) ? true : false;
     }
 
     public void processPlayerRegistration(OAPlayer player, String password) {
+        if (!(this.isEnabled())) return;
         ConfigInventory.DATA.getConfig().set(String.format("credentials.%s.password", player.getName()), this.getStringHash(password));
     }
 

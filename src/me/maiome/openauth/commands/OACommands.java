@@ -3,6 +3,7 @@ package me.maiome.openauth.commands;
 // internal imports
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAPlayer;
+import me.maiome.openauth.bukkit.OAPlayer.Direction;
 import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.LogHandler;
 import me.maiome.openauth.util.ConfigInventory;
@@ -12,6 +13,7 @@ import com.sk89q.minecraft.util.commands.*;
 
 // bukkit imports
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.entity.Player;
@@ -55,14 +57,48 @@ public class OACommands {
              min = 1, max = 1)
     public static void login(CommandContext args, CommandSender sender) throws CommandException {
         OAPlayer player = controller.wrapOAPlayer((Player) sender);
-        String password = args.getString(1);
+        String password = args.getString(0);
         if (controller.getOAServer().getLoginHandler().processPlayerIdentification(player, password)) {
+            player.getSession().setIdentified(true, true);
             player.sendMessage(ChatColor.GREEN + "You have been logged in as '" + player.getName() + "'.");
             return;
         } else {
             player.sendMessage(ChatColor.RED + "Invalid username/password.");
             return;
         }
+    }
+
+    @Command(aliases = {"logout"}, usage = "", desc = "Logout from the plugin.",
+             max = 0)
+    public static void logout(CommandContext args, CommandSender sender) throws CommandException {
+        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+        player.getSession().setIdentified(false, true);
+        player.sendMessage(ChatColor.BLUE + "You have been logged out.");
+        return;
+    }
+
+    @Command(aliases = {"register"}, usage = "<password>", desc = "Login to the server.",
+             min = 1, max = 1)
+    public static void register(CommandContext args, CommandSender sender) throws CommandException {
+        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+        String password = args.getString(0);
+        if (!(controller.getOAServer().getLoginHandler().isRegistered(player))) {
+            controller.getOAServer().getLoginHandler().processPlayerRegistration(player, password);
+            player.getSession().setIdentified(true, true);
+            player.sendMessage(ChatColor.BLUE + "You have been registered and logged in as '" + player.getName() + "'.");
+            return;
+        } else if (controller.getOAServer().getLoginHandler().isRegistered(player)) {
+            player.sendMessage(ChatColor.RED + "This player account is already registered.");
+            return;
+        }
+    }
+
+    @Command(aliases = {"wand"}, usage = "", desc = "Gives the player a wand.",
+             max = 0)
+    @CommandPermissions({ "openauth.wand" })
+    public static void wand(CommandContext args, CommandSender sender) throws CommandException {
+        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+        player.getSession().giveWand();
     }
 
     @Console
@@ -162,6 +198,31 @@ public class OACommands {
             sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been unbanned.", player.getName()));
         } catch (java.lang.NullPointerException e) {
             log.warning("Was not able to get a valid name from OAPlayer instance (" + player.toString() + "). Please report this.");
+        }
+        return;
+    }
+
+    @Command(aliases = {"test-placement"}, desc = "", max = 0)
+    public static void ptest(CommandContext args, CommandSender sender) throws CommandException {
+        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+        Location loc = player.getLocation();
+        Direction d = player.getSimpleDirection();
+        if (d == Direction.NORTH) {
+            // player is z-aligned and +
+            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() + 3, loc.getBlockY(), loc.getBlockZ() - 5)).setTypeId(1);
+            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() - 3, loc.getBlockY(), loc.getBlockZ() - 5)).setTypeId(1);
+        } else if (d == Direction.WEST) {
+            // player is x-aligned and +
+            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() - 5, loc.getBlockY(), loc.getBlockZ() + 3)).setTypeId(1);
+            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() - 5, loc.getBlockY(), loc.getBlockZ() - 3)).setTypeId(1);
+        } else if (d == Direction.EAST) {
+            // player is z-aligned and -
+            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() - 3, loc.getBlockY(), loc.getBlockZ() + 5)).setTypeId(1);
+            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() + 3, loc.getBlockY(), loc.getBlockZ() + 5)).setTypeId(1);
+        } else if (d == Direction.SOUTH) {
+            // player is x-aligned and -
+            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() + 5, loc.getBlockY(), loc.getBlockZ() - 3)).setTypeId(1);
+            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() + 5, loc.getBlockY(), loc.getBlockZ() + 3)).setTypeId(1);
         }
         return;
     }
