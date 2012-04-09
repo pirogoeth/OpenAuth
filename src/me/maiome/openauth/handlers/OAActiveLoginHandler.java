@@ -1,5 +1,8 @@
 package me.maiome.openauth.handlers;
 
+// bukkit imports
+import org.bukkit.ChatColor;
+
 // java imports
 import java.util.Map;
 import java.util.HashMap;
