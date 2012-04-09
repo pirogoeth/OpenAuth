@@ -2,6 +2,18 @@
 
 version=`cat src/plugin.yml | grep version | awk '{print $2}'`
 
+while getopts "vV" flag
+    do
+        case $flag in
+            V) echo "Building for OpenAuth, version ${version}."
+               exit 1
+            ;;
+            v) echo "Being verbose..."
+               export verbose="YES"
+            ;;
+        esac
+    done
+
 echo "[OpenAuth(${version})] building.]"
 
 javac -Xstdout compile_log.txt -g:none -cp inc/craftbukkit.jar:inc/permissions.jar:inc/bukkit.jar:inc/vault.jar:inc/pex.jar \
@@ -19,9 +31,17 @@ if ! [ "${end}" == "Note:" ] || (test -z "${errors}" && ! test -z "${errors_t}")
     exit 1
 fi
 
+if [ "${verbose}" == "YES" ] ; then
+    echo "$(cat compile_log.txt)"
+fi
+
+echo "[OpenAuth(${version})] packing.]"
+
 jar cvf "OpenAuth-${version}.jar" -C src/ . 2>&1 1>archive_log.txt
 
-# cat archive_log.txt
+if [ "${verbose}" == "YES" ] ; then
+    echo "$(cat archive_log.txt)"
+fi
 
 rm ./*_log.txt
 
