@@ -106,9 +106,11 @@ public class OAActiveLoginHandler implements OALoginHandler {
     }
 
     public boolean processPlayerIdentification(OAPlayer player, String password) {
-        if (!(this.isEnabled())) return true;
-        String match = ConfigInventory.DATA.getConfig().getString(String.format("credentials.%s.password"));
-        log.info(String.format("%s, %s", this.getStringHash(password), match));
+        if (!(this.isEnabled())) {
+            player.sendMessage(ChatColor.BLUE + "Authentication is not enabled. You're in the clear.");
+            return true;
+        }
+        String match = ConfigInventory.DATA.getConfig().getString(String.format("credentials.%s.password", player.getName()));
         return ((this.getStringHash(password)).equals(match)) ? true : false;
     }
 

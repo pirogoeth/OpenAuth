@@ -56,6 +56,9 @@ public class OAServer {
         this.server = server;
         this.loginHandler = new OAActiveLoginHandler(this.controller);
         this.whitelistHandler = new OAActiveWhitelistHandler(this.controller);
+        this.loginHandler.setEnabled(this.lh_enabled);
+        this.whitelistHandler.setEnabled(this.wh_enabled);
+        // debugging information
         log.exDebug(String.format("AutoSave: {DELAY: %s, PERIOD: %s}", Long.toString(autosave_delay), Long.toString(autosave_period)));
         log.exDebug(String.format("WhitelistSave: {DELAY: %s, PERIOD: %s}", Long.toString(wlsave_delay), Long.toString(wlsave_period)));
         log.exDebug(String.format("LoginHandler: {ENABLED: %s, EXTENDABLE: %s}", Boolean.toString(lh_enabled), Boolean.toString(lh_extendable)));
