@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
 
 version=`cat src/plugin.yml | grep version | awk '{print $2}'`
+hashtag=`git log -n 1 | grep commit | awk '{ print $2 }' | cut -b 1-6`
 
-while getopts "vV" flag
+while getopts "vVhH" flag
     do
         case $flag in
             V) echo "Building for OpenAuth, version ${version}."
                exit 1
+            ;;
+            H) echo "OpenAuth commit tag ${hashtag}"
+               exit 1
+            ;;
+            h) echo "Adding git committag to archive name."
+               export tagname="YES"
             ;;
             v) echo "Being verbose..."
                export verbose="YES"
@@ -14,7 +21,7 @@ while getopts "vV" flag
         esac
     done
 
-echo "[OpenAuth(${version})] building.]"
+echo "[OpenAuth(${version}-${hashtag})] building.]"
 
 javac -Xstdout compile_log.txt -g:none -cp inc/craftbukkit.jar:inc/permissions.jar:inc/bukkit.jar:inc/vault.jar:inc/pex.jar \
     src/me/maiome/openauth/*/*.java \
@@ -35,9 +42,13 @@ if [ "${verbose}" == "YES" ] ; then
     echo "$(cat compile_log.txt)"
 fi
 
-echo "[OpenAuth(${version})] packing.]"
+echo "[OpenAuth(${version}-${hashtag})] packing.]"
 
-jar cvf "OpenAuth-${version}.jar" -C src/ . 2>&1 1>archive_log.txt
+if [ "${tagname}" == "YES" ] ; then
+    jar cvf "OpenAuth-${version}-${hashtag}.jar" -C src/ . 2>&1 1>archive_log.txt
+else
+    jar cvf "OpenAuth-${version}.jar" -C src/ . 2>&1 1>archive_log.txt
+fi
 
 if [ "${verbose}" == "YES" ] ; then
     echo "$(cat archive_log.txt)"
@@ -45,4 +56,4 @@ fi
 
 rm ./*_log.txt
 
-echo "Successfully built OpenAuth ${version}!"
+echo "Successfully built OpenAuth ${version}-${hashtag}!"
