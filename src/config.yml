@@ -28,10 +28,11 @@
 #   freeze-actions - actions that the player takes that will be
 #                    frozen.
 #     chat - freeze chat? [default: true]
-#     commands - freeze all commands OTHER THAN openauth? [default: true]
 #     interact - freeze all player interactions? [default: true]
 #     block-interact - freeze all block interactions? [default: true]
-#     movement - freeze all player movement? [default: true]
+#     block-place - freeze all block placements? [default: true]
+#     block-break - freeze all block breaks? [default: true]
+#     movement - freeze all player movement? [default: false]
 #     teleport - freeze player teleportation? [default: true]
 # actions:
 #   ban - settings for the ban action
@@ -60,10 +61,11 @@ auth:
     require: true
     freeze-actions:
         chat: true
-        commands: true
         interact: true
         block-interact: true
-        movement: true
+        block-place: true
+        block-break: true
+        movement: false
         teleport: true
 actions:
     ban:

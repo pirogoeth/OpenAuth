@@ -84,6 +84,7 @@ public class OAListener implements Listener {
         this.controller.getOAServer().getWhitelistHandler().processPlayerJoin(player);
         this.controller.getOAServer().getLoginHandler().processPlayerLogin(player);
         player.initSession();
+        player.getSession().setLoginLocation();
         return;
     }
 
@@ -121,13 +122,6 @@ public class OAListener implements Listener {
     public void onPlayerMove(PlayerMoveEvent event) {
         OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
 
-        if (player.getSession().isFrozen() == true &&
-            ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.movement", true) == true) {
-
-            event.setCancelled(true);
-            player.sendMessage(ChatColor.RED + "You must identify first to move around.");
-            return;
-        }
         player.moved();
         return;
     }

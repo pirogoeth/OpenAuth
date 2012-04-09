@@ -24,7 +24,6 @@ import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
 import me.maiome.openauth.util.LoginStatus;
-import me.maiome.openauth.util.Notifications;
 import me.maiome.openauth.util.WhitelistStatus;
 
 public class OAServer {
@@ -34,7 +33,6 @@ public class OAServer {
     private LogHandler log = new LogHandler();
     private OALoginHandler loginHandler;
     private OAWhitelistHandler whitelistHandler;
-    private Notifications notif;
     private boolean started_tasks = false;
 
     // ban containers
@@ -62,7 +60,6 @@ public class OAServer {
         log.exDebug(String.format("WhitelistSave: {DELAY: %s, PERIOD: %s}", Long.toString(wlsave_delay), Long.toString(wlsave_period)));
         log.exDebug(String.format("LoginHandler: {ENABLED: %s, EXTENDABLE: %s}", Boolean.toString(lh_enabled), Boolean.toString(lh_extendable)));
         log.exDebug(String.format("WhitelistHandler: {ENABLED: %s, EXTENDABLE: %s}", Boolean.toString(wh_enabled), Boolean.toString(wh_extendable)));
-        this.notif = new Notifications(this);
     }
 
     // scheduling

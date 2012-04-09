@@ -108,6 +108,7 @@ public class OAActiveLoginHandler implements OALoginHandler {
     public boolean processPlayerIdentification(OAPlayer player, String password) {
         if (!(this.isEnabled())) return true;
         String match = ConfigInventory.DATA.getConfig().getString(String.format("credentials.%s.password"));
+        log.info(String.format("%s, %s", this.getStringHash(password), match));
         return ((this.getStringHash(password)).equals(match)) ? true : false;
     }
 

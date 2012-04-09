@@ -9,6 +9,7 @@ import java.util.Iterator;
 
 // bukkit imports
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 import org.bukkit.inventory.ItemStack;
@@ -36,6 +37,7 @@ public class Session {
     private boolean frozen;
     private boolean identified = false;
     private List<Action> actions = new ArrayList<Action>();
+    private Location lloc;
 
     protected final int wand_id = ConfigInventory.MAIN.getConfig().getInt("wand-id");
 
@@ -108,6 +110,20 @@ public class Session {
 
     public boolean playerUsingWand() {
         return (this.player.getItemInHand() == this.wand_id && !(this.isFrozen())) ? true : false;
+    }
+
+    // login location
+
+    public void setLoginLocation() {
+        this.lloc = this.player.getLocation();
+    }
+
+    public void setLoginLocation(Location loc) {
+        this.lloc = loc;
+    }
+
+    public Location getLoginLocation() {
+        return this.lloc;
     }
 
     // action methods
@@ -186,7 +202,7 @@ public class Session {
             } catch (java.lang.IndexOutOfBoundsException e) {
                 this.player.sendMessage(ChatColor.BLUE + String.format(
                     "I was only able to undo your last %d actions. Actions %d through %d don't exist.",
-                    (c - 1), (c + 1), (i)
+                    (c), (c + 1), (i)
                 ));
                 break;
             }

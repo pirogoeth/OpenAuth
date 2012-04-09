@@ -8,7 +8,9 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
+import org.bukkit.entity.Wolf;
 
 // java imports
 import java.util.Iterator;
@@ -96,6 +98,11 @@ public class BoomStick implements Action {
                 this.used = true;
                 return;
             }
+        }
+        if (entity instanceof Wolf && ((Wolf) entity).isAngry() && ((((Wolf) entity).getTarget() instanceof Player)
+            && (((Player) ((Wolf) entity).getTarget()).getName() == this.sender.getName())
+            && this.acruelty == false)) {
+            // its mad. i'll allow it.
         } else if (entity instanceof Animals && this.acruelty == false) {
            this.sender.sendMessage(ChatColor.RED + "Why would you hurt this poor little animal, you sick monster >:(");
            this.used = true;

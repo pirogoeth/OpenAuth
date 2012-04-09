@@ -77,7 +77,6 @@ public class OAActionCommands {
         if (args.hasFlag('i')) {
             // this means the player is going to undo the last 'i' actions.
             player.getSession().undoLastActions(new Integer(args.getString(0)));
-            player.sendMessage(ChatColor.BLUE + String.format("Your last %s actions have been undone.", args.getString(0)));
             return;
         }
 

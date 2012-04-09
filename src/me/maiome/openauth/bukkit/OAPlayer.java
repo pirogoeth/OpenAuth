@@ -15,6 +15,7 @@ import java.util.List;
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAServer;
 import me.maiome.openauth.session.*;
+import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
 import me.maiome.openauth.util.Permission;
 import me.maiome.openauth.util.LoginStatus;
@@ -111,6 +112,11 @@ public class OAPlayer {
 
     // this is called whenever the player moves.
     public void moved() {
+        if (this.getSession().isFrozen() &&
+            ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.movement", true) == true) {
+
+            this.setLocation(this.getSession().getLoginLocation());
+        }
         this.flying = this.getPlayer().isFlying();
     }
 

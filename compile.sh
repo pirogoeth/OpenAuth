@@ -12,14 +12,17 @@ javac -Xstdout compile_log.txt -g:none -cp inc/craftbukkit.jar:inc/permissions.j
 
 errors=`cat "./compile_log.txt" | tail -n 1`
 errors_t=`echo ${errors} | tr -d "[[:space:]]"`
+end=`tail -n -1 ./compile_log.txt | cut -b 1-5`
 
-if ! test -z "${errors}" && ! test -z "${errors_t}"; then
+if ! [ "${end}" == "Note:" ] || (test -z "${errors}" && ! test -z "${errors_t}") ; then
     echo "$(cat compile_log.txt)"
     exit 1
 fi
 
 jar cvf "OpenAuth-${version}.jar" -C src/ . 2>&1 1>archive_log.txt
 
-cat archive_log.txt
+# cat archive_log.txt
 
 rm ./*_log.txt
+
+echo "Successfully built OpenAuth ${version}!"
