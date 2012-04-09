@@ -40,7 +40,9 @@
 #   boom - settings for the boom action
 #     fire - whether or not the explosion causes fire [default: false]
 #     power - power of the explosion as a double [default: 2.0]
-#     animal-cruelty - allows(true)/disallows(false) targeting of animals (cows, sheep, pigs, etc..
+#     animal-cruelty - allows(true)/disallows(false) targeting of animals (cows, sheep, pigs, etc..)
+#                        monsters will always be targetable. [default: false]
+#     golem-cruelty - allows(true)/disallows(false) targeting of golems (snowmen, iron golems..)
 #                        monsters will always be targetable. [default: false]
 
 version: 1.0
@@ -74,3 +76,4 @@ actions:
         power: 2.0
         fire: false
         animal-cruelty: false
+        golem-cruelty: false

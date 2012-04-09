@@ -8,6 +8,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.Golem;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Tameable;
 import org.bukkit.entity.Wolf;
@@ -38,6 +39,7 @@ public class BoomStick implements Action {
     private final float power = (float) ConfigInventory.MAIN.getConfig().getDouble("actions.boom.power", 2.0D);
     private final boolean fire = ConfigInventory.MAIN.getConfig().getBoolean("actions.boom.fire", false);
     private final boolean acruelty = ConfigInventory.MAIN.getConfig().getBoolean("actions.boom.animal-cruelty", false);
+    private final boolean gcruelty = ConfigInventory.MAIN.getConfig().getBoolean("actions.boom.golem_cruelty", false);
     private OAServer server;
     private boolean used = false;
 
@@ -107,6 +109,10 @@ public class BoomStick implements Action {
            this.sender.sendMessage(ChatColor.RED + "Why would you hurt this poor little animal, you sick monster >:(");
            this.used = true;
            return;
+        } else if (entity instanceof Golem && this.gcruelty == false) {
+            this.sender.sendMessage(ChatColor.RED + "Why exactly do you want to kill a golem? -_-'");
+            this.used = true;
+            return;
         }
         this.t_location = entity.getLocation();
         OAExplosionListener.addOAOrigin(this.t_location);
