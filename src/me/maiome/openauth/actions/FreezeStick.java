@@ -1,10 +1,7 @@
 package me.maiome.openauth.actions;
 
-import com.sk89q.util.StringUtil; // string util
-
 // bukkit imports
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.ChatColor;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
 
@@ -18,21 +15,22 @@ import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
 import me.maiome.openauth.util.Permission;
 
-public class BanStick implements Action {
+public class FreezeStick implements Action {
 
-    public static final String name = "ban";
+    public static final String name = "freeze";
 
     private String[] args = null;
     private Session attached;
     private SessionController sc;
-    private final String permissible = "openauth.action.ban";
+    private final LogHandler log = new LogHandler();
+    private final String permissible = "openauth.action.freeze";
     private OAServer server;
     private boolean used = false;
 
-    protected OAPlayer target;
     protected OAPlayer sender;
+    protected OAPlayer target;
 
-    public BanStick(OAServer server, Session attached) {
+    public FreezeStick(OAServer server, Session attached) {
         this.server = server;
         this.sc = server.getController().getSessionController();
         this.attached = attached;
@@ -56,7 +54,7 @@ public class BanStick implements Action {
     }
 
     public boolean allowsArgs() {
-        return true;
+        return false;
     }
 
     public boolean hasArgs() {
@@ -67,29 +65,24 @@ public class BanStick implements Action {
         return false;
     }
 
-    public void setSender(final OAPlayer sender) {
-        this.sender = sender;
+    public void setSender(final OAPlayer player) {
+        this.sender = player;
     }
 
-    public void setArgs(String[] args) {
-        this.args = args;
-    }
+    public void setArgs(String[] args) {}
 
     public void run(final OAPlayer player) {
         this.target = player;
-        this.server.banPlayerByName(player);
-        if (this.args != null) {
-            this.server.kickPlayer(player, StringUtil.joinString(this.args, " "));
-        } else {
-            this.server.kickPlayer(player);
-        }
+        this.target.getSession().setFrozen(true);
+        this.target.sendMessage(String.format("%sYou have been frozen by %s.", ChatColor.BLUE, this.target.getName()));
         this.used = true;
     }
 
-    public void run(final Block block) {} //stub to complete implementation
-    public void run(final Entity entity) {} //stub to complete implementation
+    public void run(final Block block) {}
+    public void run(final Entity entity) {}
 
     public void undo() {
-        this.server.unbanPlayerByName(this.target);
+        this.target.getSession().setFrozen(false);
+        this.target.sendMessage(String.format("%sYou have been unfrozen.", ChatColor.BLUE));
     }
 }

@@ -122,6 +122,13 @@ public class OAListener implements Listener {
     public void onPlayerMove(PlayerMoveEvent event) {
         OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
 
+        if (event.getFrom().getX() == event.getTo().getX() &&
+            event.getFrom().getY() == event.getTo().getY() &&
+            event.getFrom().getZ() == event.getTo().getZ()) {
+
+            return;
+        }
+
         player.moved();
         return;
     }

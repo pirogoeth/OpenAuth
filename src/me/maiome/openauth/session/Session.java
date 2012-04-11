@@ -101,9 +101,9 @@ public class Session {
                 return;
             }
         } else if (inv.contains(new ItemStack(this.wand_id))) {
-            // int slot = inv.first(this.wand_id);
-            inv.setItemInHand(new ItemStack(this.wand_id));
-            this.player.sendMessage(ChatColor.BLUE + "You already have a wand!");
+            int slot = inv.first(this.wand_id);
+            this.player.sendMessage(ChatColor.BLUE + String.format("You already have a wand! (check in slot %s)", slot));
+            return;
         }
         this.player.getPlayer().updateInventory();
     }
@@ -145,6 +145,9 @@ public class Session {
         this.actions.add(0, action);
         try {
             this.setAction((String) this.action.getClass().getField("name").get(this.action));
+            if (this.actions.get(0).hasArgs()) {
+                this.action.setArgs(this.actions.get(0).args);
+            }
         } catch (java.lang.Exception e) {
             this.action = null;
         }

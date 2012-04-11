@@ -30,10 +30,7 @@ public class OAExplosionListener implements Listener {
     private final OpenAuth controller;
     private final LogHandler log = new LogHandler();
     private static List<Location> oa_origin = new ArrayList<Location>();
-    private static List<Location> watching = new ArrayList<Location>();
     private static Map<Location, List<BlockState>> explosions = new HashMap<Location, List<BlockState>>();
-    private final float power = (float) ConfigInventory.MAIN.getConfig().getDouble("actions.boom.power", 2.0D);
-    private final boolean fire = ConfigInventory.MAIN.getConfig().getBoolean("actions.boom.fire", false);
 
     public OAExplosionListener(OpenAuth controller) {
         this.controller = controller;
@@ -58,22 +55,6 @@ public class OAExplosionListener implements Listener {
         explosions.clear();
     }
 
-    public static void addWatching(Location loc) {
-        watching.add(loc);
-    }
-
-    public static boolean isWatching(Location loc) {
-        return watching.contains(loc);
-    }
-
-    public static void stopWatching(Location loc) {
-        watching.remove(loc);
-    }
-
-    public static void clearWatching() {
-        watching.clear();
-    }
-
     public static void addOAOrigin(Location loc) {
         oa_origin.add(loc);
     }
@@ -93,16 +74,8 @@ public class OAExplosionListener implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onEntityExplode(EntityExplodeEvent event) {
         // check if we need to watch for this event to be called again
-        if (!(isWatching(event.getLocation())) && hasOAOrigin(event.getLocation()) && !(event.isCancelled())) {
-            // cancel the event
-            event.setCancelled(true);
-            addWatching(event.getLocation()); // watch the location for another event
+        if (hasOAOrigin(event.getLocation()) && !(event.isCancelled())) {
             removeOAOrigin(event.getLocation()); // remove the location from the origin indicator
-        } else if (isWatching(event.getLocation()) && !(event.isCancelled())) {
-            stopWatching(event.getLocation());
-            // set the block drop yield to 0%
-            event.setYield(0F);
-            return;
         } else if (!(hasOAOrigin(event.getLocation()))) {
             return;
         }
@@ -117,7 +90,7 @@ public class OAExplosionListener implements Listener {
         Collections.reverse(blockstates);
         // we have our blockstates. now, lets put this explosion in the map
         explosions.put(event.getLocation(), blockstates);
-        // restart the explosion.
-        event.getLocation().getWorld().createExplosion(event.getLocation(), this.power, this.fire);
+        // finally, set the explosion yield
+        event.setYield(0F);
     }
 }

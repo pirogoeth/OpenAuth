@@ -1,5 +1,7 @@
 package me.maiome.openauth.actions;
 
+import com.sk89q.util.StringUtil; // string util
+
 // bukkit imports
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -32,11 +34,12 @@ public class BoomStick implements Action {
 
     public static final String name = "boom";
 
+    private String[] args = null;
     private Session attached;
     private SessionController sc;
     private final LogHandler log = new LogHandler();
     private final String permissible = "openauth.action.boom";
-    private final float power = (float) ConfigInventory.MAIN.getConfig().getDouble("actions.boom.power", 2.0D);
+    private float power = (float) ConfigInventory.MAIN.getConfig().getDouble("actions.boom.power", 2.0D);
     private final boolean fire = ConfigInventory.MAIN.getConfig().getBoolean("actions.boom.fire", false);
     private final boolean acruelty = ConfigInventory.MAIN.getConfig().getBoolean("actions.boom.animal-cruelty", false);
     private final boolean gcruelty = ConfigInventory.MAIN.getConfig().getBoolean("actions.boom.golem-cruelty", false);
@@ -70,8 +73,28 @@ public class BoomStick implements Action {
         return true;
     }
 
+    public boolean allowsArgs() {
+        return true;
+    }
+
+    public boolean hasArgs() {
+        return (this.args != null);
+    }
+
+    public boolean requiresArgs() {
+        return false;
+    }
+
     public void setSender(final OAPlayer sender) {
         this.sender = sender;
+    }
+
+    public void setArgs(String[] args) {
+        try {
+            this.power = Float.parseFloat(args[0]);
+        } catch (java.lang.ArrayIndexOutOfBoundsException e) {
+            return;
+        }
     }
 
     public void run(final OAPlayer player) {

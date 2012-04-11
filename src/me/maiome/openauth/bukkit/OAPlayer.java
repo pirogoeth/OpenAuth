@@ -1,6 +1,7 @@
 package me.maiome.openauth.bukkit;
 
 // bukkit imports
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.Server;
@@ -115,6 +116,7 @@ public class OAPlayer {
         if (this.getSession().isFrozen() &&
             ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.movement", true) == true) {
 
+            this.sendMessage(ChatColor.RED + "You must first identify to move.");
             this.setLocation(this.getSession().getLoginLocation());
         }
         this.flying = this.getPlayer().isFlying();

@@ -20,14 +20,19 @@ public interface Action {
 
     // fields
     String name = null;
+    String[] args = null;
 
     // methods
     boolean allowed();
     boolean isUsed();
     boolean requiresEntityTarget();
     boolean allowsAnyEntityTarget();
+    boolean allowsArgs();
+    boolean hasArgs();
+    boolean requiresArgs();
 
     void setSender(final OAPlayer sender);
+    void setArgs(String[] args);
 
     void run(final Entity entity);
     void run(final OAPlayer player);

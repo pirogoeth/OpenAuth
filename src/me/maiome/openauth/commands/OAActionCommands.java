@@ -32,7 +32,7 @@ public class OAActionCommands {
         controller = openauth;
     }
 
-    @Command(aliases = {"set-action"}, usage = "<action name>", min = 1, max = 1,
+    @Command(aliases = {"set-action"}, usage = "<action name>", min = 1,
              flags = "c", desc = "Sets the action performed by the OAWand.")
     @CommandPermissions({"openauth.wand.set-action"})
     public static void setaction(CommandContext args, CommandSender sender) {
@@ -50,10 +50,33 @@ public class OAActionCommands {
                 player.initSession();
                 player.sendMessage(ChatColor.RED + "An error occurred while setting your action.");
             } // the player has no session.
+            if (args.argsLength() > 1) { // we have additional arguments.
+                if (player.getSession().getAction().requiresArgs() || player.getSession().getAction().allowsArgs()) { // the action allows args
+                    player.getSession().getAction().setArgs((args.getJoinedStrings(1)).split(" "));
+                }
+            }
             player.sendMessage(ChatColor.BLUE + String.format("Action %s has been activated.", args.getString(0).toLowerCase()));
             return;
         } else {
             player.sendMessage(ChatColor.RED + "That action does not exist.");
+            return;
+        }
+    }
+
+    @Command(aliases = {"set-args"}, usage = "<args>", min = 1,
+             desc = "Sets arguments for the current action.")
+    public static void setargs(CommandContext args, CommandSender sender) {
+        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+        if (player.getSession().hasAction() &&
+            (player.getSession().getAction().allowsArgs() || player.getSession().getAction().requiresArgs())) {
+
+            try {
+                player.getSession().getAction().setArgs((args.getJoinedStrings(0)).split(" "));
+            } catch (java.lang.ArrayIndexOutOfBoundsException e) {
+                player.sendMessage(ChatColor.RED + "You have not provided enough args to set.");
+                return;
+            }
+            player.sendMessage(ChatColor.BLUE + String.format("Args have been set for action %s.", player.getSession().getAction().name));
             return;
         }
     }

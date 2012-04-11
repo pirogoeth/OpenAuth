@@ -15,7 +15,8 @@ import me.maiome.openauth.util.LogHandler;
 public enum Actions {
 
     BAN(BanStick.class),
-    BOOM(BoomStick.class);
+    BOOM(BoomStick.class),
+    FREEZE(FreezeStick.class);
 
     public final Class action;
     private final static LogHandler log = new LogHandler();
