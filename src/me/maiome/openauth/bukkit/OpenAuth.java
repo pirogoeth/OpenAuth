@@ -112,7 +112,6 @@ public class OpenAuth extends JavaPlugin {
 
         // initialise permissions manager and config manager as well as dynamic command registration
         this.permissionsManager = new Permission(this);
-        this.dynamicCommandRegistry = new CommandRegistration(this);
 
         // set version number
         this.version = this.getDescription().getVersion();
@@ -132,6 +131,9 @@ public class OpenAuth extends JavaPlugin {
             }
         };
 
+        // initialise the command registration
+        this.dynamicCommandRegistry = new CommandsManagerRegistration(this, this.commands);
+
         // load ALL the bans!
         this.oaserver.loadBans();
 
@@ -143,7 +145,7 @@ public class OpenAuth extends JavaPlugin {
         this.registerEvents(new OAExplosionListener(this));
 
         // register command classes.
-        this.registerCommands(this.commands.registerAndReturn(OACommands.OAParentCommand.class));
+        this.dynamicCommandRegistry.register(OACommands.OAParentCommand.class);
 
         // loaded.
         log.info("Enabled version " + version + ".");
@@ -231,13 +233,6 @@ public class OpenAuth extends JavaPlugin {
      */
     public SessionController getSessionController() {
         return this.sc;
-    }
-
-    /**
-     * Register commands with the magical dynamic handler.
-     */
-    protected void registerCommands(List<com.sk89q.minecraft.util.commands.Command> commands) {
-        this.dynamicCommandRegistry.register(commands);
     }
 
     /**
