@@ -37,10 +37,6 @@ import org.bukkit.plugin.Plugin;
  */
 public class CommandRegistration {
 
-    static {
-      Bukkit.getServer().getHelpMap().registerHelpTopicFactory(DynamicPluginCommand.class, new DynamicPluginCommandHelpTopic.Factory());
-    }
-
 	protected final Plugin plugin;
     protected final CommandExecutor executor;
 	private CommandMap fallbackCommands;
