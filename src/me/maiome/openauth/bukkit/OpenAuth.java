@@ -237,7 +237,7 @@ public class OpenAuth extends JavaPlugin {
      * Register commands with the magical dynamic handler.
      */
     protected void registerCommands(List<com.sk89q.minecraft.util.commands.Command> commands) {
-        this.dynamicCommandRegistry.registerAll(commands);
+        this.dynamicCommandRegistry.register(commands);
     }
 
     /**
