@@ -30,8 +30,8 @@ import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
 
 // bundled imports
-import com.sk89q.bukkit.util.CommandRegistration; // dynamic command registry
-import com.sk89q.util.*;
+import com.sk89q.bukkit.util.*; // dynamic command registry
+import com.sk89q.util.*; // various handy utilities
 import com.sk89q.minecraft.util.commands.*; // command framework
 
 /**
