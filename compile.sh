@@ -23,7 +23,7 @@ while getopts "vVhH" flag
 
 echo "[OpenAuth(${version}-${hashtag})] building.]"
 
-javac -Xstdout compile_log.txt -g:none -cp inc/craftbukkit.jar:inc/permissions.jar:inc/bukkit.jar:inc/vault.jar:inc/pex.jar \
+javac -Xstdout compile_log.txt -g -cp inc/craftbukkit.jar:inc/permissions.jar:inc/bukkit.jar:inc/vault.jar:inc/pex.jar \
     src/me/maiome/openauth/*/*.java \
     src/net/eisental/common/page/*.java src/net/eisental/common/parsing/*.java src/com/sk89q/util/*.java src/com/sk89q/minecraft/util/commands/*.java \
     src/com/sk89q/bukkit/util/*.java
