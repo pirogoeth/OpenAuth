@@ -253,8 +253,10 @@ public class OAPlayer {
     }
 
     public void setOffline() {
-        this.session.clearAction();
-        this.state = PlayerState.OFFLINE;
+        try {
+            this.session.clearAction();
+        } catch (java.lang.NullPointerException e) {}
+        this.setState(PlayerState.OFFLINE);
         // this.getServer().callEvent(new OAPlayerOfflineEvent(this));
     }
 
