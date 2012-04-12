@@ -85,7 +85,7 @@ public class OpenAuth extends JavaPlugin {
     /**
      * Dynamically registers commands.
      */
-    private CommandRegistration dynamicCommandRegistry;
+    private CommandsManagerRegistration dynamicCommandRegistry;
 
     /**
      * Plugin setup.
