@@ -114,7 +114,7 @@ public class Config {
            e.printStackTrace();
            return;
        }
-       log.info("Saved data configuration.");
+       log.exDebug("Saved data configuration.");
        return;
     }
 
