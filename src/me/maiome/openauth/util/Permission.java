@@ -30,7 +30,7 @@ public class Permission {
         log.info("Searching for a suitable permissions plugin.");
         Plugin permissions = null;
         // check for a permissions method
-        if (packageExists("ru.tehkode.permissions.bukkit.PermissionsEx") {
+        if (packageExists("ru.tehkode.permissions.bukkit.PermissionsEx")) {
             handler = HandlerType.PERMISSIONS_EX;
             permissions = getPlugin("PermissionsEx");
         } else if (isPluginEnabled("PermissionsBukkit")) {
