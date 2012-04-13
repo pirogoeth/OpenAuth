@@ -162,6 +162,9 @@ public class Session {
         this.actions.add(0, action);
         try {
             this.setAction((String) this.action.getClass().getField("name").get(this.action));
+            if (this.actions.get(0).hasArgs()) {
+                this.action.setArgs(this.actions.get(0).args);
+            }
         } catch (java.lang.Exception e) {
             this.action = null;
         }
@@ -176,6 +179,9 @@ public class Session {
         this.actions.add(0, action);
         try {
             this.setAction((String) this.action.getClass().getField("name").get(this.action));
+            if (this.actions.get(0).hasArgs()) {
+                this.action.setArgs(this.actions.get(0).args);
+            }
         } catch (java.lang.Exception e) {
             this.action = null;
         }
