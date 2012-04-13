@@ -114,10 +114,14 @@ public class OAPlayer {
     // this is called whenever the player moves.
     public void moved() {
         if (this.getSession().isFrozen()
-            && ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.movement", true) == true) {
+            && ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.movement", true) == true
+            && !(this.getSession().isIdentified())) {
 
             this.sendMessage(ChatColor.RED + "You must first identify to move.");
-            this.setLocation(this.getSession().getLoginLocation());
+            this.setLocation(this.getLocation());
+        } else if (this.getSession().isFrozen() && this.getSession().isIdentified()) {
+            this.sendMessage(ChatColor.RED + "You have been frozen.");
+            this.setLocation(this.getLocation());
         }
         this.flying = this.getPlayer().isFlying();
     }

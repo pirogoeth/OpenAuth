@@ -74,7 +74,7 @@ public class FreezeStick implements Action {
     public void run(final OAPlayer player) {
         this.target = player;
         this.target.getSession().setFrozen(true);
-        this.target.sendMessage(String.format("%sYou have been frozen by %s.", ChatColor.BLUE, this.target.getName()));
+        this.target.sendMessage(String.format("%sYou have been frozen by %s.", ChatColor.BLUE, this.sender.getName()));
         this.used = true;
     }
 
