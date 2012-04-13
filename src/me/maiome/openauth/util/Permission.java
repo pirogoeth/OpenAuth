@@ -24,7 +24,7 @@ public class Permission {
     private static HandlerType handler = HandlerType.NONE;
     private static Plugin permissions;
 
-    public Permission (OpenAuth instance) {
+    public Permission(OpenAuth instance) {
         plugin = instance;
         LogHandler log = new LogHandler();
         log.info("Searching for a suitable permissions plugin.");
@@ -60,17 +60,17 @@ public class Permission {
         }
     }
 
-    private static boolean isPluginEnabled (String pluginname) {
+    private static boolean isPluginEnabled(String pluginname) {
         return plugin.getServer().getPluginManager().isPluginEnabled(pluginname);
     }
 
-    private static Plugin getPlugin (String pluginname) {
+    private static Plugin getPlugin(String pluginname) {
         return (Plugin) plugin.getServer().getPluginManager().getPlugin(pluginname);
     }
 
-    private static boolean packageExists(String package) {
+    private static boolean packageExists(String pkg) {
         try {
-            Class.forName(package);
+            Class.forName(pkg);
             return true;
         } catch (java.lang.Exception e) {
             return false;
