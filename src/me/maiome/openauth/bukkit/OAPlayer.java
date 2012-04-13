@@ -274,7 +274,7 @@ public class OAPlayer {
     // session methods
 
     public void initSession() {
-        this.session = this.sc.create(this);
+        this.session = this.sc.get(this);
     }
 
     public Session getSession() {

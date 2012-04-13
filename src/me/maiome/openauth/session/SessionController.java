@@ -114,23 +114,19 @@ public class SessionController {
     public Session get(OAPlayer player) {
         if (this.session_bag.containsKey(player))
             return this.session_bag.get(player);
-        else
+        else {
+            log.exDebug(String.format("Created session for OAPlayer %s.", player.getName()));
             return this.create(player);
+        }
     }
 
     public Session get(String player) {
         OAPlayer _player = this.controller.wrapOAPlayer(player);
-        if (this.session_bag.containsKey(_player))
-            return this.session_bag.get(_player);
-        else
-            return this.create(_player);
+        return this.get(_player);
     }
 
     public Session get(Player player) {
         OAPlayer _player = this.controller.wrapOAPlayer(player);
-        if (this.session_bag.containsKey(_player))
-            return this.session_bag.get(_player);
-        else
-            return this.create(_player);
+        return this.get(_player);
     }
 }
