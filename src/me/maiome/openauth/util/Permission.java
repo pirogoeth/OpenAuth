@@ -30,7 +30,7 @@ public class Permission {
         log.info("Searching for a suitable permissions plugin.");
         Plugin permissions = null;
         // check for a permissions method
-        if (isPluginEnabled("PermissionsEx")) {
+        if (packageExists("ru.tehkode.permissions.bukkit.PermissionsEx") {
             handler = HandlerType.PERMISSIONS_EX;
             permissions = getPlugin("PermissionsEx");
         } else if (isPluginEnabled("PermissionsBukkit")) {
@@ -66,6 +66,15 @@ public class Permission {
 
     private static Plugin getPlugin (String pluginname) {
         return (Plugin) plugin.getServer().getPluginManager().getPlugin(pluginname);
+    }
+
+    private static boolean packageExists(String package) {
+        try {
+            Class.forName(package);
+            return true;
+        } catch (java.lang.Exception e) {
+            return false;
+        }
     }
 
     private enum HandlerType {

@@ -202,6 +202,20 @@ public class OACommands {
         return;
     }
 
+    @Console
+    @Command(aliases = {"whitelist-add"}, usage = "<user>", desc = "Allows whitelisting of players.",
+             min = 1, max = 1)
+    @CommandPermissions({ "openauth.whitelist.add" })
+    public static void whitelistadd(CommandContext args, CommandSender sender) throws CommandException {
+        if (controller.getOAServer().getWhitelistHandler().isEnabled()) {
+            controller.getOAServer().getWhitelistHandler().whitelistPlayer(args.getString(0));
+            sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been whitelisted.", args.getString(0)));
+            return;
+        }
+        sender.sendMessage(ChatColor.GREEN + "Whitelisting is not enabled.");
+        return;
+    }
+
     @Command(aliases = {"test-placement"}, desc = "", max = 0)
     public static void ptest(CommandContext args, CommandSender sender) throws CommandException {
         OAPlayer player = controller.wrapOAPlayer((Player) sender);
