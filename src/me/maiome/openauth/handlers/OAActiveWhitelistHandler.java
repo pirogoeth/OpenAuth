@@ -58,11 +58,11 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
     public void processPlayerJoin(PlayerLoginEvent event, OAPlayer player) {
         if (!(this.isEnabled())) return;
         if (!(isWhitelisted(player))) {
-            event.disallow(Result.KICK_WHITELIST, "You are not whitelisted on this server!");
             if (ConfigInventory.MAIN.getConfig().getBoolean("whitelisting.broadcast-failures", false) == true) {
                 this.controller.getOAServer().getServer().broadcastMessage(ChatColor.GREEN + String.format(
                     "Player %s has tried to join, but is not whitelisted!", player.getName()));
             }
+            event.disallow(Result.KICK_WHITELIST, "You are not whitelisted on this server!");
         }
     }
 
