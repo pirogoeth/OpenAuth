@@ -45,7 +45,7 @@ public class OAPlayer {
         this.state = PlayerState.UNKNOWN;
         this.sc = this.server.getSessionController();
 
-        this.player_ip = player.getAddress().getAddress().toString();
+        this.player_ip = player.getAddress().toString();
     }
 
     public OAPlayer(OAServer server, PlayerLoginEvent event) {
@@ -54,7 +54,7 @@ public class OAPlayer {
         this.state = PlayerState.UNKNOWN;
         this.sc = this.server.getSessionController();
 
-        this.player_ip = event.getAddress().getAddress().toString();
+        this.player_ip = event.getAddress().toString();
     }
 
     // enumerate all possible player states
@@ -88,7 +88,7 @@ public class OAPlayer {
 
     public void updateIP() {
         try {
-            this.player_ip = (this.player.getAddress().getAddress().toString() == this.player_ip) ? this.player_ip : this.player.getAddress().getAddress().toString();
+            this.player_ip = (this.player.getAddress().toString() == this.player_ip) ? this.player_ip : this.player.getAddress().toString();
             if (!(this.ip_list.contains(this.player_ip))) {
                 this.ip_list.add(this.player_ip);
                 this.ip_changed = true;

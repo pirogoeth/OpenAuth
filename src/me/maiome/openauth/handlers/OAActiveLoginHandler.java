@@ -95,7 +95,7 @@ public class OAActiveLoginHandler implements OALoginHandler {
                 this.controller.getOAServer().getIPBanReason(player.getIP()));
             return;
         } else {
-            this.log.exDebug(String.format("%s (%s) matched no IP bans!", player.getIP(), player.getName()));
+            this.log.exDebug(String.format("%s (%s) matched no IP bans!", event.getAddress().getHostAddress().toString(), player.getName()));
         }
         event.allow();
         // check ip stuff.
