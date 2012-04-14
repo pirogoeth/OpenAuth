@@ -8,6 +8,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -147,6 +148,9 @@ public class OpenAuth extends JavaPlugin {
         // register command classes.
         this.dynamicCommandRegistry.register(OACommands.OAParentCommand.class);
 
+        // generate sessions for all users
+        this.sc.createAll();
+
         // loaded.
         log.info("Enabled version " + version + ".");
     };
@@ -250,7 +254,7 @@ public class OpenAuth extends JavaPlugin {
      */
     public OAPlayer wrapOAPlayer(Player player) {
         if (!(player instanceof org.bukkit.entity.LivingEntity) && (player instanceof org.bukkit.entity.Player)) return null;
-        if(!(players.containsKey(player.getName()))) {
+        if (!(players.containsKey(player.getName()))) {
             OAPlayer _player = new OAPlayer(this.oaserver, player);
             players.put(player.getName(), _player);
             return _player;
@@ -260,10 +264,22 @@ public class OpenAuth extends JavaPlugin {
         return null;
     }
 
+    public OAPlayer wrapOAPlayer(PlayerLoginEvent event) {
+        if (!(players.containsKey(event.getPlayer().getName()))) {
+            OAPlayer _player = new OAPlayer(this.oaserver, event);
+            players.put(event.getPlayer().getName(), _player);
+            return _player;
+        } else if (players.containsKey(event.getPlayer().getName())) {
+            return players.get(event.getPlayer().getName());
+        }
+        return null;
+    }
+
     public OAPlayer wrapOAPlayer(String _player) {
         Player player = this.getServer().getPlayer(_player);
-        if (!(player instanceof org.bukkit.entity.LivingEntity) && (player instanceof org.bukkit.entity.Player)) return null;
-        if(!(players.containsKey(player.getName()))) {
+        if (!(player instanceof org.bukkit.entity.LivingEntity) && (player instanceof org.bukkit.entity.Player) ||
+            (player instanceof org.bukkit.OfflinePlayer)) return null;
+        if (!(players.containsKey(_player))) {
             OAPlayer __player = new OAPlayer(this.oaserver, player);
             players.put(player.getName(), __player);
             return __player;

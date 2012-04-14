@@ -6,6 +6,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.inventory.ItemStack;
 
 // java imports
@@ -44,7 +45,16 @@ public class OAPlayer {
         this.state = PlayerState.UNKNOWN;
         this.sc = this.server.getSessionController();
 
-        this.player_ip = this.player.getAddress().getAddress().toString();
+        this.player_ip = player.getAddress().getAddress().toString();
+    }
+
+    public OAPlayer(OAServer server, PlayerLoginEvent event) {
+        this.player = event.getPlayer();
+        this.server = server;
+        this.state = PlayerState.UNKNOWN;
+        this.sc = this.server.getSessionController();
+
+        this.player_ip = event.getAddress().getAddress().toString();
     }
 
     // enumerate all possible player states
@@ -77,11 +87,16 @@ public class OAPlayer {
     }
 
     public void updateIP() {
-        this.player_ip = (this.player.getAddress().getAddress().toString() == this.player_ip) ? this.player_ip : this.player.getAddress().getAddress().toString();
-        if (!(this.ip_list.contains(this.player_ip))) {
-            this.ip_list.add(this.player_ip);
-            this.ip_changed = true;
-        } else {
+        try {
+            this.player_ip = (this.player.getAddress().getAddress().toString() == this.player_ip) ? this.player_ip : this.player.getAddress().getAddress().toString();
+            if (!(this.ip_list.contains(this.player_ip))) {
+                this.ip_list.add(this.player_ip);
+                this.ip_changed = true;
+            } else {
+                this.ip_changed = false;
+            }
+        } catch (java.lang.NullPointerException e) {
+            // can't really do anything about this, sadly.
             this.ip_changed = false;
         }
     }
@@ -250,7 +265,7 @@ public class OAPlayer {
     // state methods
 
     public void setOnline() {
-        this.updateIP();
+        if (this.session != null) this.updateIP();
         if (this.flying) this.fly(true);
         this.state = PlayerState.ONLINE;
         // this.getServer().callEvent(new OAPlayerOnlineEvent(this));
@@ -283,6 +298,9 @@ public class OAPlayer {
         if (this.session == null && this.state == PlayerState.ONLINE) {
             this.initSession();
             log.exDebug(String.format("Had to force a session for online player %s.", this.getName()));
+        } else if (this.session != this.sc.get(this)) {
+            this.initSession();
+            log.exDebug(String.format("Resetting session for player %s.", this.getName()));
         }
         return this.session;
     }

@@ -7,6 +7,8 @@ import me.maiome.openauth.util.*;
 // bukkit
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerLoginEvent.Result;
 
 // java
 import java.util.ArrayList;
@@ -53,10 +55,10 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
         return (this.isWhitelisted(player) == true) ? WhitelistStatus.ALLOWED : WhitelistStatus.DISALLOWED;
     }
 
-    public void processPlayerJoin(OAPlayer player) {
+    public void processPlayerJoin(PlayerLoginEvent event, OAPlayer player) {
         if (!(this.isEnabled())) return;
         if (!(isWhitelisted(player))) {
-            this.controller.getOAServer().kickPlayer(player, "You are not whitelisted on this server!");
+            event.disallow(Result.KICK_WHITELIST, "You are not whitelisted on this server!");
             if (ConfigInventory.MAIN.getConfig().getBoolean("whitelisting.broadcast-failures", false) == true) {
                 this.controller.getOAServer().getServer().broadcastMessage(ChatColor.GREEN + String.format(
                     "Player %s has tried to join, but is not whitelisted!", player.getName()));

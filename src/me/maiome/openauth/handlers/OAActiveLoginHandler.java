@@ -2,6 +2,8 @@ package me.maiome.openauth.handlers;
 
 // bukkit imports
 import org.bukkit.ChatColor;
+import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerLoginEvent.Result;
 
 // java imports
 import java.util.Map;
@@ -73,28 +75,29 @@ public class OAActiveLoginHandler implements OALoginHandler {
         return (this.isPlayerLoggedIn(player) == true) ? LoginStatus.ACTIVE : LoginStatus.INACTIVE;
     }
 
-    public void processPlayerLogin(OAPlayer player) {
+    public void processPlayerLogin(PlayerLoginEvent event, OAPlayer player) {
         if (!(this.isEnabled())) return;
         player.setOnline();
         // fix the players location.
         player.getSession().setFrozen(false);
         player.fixLocation();
         if (this.controller.getOAServer().hasNameBan(player.getName())) {
-            this.controller.getOAServer().kickPlayer(
-                player,
+            event.disallow(
+                Result.KICK_BANNED,
                 this.controller.getOAServer().getNameBanReason(player.getName()));
             return;
         } else {
             this.log.exDebug(String.format("%s matched no name bans!", player.getName()));
         }
         if (this.controller.getOAServer().hasIPBan(player.getIP())) {
-            this.controller.getOAServer().kickPlayer(
-                player,
+            event.disallow(
+                Result.KICK_BANNED,
                 this.controller.getOAServer().getIPBanReason(player.getIP()));
             return;
         } else {
             this.log.exDebug(String.format("%s (%s) matched no IP bans!", player.getIP(), player.getName()));
         }
+        event.allow();
         // check ip stuff.
         if (player.hasIPChanged()) {
             // this user may not be trusted

@@ -54,7 +54,6 @@ public class SessionController {
     public SessionController (OpenAuth controller) {
         this.controller = controller;
         this.server = this.controller.getOAServer();
-        this.createAll();
         log.exDebug(String.format("Session Pruning: {DELAY: %s, PERIOD: %s}", Long.toString(prune_delay), Long.toString(prune_period)));
     }
 
@@ -71,7 +70,7 @@ public class SessionController {
 
     public void createAll() {
         for (Player player : this.server.getServer().getOnlinePlayers()) {
-            this.create(player);
+            this.get(player);
         }
     }
 

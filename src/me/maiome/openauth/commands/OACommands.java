@@ -154,32 +154,28 @@ public class OACommands {
     @CommandPermissions({ "openauth.ban.name" })
     public static void banName(CommandContext args, CommandSender sender) throws CommandException {
         String reason;
-        if (args.getString(0) != null && controller.getOAServer().getServer().getOfflinePlayer(args.getString(0)).hasPlayedBefore() &&
-            controller.wrapOAPlayer(args.getString(0)) == null) {
-
+        if (args.getString(0) != null && !(controller.wrapOAPlayer(args.getString(0)) == null)) {
             controller.getOAServer().banPlayerByName(args.getString(0));
             if (args.argsLength() > 1) {
                 controller.getOAServer().kickPlayer(controller.wrapOAPlayer(args.getString(0)), args.getJoinedStrings(1));
+                controller.getOAServer().banPlayerByName(controller.wrapOAPlayer(args.getString(0)), args.getJoinedStrings(1));
             } else {
+                controller.getOAServer().kickPlayer(controller.wrapOAPlayer(args.getString(0)));
                 controller.getOAServer().banPlayerByName(controller.wrapOAPlayer(args.getString(0)));
             }
             sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been banned.", args.getString(0)));
             return;
-        } else if (controller.wrapOAPlayer(args.getString(0)) == null && !(controller.getOAServer().getServer().getOfflinePlayer(args.getString(0)).hasPlayedBefore())) {
-            sender.sendMessage(ChatColor.BLUE + "Please provide a valid player to ban.");
-            return;
-        }
-        if (args.argsLength() > 1) {
-            // there has been a reason given.
-            reason = args.getJoinedStrings(1);
-            controller.getOAServer().banPlayerByName(controller.wrapOAPlayer(args.getString(0)), reason);
-            controller.getOAServer().kickPlayer(controller.wrapOAPlayer(args.getString(0)), reason);
-            sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been banned.", args.getString(0)));
-        } else {
-            // there has not been a reason given
-            controller.getOAServer().banPlayerByName(controller.wrapOAPlayer(args.getString(0)));
-            controller.getOAServer().kickPlayer(controller.wrapOAPlayer(args.getString(0)));
-            sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been banned.", args.getString(0)));
+        } else if (args.getString(0) != null && controller.wrapOAPlayer(args.getString(0)) == null) {
+            // banning a player and that is all. no kicking, just preventing a join.
+            if (args.argsLength() > 1) {
+                controller.getOAServer().banPlayerByName(args.getString(0), args.getJoinedStrings(1));
+                sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been banned. [%s]", args.getString(0), args.getJoinedStrings(1)));
+                return;
+            } else {
+                controller.getOAServer().banPlayerByName(args.getString(0));
+                sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been banned.", args.getString(0)));
+                return;
+            }
         }
     }
 
@@ -210,6 +206,20 @@ public class OACommands {
         if (controller.getOAServer().getWhitelistHandler().isEnabled()) {
             controller.getOAServer().getWhitelistHandler().whitelistPlayer(args.getString(0));
             sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been whitelisted.", args.getString(0)));
+            return;
+        }
+        sender.sendMessage(ChatColor.GREEN + "Whitelisting is not enabled.");
+        return;
+    }
+
+    @Console
+    @Command(aliases = {"whitelist-remove"}, usage = "<user>", desc = "Allows dewhitelisting of players.",
+             min = 1, max = 1)
+    @CommandPermissions({ "openauth.whitelist.remove" })
+    public static void whitelistremove(CommandContext args, CommandSender sender) throws CommandException {
+        if (controller.getOAServer().getWhitelistHandler().isEnabled()) {
+            controller.getOAServer().getWhitelistHandler().unwhitelistPlayer(args.getString(0));
+            sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been unwhitelisted.", args.getString(0)));
             return;
         }
         sender.sendMessage(ChatColor.GREEN + "Whitelisting is not enabled.");

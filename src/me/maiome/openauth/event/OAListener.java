@@ -23,7 +23,7 @@ import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
@@ -79,10 +79,10 @@ public class OAListener implements Listener {
      * This will be used to for ban and whitelist features.
      */
     @EventHandler(priority = EventPriority.HIGH)
-    public void onPlayerJoin(PlayerJoinEvent event) {
-        OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
-        this.controller.getOAServer().getWhitelistHandler().processPlayerJoin(player);
-        this.controller.getOAServer().getLoginHandler().processPlayerLogin(player);
+    public void onPlayerLogin(PlayerLoginEvent event) {
+        OAPlayer player = this.controller.wrapOAPlayer(event);
+        this.controller.getOAServer().getWhitelistHandler().processPlayerJoin(event, player);
+        this.controller.getOAServer().getLoginHandler().processPlayerLogin(event, player);
         player.initSession();
         player.getSession().setLoginLocation();
         return;
