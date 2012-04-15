@@ -32,10 +32,12 @@ import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAPlayer;
 import me.maiome.openauth.bukkit.OAServer;
 import me.maiome.openauth.util.ConfigInventory;
+import me.maiome.openauth.util.LogHandler;
 
 public class OAListener implements Listener {
 
     private final OpenAuth controller;
+    private final LogHandler log = new LogHandler();
 
     public OAListener(OpenAuth oa) {
         this.controller = oa;
@@ -78,11 +80,13 @@ public class OAListener implements Listener {
      *
      * This will be used to for ban and whitelist features.
      */
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerLogin(PlayerLoginEvent event) {
         OAPlayer player = this.controller.wrapOAPlayer(event);
         this.controller.getOAServer().getWhitelistHandler().processPlayerJoin(event, player);
+        if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) return;
         this.controller.getOAServer().getLoginHandler().processPlayerLogin(event, player);
+        if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) return;
         player.initSession();
         player.getSession().setLoginLocation();
         return;

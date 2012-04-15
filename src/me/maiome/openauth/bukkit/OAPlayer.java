@@ -144,6 +144,7 @@ public class OAPlayer {
     // movement/location-type methods
 
     public void fixLocation() {
+        this.getSession().setFrozen(false);
         if (this.getLocation().getWorld().getBlockAt(this.getLocation()).getTypeId() != 0) {
             Location loc = this.getLocation();
             int block_id = 1;
@@ -153,6 +154,7 @@ public class OAPlayer {
             }
             this.setLocation(loc);
         }
+        this.getSession().setFrozen(true);
         return;
     }
 

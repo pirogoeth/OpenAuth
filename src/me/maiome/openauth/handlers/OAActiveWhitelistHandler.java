@@ -8,7 +8,6 @@ import me.maiome.openauth.util.*;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerLoginEvent;
-import org.bukkit.event.player.PlayerLoginEvent.Result;
 
 // java
 import java.util.ArrayList;
@@ -24,9 +23,11 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
     public OAActiveWhitelistHandler(OpenAuth controller) {
         this.controller = controller;
         this.loadWhitelist();
-        log.exDebug("Whitelist:");
-        for (String name : this.whitelist) {
-            log.exDebug(" => " + name);
+        if (ConfigInventory.MAIN.getConfig().getBoolean("whitelisting.print-on-load", true) == true) {
+            log.exDebug("Whitelist:");
+            for (String name : this.whitelist) {
+                log.exDebug(" => " + name);
+            }
         }
     }
 
@@ -62,8 +63,10 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
                 this.controller.getOAServer().getServer().broadcastMessage(ChatColor.GREEN + String.format(
                     "Player %s has tried to join, but is not whitelisted!", player.getName()));
             }
-            event.disallow(Result.KICK_WHITELIST, "You are not whitelisted on this server!");
+            event.disallow(PlayerLoginEvent.Result.KICK_WHITELIST, "You are not whitelisted on this server!");
+            return;
         }
+        event.allow();
     }
 
     public void saveWhitelist() {
@@ -106,6 +109,7 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
         if (!(this.isEnabled())) return;
         if (this.whitelist.contains(name)) {
             this.whitelist.remove(name);
+            this.saveWhitelist();
         } else {
             return;
         }
