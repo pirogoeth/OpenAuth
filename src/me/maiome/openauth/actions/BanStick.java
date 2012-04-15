@@ -59,6 +59,10 @@ public class BanStick implements Action {
         return true;
     }
 
+    public String[] getArgs() {
+        return this.args;
+    }
+
     public boolean hasArgs() {
         return (this.args != null);
     }

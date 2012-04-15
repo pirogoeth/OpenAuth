@@ -146,7 +146,7 @@ public class Session {
         try {
             this.setAction((String) this.action.getClass().getField("name").get(this.action));
             if (this.actions.get(0).hasArgs()) {
-                this.action.setArgs(this.actions.get(0).args);
+                this.action.setArgs(this.actions.get(0).getArgs());
             }
         } catch (java.lang.Exception e) {
             this.action = null;
@@ -163,7 +163,7 @@ public class Session {
         try {
             this.setAction((String) this.action.getClass().getField("name").get(this.action));
             if (this.actions.get(0).hasArgs()) {
-                this.action.setArgs(this.actions.get(0).args);
+                this.action.setArgs(this.actions.get(0).getArgs());
             }
         } catch (java.lang.Exception e) {
             this.action = null;
@@ -180,7 +180,7 @@ public class Session {
         try {
             this.setAction((String) this.action.getClass().getField("name").get(this.action));
             if (this.actions.get(0).hasArgs()) {
-                this.action.setArgs(this.actions.get(0).args);
+                this.action.setArgs(this.actions.get(0).getArgs());
             }
         } catch (java.lang.Exception e) {
             this.action = null;
@@ -204,7 +204,7 @@ public class Session {
     }
 
     public void undoLastActions(int i) {
-        for (int c = 0; c <= (i - 1); c++) { // using (i - 1) since lists are zero indexed.
+        for (int c = 0; c <= (i - 1); c++) { // using (i - 1) since lists are zero indexed and length is one-indexed.
             try {
                 this.actions.get(c).undo();
                 this.actions.remove(c);

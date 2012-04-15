@@ -57,6 +57,10 @@ public class FreezeStick implements Action {
         return false;
     }
 
+    public String[] getArgs() {
+        return this.args;
+    }
+
     public boolean hasArgs() {
         return (this.args != null);
     }

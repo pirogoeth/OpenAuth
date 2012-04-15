@@ -29,6 +29,7 @@ public interface Action {
     boolean allowsAnyEntityTarget();
     boolean allowsArgs();
     boolean hasArgs();
+    String[] getArgs();
     boolean requiresArgs();
 
     void setSender(final OAPlayer sender);

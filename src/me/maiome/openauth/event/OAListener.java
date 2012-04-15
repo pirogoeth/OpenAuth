@@ -23,6 +23,7 @@ import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -90,6 +91,28 @@ public class OAListener implements Listener {
         player.initSession();
         player.getSession().setLoginLocation();
         return;
+    }
+
+    /**
+     * Called when a player joins the server (after the player logs in).
+     */
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        OAPlayer player = this.controller.wrapOAPlayer(event.getPlayer());
+        if (ConfigInventory.MAIN.getConfig().getBoolean("auth.greet-players", true) == true) {
+            if (!(player.getPlayer().hasPlayedBefore())) {
+                player.sendMessage(ChatColor.GREEN + String.format(
+                    "Welcome to %s, %s! To player on our server, we require you to register with OpenAuth.",
+                    player.getServer().getServer().getServerName(), player.getName()
+                ));
+                player.sendMessage(ChatColor.GREEN + "To register, use this command: /oa register <password>");
+            } else if (player.getPlayer().hasPlayedBefore()) {
+                player.sendMessage(ChatColor.GREEN + String.format(
+                    "Welcome back to %s, %s! Please login to play! To login, use: /oa login <password>",
+                    player.getServer().getServer().getServerName(), player.getName()
+                ));
+            }
+        }
     }
 
     /**

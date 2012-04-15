@@ -250,6 +250,13 @@ public class OpenAuth extends JavaPlugin {
     }
 
     /**
+     * Register commands with OpenAuth's instance of the WorldEdit command framework.
+     */
+    public void registerCommandClass(Class<?> clazz) {
+        this.dynamicCommandRegistry.register(clazz);
+    }
+
+    /**
      * Wraps a player into an OAPlayer instance.
      */
     public OAPlayer wrapOAPlayer(Player player) {
