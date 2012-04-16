@@ -66,6 +66,8 @@ public interface OALoginHandler {
      */
     void processPlayerRegistration(OAPlayer player, String password);
 
+    boolean compareToCurrent(OAPlayer player, String password);
+
     /**
      * Returns all active (logged in) players.
      */
