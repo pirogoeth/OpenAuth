@@ -119,6 +119,11 @@ public class OAActiveLoginHandler implements OALoginHandler {
         ConfigInventory.DATA.getConfig().set(String.format("credentials.%s.password", player.getName()), this.getStringHash(password));
     }
 
+    public boolean compareToCurrent(OAPlayer player, String password) {
+        if (!(this.isEnabled())) return false;
+        return (ConfigInventory.DATA.getConfig().getString(String.format("credentials.%s.password")).equals(password);
+    }
+
     public List<OAPlayer> getActivePlayers() {
         return this.active;
     }

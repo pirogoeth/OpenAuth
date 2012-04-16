@@ -16,13 +16,14 @@ import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
 import me.maiome.openauth.util.Permission;
 
-public interface Action {
+public interface IAction {
 
     // fields
     String name = null;
     String[] args = null;
 
     // methods
+    String getName();
     boolean allowed();
     boolean isUsed();
     boolean requiresEntityTarget();

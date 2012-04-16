@@ -77,6 +77,25 @@ public class OACommands {
         return;
     }
 
+    @Command(aliases = {"changepass"}, usage = "<oldpass> <newpass>", desc = "Change your current password.",
+             min = 2, max = 2)
+    public static void changepass(CommandContext args, CommandContext sender) throws CommandException {
+        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+        String oldpass = args.getString(0), newpass = args.getString(1);
+        if (!(controller.getOAServer().getLoginHandler().isRegistered(player))) {
+            player.sendMessage(ChatColor.RED + "How can you change your password if you aren't even registered? -_-'");
+            return;
+        } else if (!(player.getSession().isIdentified())) {
+            player.sendMessage(ChatColor.RED + "You must be logged in to change your password, sorry.");
+            return;
+        }
+        if (controller.getOAServer().getLoginHandler().compareToCurrent(player, oldpass)) {
+            controller.getOAServer().getLoginHandler().processPlayerRegistration(player, newpass);
+            player.sendMessage(ChatColor.BLUE + "Your password has been changed!");
+            return;
+        }
+    }
+
     @Command(aliases = {"register"}, usage = "<password>", desc = "Login to the server.",
              min = 1, max = 1)
     public static void register(CommandContext args, CommandSender sender) throws CommandException {
@@ -209,6 +228,23 @@ public class OACommands {
             return;
         }
         sender.sendMessage(ChatColor.GREEN + "Whitelisting is not enabled.");
+        return;
+    }
+
+    @Console
+    @Command(aliases = {"whitelist-show"}, usage = "", desc = "Prints the whitelist.",
+             max = 0)
+    @CommandPermissions({ "openauth.whitelist.show" })
+    public static void whitelistshow(CommandContext args, CommandSender sender) throws CommandException {
+        if (controller.getOAServer().getWhitelistHandler()isEnabled()) {
+            sender.sendMessage(ChatColor.BLUE + "Whitelist:");
+            for (String name : controller.getOAServer().getOAServer().getWhitelistHandler().getWhitelist()) {
+                sender.sendMessage(ChatColor.BLUE + String.format(" => %s", name));
+            }
+        } else {
+            sender.sendMessage(ChatColor.GREEN + "Whitelisting is disabled!");
+            return;
+        }
         return;
     }
 

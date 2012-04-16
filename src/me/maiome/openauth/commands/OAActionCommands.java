@@ -33,15 +33,10 @@ public class OAActionCommands {
     }
 
     @Command(aliases = {"set-action"}, usage = "<action name>", min = 1,
-             flags = "c", desc = "Sets the action performed by the OAWand.")
+             desc = "Sets the action performed by the OAWand.")
     @CommandPermissions({"openauth.wand.set-action"})
     public static void setaction(CommandContext args, CommandSender sender) {
         OAPlayer player = controller.wrapOAPlayer((Player) sender);
-        if (args.hasFlag('c')) {
-            player.getSession().clearAction();
-            player.sendMessage(ChatColor.BLUE + "Cleared wand action.");
-            return;
-        }
         if (Actions.actionExists(args.getString(0).toLowerCase())) {
             try {
                 player.getSession().clearAction();
@@ -54,6 +49,9 @@ public class OAActionCommands {
                 if (player.getSession().getAction().requiresArgs() || player.getSession().getAction().allowsArgs()) { // the action allows args
                     player.getSession().getAction().setArgs((args.getJoinedStrings(1)).split(" "));
                 }
+            } else if (args.argsLength() == 1 && player.getSession().getAction().requiresArgs()) {
+                player.sendMessage(ChatColor.BLUE + "This action requires arguments. Please set them with /oa set-args.");
+                return;
             }
             player.sendMessage(ChatColor.BLUE + String.format("Action %s has been activated.", args.getString(0).toLowerCase()));
             return;
@@ -76,7 +74,7 @@ public class OAActionCommands {
                 player.sendMessage(ChatColor.RED + "You have not provided enough args to set.");
                 return;
             }
-            player.sendMessage(ChatColor.BLUE + String.format("Args have been set for action %s.", player.getSession().getAction().name));
+            player.sendMessage(ChatColor.BLUE + String.format("Args have been set for action %s.", player.getSession().getAction().getName()));
             return;
         }
     }

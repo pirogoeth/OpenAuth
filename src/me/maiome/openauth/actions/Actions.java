@@ -16,7 +16,8 @@ public enum Actions {
 
     BAN(BanStick.class),
     BOOM(BoomStick.class),
-    FREEZE(FreezeStick.class);
+    FREEZE(FreezeStick.class),
+    SPAWN(SpawnStick.class);
 
     public final Class action;
     private final static LogHandler log = new LogHandler();
@@ -37,12 +38,12 @@ public enum Actions {
     /**
      * Instantiates an Action by the specified name.
      */
-    public static Action getActionByName(final String name, final Session attachable) {
-        Action a;
+    public static IAction getActionByName(final String name, final Session attachable) {
+        IAction a;
         try {
             if (store.get(name) != null) {
                 Constructor c = (store.get(name)).getConstructor(action_cons_types);
-                a = (Action) c.newInstance(attachable.getServer(), attachable);
+                a = (IAction) c.newInstance(attachable.getServer(), attachable);
             } else {
                 return null;
             }
@@ -57,10 +58,10 @@ public enum Actions {
     /**
      * Instantiates the specified Action.
      */
-    public Action getInstance(Session attachable) {
+    public IAction getInstance(Session attachable) {
         try {
             Constructor c = this.action.getConstructor(action_cons_types);
-            return (Action) c.newInstance(attachable.getServer(), attachable);
+            return (IAction) c.newInstance(attachable.getServer(), attachable);
         } catch (java.lang.Exception e) {
             log.info("Exception caught while instantiating an action.");
             e.printStackTrace();
@@ -76,7 +77,7 @@ public enum Actions {
     }
 
     /**
-     * Returns a full list of registered actions.
+     * Returns a full list of registered Actions.
      */
     public static Set<String> getActions() {
         return (Set<String>) store.keySet();
@@ -91,9 +92,11 @@ public enum Actions {
      *   ...
      *   Actions.registerAction(ShitStick.class);
      */
-    public static void registerAction(Class a) {
+    public static void registerAction(final Class a) {
+        // if (!(a.isAssignableFrom(IAction.class))) return;
         try {
             store.put((String) a.getField("name").get(a), a);
+            log.exDebug(String.format("Action %s (%s) was registered.", (String) a.getField("name").get(a), a.getCanonicalName()));
         } catch (java.lang.Exception e) {
             log.info("Exception occurred while registering an Action.");
             e.printStackTrace();
@@ -108,9 +111,11 @@ public enum Actions {
      *   ...
      *   Actions.purgeAction(ShitStick.class);
      */
-    public static void purgeAction(Class a) {
+    public static void purgeAction(final Class a) {
+        if (!(a.isAssignableFrom(IAction.class))) return;
         try {
             store.remove((String) a.getField("name").get(a));
+            log.exDebug(String.format("Action %s (%s) was purged.", (String) a.getField("name").get(a), a.getCanonicalName()));
         } catch (java.lang.Exception e) {
             log.info("Exception occurred while purging an Action.");
             e.printStackTrace();
@@ -118,10 +123,11 @@ public enum Actions {
     }
 
     // Instantiates all internal actions.
+
     static {
         for (Actions a : Actions.values()) {
             try {
-                store.put((String) (a.getAction()).getField("name").get(a.getAction()), a.getAction());
+                registerAction(a.getAction());
             } catch (java.lang.Exception e) {
                 log.info("Exception occurred while initialising Actions enumerator.");
                 e.printStackTrace();

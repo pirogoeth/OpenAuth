@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 // core imports
+import me.maiome.openauth.actions.*;
 import me.maiome.openauth.commands.*;
 import me.maiome.openauth.event.*;
 import me.maiome.openauth.session.*;

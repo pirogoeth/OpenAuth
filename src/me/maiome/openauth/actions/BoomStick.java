@@ -30,7 +30,7 @@ import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
 import me.maiome.openauth.util.Permission;
 
-public class BoomStick implements Action {
+public class BoomStick implements IAction {
 
     public static final String name = "boom";
 
@@ -55,6 +55,10 @@ public class BoomStick implements Action {
         this.sc = server.getController().getSessionController();
         this.attached = attached;
         this.setSender(this.attached.getPlayer());
+    }
+
+    public String getName() {
+        return name;
     }
 
     public boolean allowed() {
@@ -95,8 +99,10 @@ public class BoomStick implements Action {
 
     public void setArgs(String[] args) {
         try {
+            this.args = args;
             this.power = Float.parseFloat(args[0]);
         } catch (java.lang.ArrayIndexOutOfBoundsException e) {
+            this.log.info(String.format("[%s] %s", e.getClass().getCanonicalName(), e.getMessage()));
             return;
         }
     }
@@ -107,6 +113,7 @@ public class BoomStick implements Action {
         OAExplosionListener.addOAOrigin(this.t_location);
         player.getLocation().getWorld().createExplosion(
             this.t_location, this.power, this.fire);
+        this.sender.sendMessage(ChatColor.BLUE + String.format("%d blocks have been changed.", OAExplosionListener.getExplosion(this.t_location).size()));
         this.used = true;
     }
 
@@ -116,6 +123,7 @@ public class BoomStick implements Action {
         OAExplosionListener.addOAOrigin(this.t_location);
         block.getLocation().getWorld().createExplosion(
             this.t_location, this.power, this.fire);
+        this.sender.sendMessage(ChatColor.BLUE + String.format("%d blocks have been changed.", OAExplosionListener.getExplosion(this.t_location).size()));
         this.used = true;
     }
 
@@ -145,6 +153,7 @@ public class BoomStick implements Action {
         OAExplosionListener.addOAOrigin(this.t_location);
         entity.getLocation().getWorld().createExplosion(
             this.t_location, this.power, this.fire);
+        this.sender.sendMessage(ChatColor.BLUE + String.format("%d blocks have been changed.", OAExplosionListener.getExplosion(this.t_location).size()));
         this.used = true;
     }
 

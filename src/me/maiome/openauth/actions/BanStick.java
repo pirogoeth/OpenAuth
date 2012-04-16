@@ -18,7 +18,7 @@ import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
 import me.maiome.openauth.util.Permission;
 
-public class BanStick implements Action {
+public class BanStick implements IAction {
 
     public static final String name = "ban";
 
@@ -37,6 +37,10 @@ public class BanStick implements Action {
         this.sc = server.getController().getSessionController();
         this.attached = attached;
         this.setSender(this.attached.getPlayer());
+    }
+
+    public String getName() {
+        return name;
     }
 
     public boolean allowed() {

@@ -15,7 +15,7 @@ import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
 import me.maiome.openauth.util.Permission;
 
-public class FreezeStick implements Action {
+public class FreezeStick implements IAction {
 
     public static final String name = "freeze";
 
@@ -35,6 +35,10 @@ public class FreezeStick implements Action {
         this.sc = server.getController().getSessionController();
         this.attached = attached;
         this.setSender(this.attached.getPlayer());
+    }
+
+    public String getName() {
+        return name;
     }
 
     public boolean allowed() {

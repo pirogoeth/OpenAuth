@@ -1,5 +1,7 @@
 package me.maiome.openauth.session;
 
+import com.sk89q.util.StringUtil; // string utilities.
+
 // java imports
 import java.util.Map;
 import java.util.HashMap;
@@ -32,11 +34,11 @@ public class Session {
     private SessionController sc;
     private OAPlayer player;
     private OAServer server;
-    private Action action = null;
+    private IAction action = null;
     private boolean freeze = (ConfigInventory.MAIN.getConfig().getBoolean("auth.require", false) == true) ? true : false;
     private boolean frozen;
     private boolean identified = false;
-    private List<Action> actions = new ArrayList<Action>();
+    private List<IAction> actions = new ArrayList<IAction>();
     private Location lloc;
 
     protected final int wand_id = ConfigInventory.MAIN.getConfig().getInt("wand-id");
@@ -128,7 +130,7 @@ public class Session {
 
     // action methods
 
-    public Action getAction() {
+    public IAction getAction() {
         return (this.action != null) ? this.action : null;
     }
 
@@ -149,6 +151,7 @@ public class Session {
                 this.action.setArgs(this.actions.get(0).getArgs());
             }
         } catch (java.lang.Exception e) {
+            this.log.warning(String.format("Exception occurred: [%s] %s", e.getClass().getCanonicalName(), e.getMessage()));
             this.action = null;
         }
     }
@@ -166,6 +169,7 @@ public class Session {
                 this.action.setArgs(this.actions.get(0).getArgs());
             }
         } catch (java.lang.Exception e) {
+            this.log.warning(String.format("Exception occurred: [%s] %s", e.getClass().getCanonicalName(), e.getMessage()));
             this.action = null;
         }
     }
@@ -183,6 +187,7 @@ public class Session {
                 this.action.setArgs(this.actions.get(0).getArgs());
             }
         } catch (java.lang.Exception e) {
+            this.log.warning(String.format("Exception occurred: [%s] %s", e.getClass().getCanonicalName(), e.getMessage()));
             this.action = null;
         }
     }
@@ -199,19 +204,33 @@ public class Session {
     }
 
     public void undoLastAction() {
+        if (this.actions.size() == 0) {
+            this.player.sendMessage(ChatColor.BLUE + "You do not have any more actions to undo.");
+            return;
+        }
         this.actions.get(0).undo();
         this.actions.remove(0);
     }
 
     public void undoLastActions(int i) {
-        for (int c = 0; c <= (i - 1); c++) { // using (i - 1) since lists are zero indexed and length is one-indexed.
+        int n = (this.actions.size() - i);
+        if (0 > n || i > this.actions.size()) {
+            this.player.sendMessage(ChatColor.BLUE + "Undoing ALL of your actions, since you have given me a number that is greater than or equal to the number of actions performed.");
+            for (IAction a : this.actions) {
+                a.undo();
+            }
+            this.player.sendMessage(ChatColor.BLUE + String.format("I have undone %d actions.", this.actions.size()));
+            this.actions.clear();
+            return;
+        }
+        for (int c = 1; c <= i; c++) {
             try {
-                this.actions.get(c).undo();
-                this.actions.remove(c);
+                this.actions.get((c - 1)).undo(); // converting one-indexed to zero-indexed
+                this.actions.remove((c - 1)); // here too
             } catch (java.lang.IndexOutOfBoundsException e) {
                 this.player.sendMessage(ChatColor.BLUE + String.format(
                     "I was only able to undo your last %d actions. Actions %d through %d don't exist.",
-                    (c), (c + 1), (i)
+                    (c - 1), (c), (i)
                 ));
                 break;
             }
