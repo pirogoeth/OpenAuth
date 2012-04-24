@@ -355,8 +355,8 @@ public class OAPlayer {
     public Session getSession() {
         if (this.session == null && this.state == PlayerState.ONLINE) {
             this.initSession();
-            log.exDebug(String.format("Had to force a session for online player %s.", this.getName()));
-        } else if (this.session != this.sc.get(this)) {
+            log.exDebug(String.format("Forced a session for online player %s.", this.getName()));
+        } else if (this.session != this.sc.get(this) && this.session != null) {
             this.initSession();
             log.exDebug(String.format("Resetting session for player %s.", this.getName()));
         }
