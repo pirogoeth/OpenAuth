@@ -159,13 +159,13 @@ public class OAServer {
 
     // player-management methods
 
-    public void kickPlayer(final OAPlayer player) {
-        player.getPlayer().kickPlayer("No reason.");
+    public void kickPlayer(OAPlayer player) {
+        player.kickPlayer("No reason.");
         log.info("Kicked player: " + player.getName());
         player.setOffline();
     }
 
-    public void kickPlayer(final OAPlayer player, final String reason) {
+    public void kickPlayer(OAPlayer player, final String reason) {
         player.getPlayer().kickPlayer(reason);
         log.info("Kicked player: " + player.getName() + ", reason: " + reason);
         player.setOffline();

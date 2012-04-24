@@ -29,8 +29,8 @@ public class SessionController {
     private boolean started_tasks = false;
 
     // task fields
-    private final long prune_delay = ConfigInventory.MAIN.getConfig().getLong("session-prune-delay", 900L);
-    private final long prune_period = ConfigInventory.MAIN.getConfig().getLong("session-prune-period", 1800L);
+    private final long prune_delay = ConfigInventory.MAIN.getConfig().getLong("session-prune-delay", 6000L);
+    private final long prune_period = ConfigInventory.MAIN.getConfig().getLong("session-prune-period", 12000L);
 
     // scheduler tasks
     private Runnable pruning_task = new Runnable () {
@@ -48,6 +48,8 @@ public class SessionController {
             while (prune.hasNext()) {
                 forget(prune.next());
             }
+
+            log.exDebug(String.format("Pruned %d sessions.", pruning.size()));
         }
     };
 
@@ -81,13 +83,13 @@ public class SessionController {
     }
 
     private Session create(Player player) {
-        Session session = new Session(this, this.controller.wrapOAPlayer(player));
+        Session session = new Session(this, this.controller.wrap(player));
         this.remember(session);
         return session;
     }
 
     private Session create(String player) {
-        Session session = new Session(this, this.controller.wrapOAPlayer(player));
+        Session session = new Session(this, this.controller.wrap(player));
         this.remember(session);
         return session;
     }
@@ -111,21 +113,21 @@ public class SessionController {
     }
 
     public Session get(OAPlayer player) {
-        if (this.session_bag.containsKey(player))
+        if (this.session_bag.containsKey(player)) {
             return this.session_bag.get(player);
-        else {
-            log.exDebug(String.format("Created session for OAPlayer %s.", player.getName()));
+        } else {
+            log.exDebug(String.format("Creating session for OAPlayer %s.", player.getName()));
             return this.create(player);
         }
     }
 
     public Session get(String player) {
-        OAPlayer _player = this.controller.wrapOAPlayer(player);
+        OAPlayer _player = this.controller.wrap(player);
         return this.get(_player);
     }
 
     public Session get(Player player) {
-        OAPlayer _player = this.controller.wrapOAPlayer(player);
+        OAPlayer _player = this.controller.wrap(player);
         return this.get(_player);
     }
 }

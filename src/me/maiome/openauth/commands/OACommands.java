@@ -56,7 +56,7 @@ public class OACommands {
     @Command(aliases = {"login"}, usage = "<password>", desc = "Login to the server.",
              min = 1, max = 1)
     public static void login(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+        OAPlayer player = controller.wrap((Player) sender);
         String password = args.getString(0);
         if (controller.getOAServer().getLoginHandler().processPlayerIdentification(player, password)) {
             player.getSession().setIdentified(true, true);
@@ -71,7 +71,7 @@ public class OACommands {
     @Command(aliases = {"logout"}, usage = "", desc = "Logout from the plugin.",
              max = 0)
     public static void logout(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+        OAPlayer player = controller.wrap((Player) sender);
         player.getSession().setIdentified(false, true);
         player.sendMessage(ChatColor.BLUE + "You have been logged out.");
         return;
@@ -80,7 +80,7 @@ public class OACommands {
     @Command(aliases = {"changepass"}, usage = "<oldpass> <newpass>", desc = "Change your current password.",
              min = 2, max = 2)
     public static void changepass(CommandContext args, CommandContext sender) throws CommandException {
-        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+        OAPlayer player = controller.wrap((Player) sender);
         String oldpass = args.getString(0), newpass = args.getString(1);
         if (!(controller.getOAServer().getLoginHandler().isRegistered(player))) {
             player.sendMessage(ChatColor.RED + "How can you change your password if you aren't even registered? -_-'");
@@ -99,7 +99,7 @@ public class OACommands {
     @Command(aliases = {"register"}, usage = "<password>", desc = "Login to the server.",
              min = 1, max = 1)
     public static void register(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+        OAPlayer player = controller.wrap((Player) sender);
         String password = args.getString(0);
         if (!(controller.getOAServer().getLoginHandler().isRegistered(player))) {
             controller.getOAServer().getLoginHandler().processPlayerRegistration(player, password);
@@ -116,7 +116,7 @@ public class OACommands {
              max = 0)
     @CommandPermissions({ "openauth.wand" })
     public static void wand(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+        OAPlayer player = controller.wrap((Player) sender);
         player.getSession().giveWand();
     }
 
@@ -126,20 +126,20 @@ public class OACommands {
     @CommandPermissions({ "openauth.ban.ip" })
     public static void banIP(CommandContext args, CommandSender sender) throws CommandException {
         String reason;
-        if (controller.wrapOAPlayer(args.getString(0)) == null) {
+        if (controller.wrap(args.getString(0)) == null) {
             sender.sendMessage(ChatColor.BLUE + "Please provide a valid player to ban.");
             return;
         }
         if (args.argsLength() > 1) {
             // there has been a reason given.
             reason = args.getJoinedStrings(1);
-            controller.getOAServer().banPlayerByIP(controller.wrapOAPlayer(args.getString(0)), reason);
-            controller.getOAServer().kickPlayer(controller.wrapOAPlayer(args.getString(0)), reason);
+            controller.getOAServer().banPlayerByIP(controller.wrap(args.getString(0)), reason);
+            controller.getOAServer().kickPlayer(controller.wrap(args.getString(0)), reason);
             sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been banned.", args.getString(0)));
         } else {
             // there has not been a reason given
-            controller.getOAServer().banPlayerByIP(controller.wrapOAPlayer(args.getString(0)));
-            controller.getOAServer().kickPlayer(controller.wrapOAPlayer(args.getString(0)));
+            controller.getOAServer().banPlayerByIP(controller.wrap(args.getString(0)));
+            controller.getOAServer().kickPlayer(controller.wrap(args.getString(0)));
             sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been banned.", args.getString(0)));
         }
     }
@@ -172,19 +172,18 @@ public class OACommands {
              min = 1, max = -1)
     @CommandPermissions({ "openauth.ban.name" })
     public static void banName(CommandContext args, CommandSender sender) throws CommandException {
-        String reason;
-        if (args.getString(0) != null && !(controller.wrapOAPlayer(args.getString(0)) == null)) {
-            controller.getOAServer().banPlayerByName(args.getString(0));
+        if (controller.wrappable(args.getString(0))) {
+            OAPlayer player = controller.wrap(args.getString(0));
             if (args.argsLength() > 1) {
-                controller.getOAServer().kickPlayer(controller.wrapOAPlayer(args.getString(0)), args.getJoinedStrings(1));
-                controller.getOAServer().banPlayerByName(controller.wrapOAPlayer(args.getString(0)), args.getJoinedStrings(1));
+                controller.getOAServer().kickPlayer(player, args.getJoinedStrings(1));
+                controller.getOAServer().banPlayerByName(player, args.getJoinedStrings(1));
             } else {
-                controller.getOAServer().kickPlayer(controller.wrapOAPlayer(args.getString(0)));
-                controller.getOAServer().banPlayerByName(controller.wrapOAPlayer(args.getString(0)));
+                controller.getOAServer().kickPlayer(player);
+                controller.getOAServer().banPlayerByName(player);
             }
             sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been banned.", args.getString(0)));
             return;
-        } else if (args.getString(0) != null && controller.wrapOAPlayer(args.getString(0)) == null) {
+        } else if (!(controller.wrappable(args.getString(0)))) {
             // banning a player and that is all. no kicking, just preventing a join.
             if (args.argsLength() > 1) {
                 controller.getOAServer().banPlayerByName(args.getString(0), args.getJoinedStrings(1));
@@ -203,16 +202,12 @@ public class OACommands {
              min = 1, max = 1)
     @CommandPermissions({ "openauth.unban.name" })
     public static void unbanName(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = controller.forciblyWrapOAPlayer(args.getString(0));
-        if (player == null) {
-            sender.sendMessage(ChatColor.BLUE + "You need to provide the banned name, as this user does not exist in my memory.");
+        if (!(controller.getOAServer().hasNameBan(args.getString(0)))) {
+            sender.sendMessage(ChatColor.BLUE + String.format("There is not an existing ban for %s.", args.getString(0)));
             return;
-        }
-        try {
-            controller.getOAServer().unbanPlayerByName(player.getName());
-            sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been unbanned.", player.getName()));
-        } catch (java.lang.NullPointerException e) {
-            log.warning("Was not able to get a valid name from OAPlayer instance (" + player.toString() + "). Please report this.");
+        } else {
+            controller.getOAServer().unbanPlayerByName(args.getString(0));
+            sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been unbanned.", args.getString(0)));
         }
         return;
     }
@@ -264,25 +259,25 @@ public class OACommands {
 
     @Command(aliases = {"test-placement"}, desc = "", max = 0)
     public static void ptest(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+        OAPlayer player = controller.wrap((Player) sender);
         Location loc = player.getLocation();
         Direction d = player.getSimpleDirection();
         if (d == Direction.NORTH) {
-            // player is z-aligned and +
+            // player is x-aligned, decreasing x value
+            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() + 5, loc.getBlockY(), loc.getBlockZ() + 3)).setTypeId(1);
+            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() + 5, loc.getBlockY(), loc.getBlockZ() - 3)).setTypeId(1);
+        } else if (d == Direction.WEST) {
+            // player is z-aligned, incresing z value
             loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() + 3, loc.getBlockY(), loc.getBlockZ() - 5)).setTypeId(1);
             loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() - 3, loc.getBlockY(), loc.getBlockZ() - 5)).setTypeId(1);
-        } else if (d == Direction.WEST) {
-            // player is x-aligned and +
+        } else if (d == Direction.EAST) {
+            // player is z-aligned, decreasing z value
+            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() + 3, loc.getBlockY(), loc.getBlockZ() + 5)).setTypeId(1);
+            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() - 3, loc.getBlockY(), loc.getBlockZ() + 5)).setTypeId(1);
+        } else if (d == Direction.SOUTH) {
+            // player is x-aligned, increasing x value
             loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() - 5, loc.getBlockY(), loc.getBlockZ() + 3)).setTypeId(1);
             loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() - 5, loc.getBlockY(), loc.getBlockZ() - 3)).setTypeId(1);
-        } else if (d == Direction.EAST) {
-            // player is z-aligned and -
-            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() - 3, loc.getBlockY(), loc.getBlockZ() + 5)).setTypeId(1);
-            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() + 3, loc.getBlockY(), loc.getBlockZ() + 5)).setTypeId(1);
-        } else if (d == Direction.SOUTH) {
-            // player is x-aligned and -
-            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() + 5, loc.getBlockY(), loc.getBlockZ() - 3)).setTypeId(1);
-            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() + 5, loc.getBlockY(), loc.getBlockZ() + 3)).setTypeId(1);
         }
         return;
     }

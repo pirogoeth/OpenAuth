@@ -36,7 +36,7 @@ public class OAActionCommands {
              desc = "Sets the action performed by the OAWand.")
     @CommandPermissions({"openauth.wand.set-action"})
     public static void setaction(CommandContext args, CommandSender sender) {
-        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+        OAPlayer player = controller.wrap((Player) sender);
         if (Actions.actionExists(args.getString(0).toLowerCase())) {
             try {
                 player.getSession().clearAction();
@@ -64,7 +64,7 @@ public class OAActionCommands {
     @Command(aliases = {"set-args"}, usage = "<args>", min = 1,
              desc = "Sets arguments for the current action.")
     public static void setargs(CommandContext args, CommandSender sender) {
-        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+        OAPlayer player = controller.wrap((Player) sender);
         if (player.getSession().hasAction() &&
             (player.getSession().getAction().allowsArgs() || player.getSession().getAction().requiresArgs())) {
 
@@ -83,7 +83,7 @@ public class OAActionCommands {
              desc = "Clears the user's current action.")
     @CommandPermissions({"openauth.wand.clear-action"})
     public static void clearaction(CommandContext args, CommandSender sender) {
-        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+        OAPlayer player = controller.wrap((Player) sender);
 
         player.getSession().clearAction();
         player.sendMessage(ChatColor.BLUE + "Cleared wand action.");
@@ -94,7 +94,7 @@ public class OAActionCommands {
              flags = "i", desc = "Undo the last action on the list.")
     @CommandPermissions({"openauth.wand.undo-action"})
     public static void undoaction(CommandContext args, CommandSender sender) {
-        OAPlayer player = controller.wrapOAPlayer((Player) sender);
+        OAPlayer player = controller.wrap((Player) sender);
         if (args.hasFlag('i')) {
             // this means the player is going to undo the last 'i' actions.
             player.getSession().undoLastActions(new Integer(args.getString(0)));

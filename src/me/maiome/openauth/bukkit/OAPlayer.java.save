@@ -81,28 +81,6 @@ public class OAPlayer {
         return this.player.getName();
     }
 
-    public Player getPlayer() {
-        return this.player;
-    }
-
-    public OAServer getServer() {
-        return this.server;
-    }
-
-    public int getItemInHand() {
-        return this.player.getItemInHand().getTypeId();
-    }
-
-    public void sendMessage(String message) {
-        this.player.sendMessage(message);
-    }
-
-    public void kickPlayer(String reason) {
-        this.player.kickPlayer(reason);
-        this.setOffline();
-    }
-
-    // IP methods
     public String getIP() {
         return this.player_ip;
     }
@@ -126,7 +104,21 @@ public class OAPlayer {
         }
     }
 
-    // conv/support methods
+    public Player getPlayer() {
+        return this.player;
+    }
+
+    public OAServer getServer() {
+        return this.server;
+    }
+
+    public int getItemInHand() {
+        return this.player.getItemInHand().getTypeId();
+    }
+
+    public void sendMessage(String message) {
+        this.player.sendMessage(message);
+    }
 
     public void fly(boolean f) {
         this.player.setAllowFlight(true);
@@ -282,7 +274,7 @@ public class OAPlayer {
             case NORTH:
                 return Direction.NORTH;
             case NORTH_EAST:
-                return Direction.NORTH;
+                return Direction.EAST;
             case EAST:
                 return Direction.EAST;
             case SOUTH_EAST:
@@ -290,7 +282,7 @@ public class OAPlayer {
             case SOUTH:
                 return Direction.SOUTH;
             case SOUTH_WEST:
-                return Direction.SOUTH;
+                return Direction.WEST;
             case WEST:
                 return Direction.WEST;
             case NORTH_WEST:
@@ -355,8 +347,8 @@ public class OAPlayer {
     public Session getSession() {
         if (this.session == null && this.state == PlayerState.ONLINE) {
             this.initSession();
-            log.exDebug(String.format("Had to force a session for online player %s.", this.getName()));
-        } else if (this.session != this.sc.get(this)) {
+            log.exDebug(String.format("Forced a session for online player %s.", this.getName()));
+        } else if (this.session != this.sc.get(this) && this.session != null) {
             this.initSession();
             log.exDebug(String.format("Resetting session for player %s.", this.getName()));
         }

@@ -59,7 +59,7 @@ public class OAActiveLoginHandler implements OALoginHandler {
 
     public boolean isPlayerLoggedIn(String player) {
         if (!(this.isEnabled())) return true;
-        return this.active.contains(this.controller.wrapOAPlayer(this.controller.getServer().getPlayer(player)));
+        return this.active.contains(this.controller.wrap(this.controller.getServer().getPlayer(player)));
     }
 
     public boolean isRegistered(OAPlayer player) {

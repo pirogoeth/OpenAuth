@@ -88,7 +88,7 @@ public class Session {
     }
 
     public void updateFreezeState() {
-        this.frozen = (identified == true) ? false : true;
+        this.frozen = (this.identified == true) ? false : true;
     }
 
     // wand methods

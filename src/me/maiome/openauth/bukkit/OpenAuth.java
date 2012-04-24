@@ -258,9 +258,20 @@ public class OpenAuth extends JavaPlugin {
     }
 
     /**
+     * Whether or not a player can be easily wrapped.
+     */
+    public boolean wrappable(String name) {
+        return (players.containsKey(name) && (this.getServer().getPlayer(name) != null));
+    }
+
+    public boolean wrappable(Player player) {
+        return this.wrappable(player.getName());
+    }
+
+    /**
      * Wraps a player into an OAPlayer instance.
      */
-    public OAPlayer wrapOAPlayer(Player player) {
+    public OAPlayer wrap(Player player) {
         if (!(player instanceof org.bukkit.entity.LivingEntity) && (player instanceof org.bukkit.entity.Player)) return null;
         if (!(players.containsKey(player.getName()))) {
             OAPlayer _player = new OAPlayer(this.oaserver, player);
@@ -272,7 +283,7 @@ public class OpenAuth extends JavaPlugin {
         return null;
     }
 
-    public OAPlayer wrapOAPlayer(PlayerLoginEvent event) {
+    public OAPlayer wrap(PlayerLoginEvent event) {
         if (!(players.containsKey(event.getPlayer().getName()))) {
             OAPlayer _player = new OAPlayer(this.oaserver, event);
             players.put(event.getPlayer().getName(), _player);
@@ -283,18 +294,9 @@ public class OpenAuth extends JavaPlugin {
         return null;
     }
 
-    public OAPlayer wrapOAPlayer(String _player) {
+    public OAPlayer wrap(String _player) {
         Player player = this.getServer().getPlayer(_player);
-        if (!(player instanceof org.bukkit.entity.LivingEntity) && (player instanceof org.bukkit.entity.Player) ||
-            (player instanceof org.bukkit.OfflinePlayer)) return null;
-        if (!(players.containsKey(_player))) {
-            OAPlayer __player = new OAPlayer(this.oaserver, player);
-            players.put(player.getName(), __player);
-            return __player;
-        } else if (players.containsKey(player.getName())) {
-            return players.get(player.getName());
-        }
-        return null;
+        return this.wrap(player);
     }
 
     public OAPlayer forciblyWrapOAPlayer(String _player) {
