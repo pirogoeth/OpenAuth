@@ -87,6 +87,14 @@ public class OAServer {
         return Bukkit.getScheduler().scheduleAsyncRepeatingTask(this.controller, task, delay, period);
     }
 
+    public void cancelTask(final int id) {
+        Bukkit.getScheduler().cancelTasks(id);
+    }
+
+    public void cancelAllOATasks() {
+        Bukkit.getScheduler().cancelTasks(this.controller);
+    }
+
     // support
 
     public Server getServer() {

@@ -119,7 +119,7 @@ public class Config {
     }
 
     public void check() {
-        // stub
+        // version checking! (stub)
         return;
     }
 }

@@ -104,4 +104,23 @@ public class OAActionCommands {
         player.getSession().undoLastAction();
         player.sendMessage(ChatColor.BLUE + "Action has been undone.");
     }
+
+    @Command(aliases = {"list-actions"}, usage = "", max = 0,
+             desc = "Provide a list of actions.")
+    public static void listaction(CommandContext args, CommandSender sender) {
+        String list = new String();
+        for (Actions a : Actions.values()) {
+            if (ConfigInventory.MAIN.getConfig().getBoolean("actions.verbose-list", false) == true) {
+                list += String.format(" - %s (%s)\n", a.toString().toLowerCase(), a.getAction().getCanonicalName());
+            } else {
+                list += String.format(" - %s\n", a.toString().toLowerCase());
+            }
+        }
+        Pager.beginPaging(
+            sender,
+            "==Action List==",
+            list,
+            ChatColor.GREEN,
+            ChatColor.BLUE);
+    }
 }
