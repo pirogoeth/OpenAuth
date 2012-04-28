@@ -67,7 +67,7 @@ public class HellHounds implements IAction {
                 Wolf w = world.spawn(block.getLocation(), Wolf.class);
                 spawned.add(w);
                 w.setNoDamageTicks((int) removal_delay);
-                w.setTarget((LivingEntity) player.getPlayer());
+                w.setTarget((LivingEntity) target.getPlayer());
                 w.setAngry(true);
             }
         }

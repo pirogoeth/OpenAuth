@@ -81,3 +81,6 @@ actions:
         fire: false
         animal-cruelty: false
         golem-cruelty: false
+    hounds:
+        attack-delay: 60
+        removal-delay: 600
