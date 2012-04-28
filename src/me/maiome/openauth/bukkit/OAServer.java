@@ -88,7 +88,7 @@ public class OAServer {
     }
 
     public void cancelTask(final int id) {
-        Bukkit.getScheduler().cancelTasks(id);
+        Bukkit.getScheduler().cancelTask(id);
     }
 
     public void cancelAllOATasks() {

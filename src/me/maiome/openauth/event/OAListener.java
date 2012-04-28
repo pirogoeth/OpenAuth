@@ -137,12 +137,17 @@ public class OAListener implements Listener {
     public void onPlayerChat(PlayerChatEvent event) {
         OAPlayer player = this.controller.wrap(event.getPlayer());
 
-        if (player.getSession().isFrozen() == true &&
-            ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.chat", true) == true) {
+        try {
+            if (player.getSession().isFrozen() == true &&
+               ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.chat", true) == true) {
 
-            event.setCancelled(true);
-            player.sendMessage(ChatColor.RED + "You must identify first to chat.");
-            return;
+                event.setCancelled(true);
+                player.sendMessage(ChatColor.RED + "You must identify first to chat.");
+               return;
+            }
+        } catch (java.lang.Exception e) {
+            log.warning(String.format("Caught Exception %s while processing onPlayerChat.", e.getMessage()));
+            log.exDebug(e.toString());
         }
         return;
     }

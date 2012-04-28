@@ -2,10 +2,13 @@ package me.maiome.openauth.actions;
 
 // bukkit
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Animals;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Wolf;
 
 // internal
@@ -18,7 +21,7 @@ import me.maiome.openauth.util.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class HellHounds extends IBaseAction {
+public class HellHounds implements IAction {
 
     public static final String name = "hounds";
     public static List<OAPlayer> attacking = new ArrayList<OAPlayer>();
@@ -28,13 +31,16 @@ public class HellHounds extends IBaseAction {
     private final LogHandler log = new LogHandler();
     private final String permissible = "openauth.action.send-hounds";
     private final long attack_delay = ConfigInventory.MAIN.getConfig().getLong("actions.hounds.attack-delay", 60L);
-    private final long removal = ConfigInventory.MAIN.getConfig().getLong("actions.hounds.removal-time", 600L);
+    private final long removal_delay = ConfigInventory.MAIN.getConfig().getLong("actions.hounds.removal-delay", 600L);
     private OAServer server;
+    private int attack_taskid;
     private int destruction_taskid;
     private boolean used = false;
 
     protected OAPlayer sender;
     protected OAPlayer target;
+    protected int target_mode;
+    protected List<Block> blocks = new ArrayList<Block>(2);
     protected List<Wolf> spawned = new ArrayList<Wolf>();
     protected boolean storming;
 
@@ -50,7 +56,7 @@ public class HellHounds extends IBaseAction {
         public void run() {
             stopAttacking();
         }
-    }
+    };
 
     // task for creating the wolves and such.
     private Runnable attack = new Runnable () {
@@ -59,12 +65,13 @@ public class HellHounds extends IBaseAction {
             for (Block block : blocks) {
                 world.strikeLightningEffect(block.getLocation());
                 Wolf w = world.spawn(block.getLocation(), Wolf.class);
-                spawned.append(w);
+                spawned.add(w);
+                w.setNoDamageTicks((int) removal_delay);
+                w.setTarget((LivingEntity) player.getPlayer());
                 w.setAngry(true);
-                w.setTarget(target.getPlayer());
             }
         }
-    }
+    };
 
     // action base methods
     public String getName() {
@@ -79,29 +86,19 @@ public class HellHounds extends IBaseAction {
         return this.used;
     }
 
-    public boolean requiresEntityTarget() {
-        return true;
+    // smash all of this into a smaller block instead of spanning it out. cleaner and shorter.
+    public boolean requiresEntityTarget() { return true; }
+    public boolean allowsAnyEntityTarget() { return false; }
+    public boolean allowsArgs() { return false; }
+    public boolean requiresArgs() { return false; }
+    public boolean hasArgs() { return false; }
+    public String[] getArgs() { return null; }
+
+    public void setArgs(String[] args) {}
+
+    public void setSender(final OAPlayer sender) {
+        this.sender = sender;
     }
-
-    public boolean allowsAnyEntityTarget() {
-        return false;
-    }
-
-    public boolean allowsArgs() {
-        return false;
-    }
-
-    public boolean requiresArgs() {
-        return false;
-    }
-
-    public String[] getArgs() {}
-
-    public boolean hasArgs() {
-        return false;
-    }
-
-    public void setArgs() {}
 
     /**
      * This method uses mine and TakSayu's directional placement algorithm and sk89q's direction detection
@@ -112,39 +109,59 @@ public class HellHounds extends IBaseAction {
         Location loc = target.getLocation();
         switch (target.getSimpleDirection()) {
             case NORTH: // player is x-aligned, x++
-                blocks.append(loc.getWorld().getBlockAt(
+                blocks.add(loc.getWorld().getBlockAt(
                     new Location(loc.getWorld(), loc.getBlockX() + 5, loc.getBlockY() + 1, loc.getBlockZ() + 3)
                 ));
-                blocks.append(loc.getWorld().getBlockAt(
+                blocks.add(loc.getWorld().getBlockAt(
                     new Location(loc.getWorld(), loc.getBlockX() + 5, loc.getBlockY() + 1, loc.getBlockZ() - 3)
                 ));
                 break;
             case SOUTH: // player is x-aligned, x--
-                blocks.append(loc.getWorld().getBlockAt(
+                blocks.add(loc.getWorld().getBlockAt(
                     new Location(loc.getWorld(), loc.getBlockX() - 5, loc.getBlockY() + 1, loc.getBlockZ() + 3)
                 ));
-                blocks.append(loc.getWorld().getBlockAt(
+                blocks.add(loc.getWorld().getBlockAt(
                     new Location(loc.getWorld(), loc.getBlockX() - 5, loc.getBlockY() + 1, loc.getBlockZ() - 3)
                 ));
                 break;
             case EAST: // player is z-aligned, z++
-                blocks.append(loc.getWorld().getBlockAt(
+                blocks.add(loc.getWorld().getBlockAt(
                     new Location(loc.getWorld(), loc.getBlockX() + 3, loc.getBlockY() + 1, loc.getBlockZ() + 5)
                 ));
-                blocks.append(loc.getWorld().getBlockAt(
+                blocks.add(loc.getWorld().getBlockAt(
                     new Location(loc.getWorld(), loc.getBlockX() - 3, loc.getBlockY() + 1, loc.getBlockZ() + 5)
                 ));
                 break;
             case WEST: // player is z-aligned, z--
-                blocks.append(loc.getWorld().getBlockAt(
+                blocks.add(loc.getWorld().getBlockAt(
                     new Location(loc.getWorld(), loc.getBlockX() + 3, loc.getBlockY() + 1, loc.getBlockZ() - 5)
                 ));
-                blocks.append(loc.getWorld().getBlockAt(
+                blocks.add(loc.getWorld().getBlockAt(
                     new Location(loc.getWorld(), loc.getBlockX() - 3, loc.getBlockY() + 1, loc.getBlockZ() - 5)
                 ));
                 break;
         }
         return blocks;
+    }
+
+    // attack stop method
+    public void stopAttacking() {
+        // first, alert the attackee
+        this.target.sendMessage(ChatColor.BLUE + "You have survived the attack...good job!");
+        // despawn the wolves
+        for (Wolf w : this.spawned) {
+            w.remove();
+        }
+        // reset the player's gamemode
+        this.target.getPlayer().setGameMode(GameMode.getByValue(this.target_mode));
+        // reset the weather
+        if (this.storming) {
+            this.target.getWorld().setStorm(true);
+            this.target.getWorld().setThundering(false);
+        } else {
+            this.target.getWorld().setStorm(false);
+        }
+        attacking.remove(this.target);
     }
 
     // empty stubs for unused run blocks.
@@ -155,20 +172,33 @@ public class HellHounds extends IBaseAction {
     public void run(OAPlayer player) {
         if (attacking.contains(player)) {
             this.sender.sendMessage(ChatColor.BLUE + String.format("Player %s is already being attacked.", player.getName()));
+            this.used = false;
             return;
         }
         this.target = player;
-        attacking.append(player);
+        attacking.add(player);
         this.storming = player.getLocation().getWorld().hasStorm();
         if (!(this.storming)) {
             player.getLocation().getWorld().setStorm(true);
             player.getLocation().getWorld().setThundering(true);
-            player.getLocation().getWorld().setWeatherDuration((int) this.removal);
+            player.getLocation().getWorld().setWeatherDuration((int) this.removal_delay);
         }
         this.blocks = this.getApplicableBlocks(player);
+        this.target.sendMessage(ChatColor.RED + "Beware the hounds...");
+        this.target_mode = this.target.getPlayer().getGameMode().getValue();
+        this.target.getPlayer().setGameMode(GameMode.SURVIVAL);
         this.server.scheduleSyncDelayedTask(this.attack_delay, this.attack);
-        this.destruction_taskid = this.server.scheduleSyncDelayedTask(this.removal, this.destroy_wolves);
+        this.destruction_taskid = this.server.scheduleSyncDelayedTask(this.removal_delay, this.destroy_wolves);
+        this.used = true;
     }
 
-    public void undo() {} // stub for now.
+    public void undo() {
+        if (this.used == true) {
+            this.server.cancelTask(this.destruction_taskid);
+            this.server.scheduleSyncDelayedTask(0L, this.destroy_wolves);
+            this.sender.sendMessage(ChatColor.BLUE + String.format("Attack on %s cancelled.", this.target.getName()));
+        } else {
+            this.sender.sendMessage(ChatColor.BLUE + "This action cannot be undone, sorry o_o..");
+        }
+    }
 }
