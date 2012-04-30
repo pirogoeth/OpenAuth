@@ -14,9 +14,10 @@ import org.bukkit.Server;
 import org.bukkit.World;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 
 // internal imports
-import me.maiome.openauth.bukkit.OpenAuth;
+import me.maiome.openauth.bukkit.events.*;
 import me.maiome.openauth.handlers.*;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.Permission;
@@ -105,6 +106,10 @@ public class OAServer {
         return this.controller;
     }
 
+    public void callEvent(Event e) {
+        this.server.getPluginManager().callEvent(e);
+    }
+
     public SessionController getSessionController() {
         return this.controller.getSessionController();
     }
@@ -180,13 +185,17 @@ public class OAServer {
     }
 
     public void banPlayerByIP(final OAPlayer player) {
-        if (!(this.ip_bans.containsKey(player.getIP().replace('.', ',')))) {
+        OAPlayerBannedEvent event = new OAPlayerBannedEvent(player, "No reason given.");
+        this.callEvent(event);
+        if (!(this.ip_bans.containsKey(player.getIP().replace('.', ','))) && !(event.isCancelled())) {
             this.ip_bans.put(player.getIP().replace('.', ','), "No reason given.");
         }
     }
 
     public void banPlayerByIP(final OAPlayer player, final String reason) {
-        if (!(this.ip_bans.containsKey(player.getIP().replace('.', ',')))) {
+        OAPlayerBannedEvent event = new OAPlayerBannedEvent(player, reason);
+        this.callEvent(event);
+        if (!(this.ip_bans.containsKey(player.getIP().replace('.', ','))) && !(event.isCancelled())) {
             this.ip_bans.put(player.getIP().replace('.', ','), reason);
         }
     }
@@ -218,25 +227,33 @@ public class OAServer {
     }
 
     public void banPlayerByName(final OAPlayer player) {
-        if (!(this.name_bans.containsKey(player.getName()))) {
+        OAPlayerBannedEvent event = new OAPlayerBannedEvent(player, "No reason given.");
+        this.callEvent(event);
+        if (!(this.name_bans.containsKey(player.getName())) && !(event.isCancelled())) {
             this.name_bans.put(player.getName(), "No reason given.");
         }
     }
 
     public void banPlayerByName(final OAPlayer player, final String reason) {
-        if (!(this.name_bans.containsKey(player.getName()))) {
+        OAPlayerBannedEvent event = new OAPlayerBannedEvent(player, reason);
+        this.callEvent(event);
+        if (!(this.name_bans.containsKey(player.getName())) && !(event.isCancelled())) {
             this.name_bans.put(player.getName(), reason);
         }
     }
 
     public void banPlayerByName(final String player) {
-        if (!(this.name_bans.containsKey(player))) {
+        OAPlayerBannedEvent event = new OAPlayerBannedEvent(player, "No reason given.");
+        this.callEvent(event);
+        if (!(this.name_bans.containsKey(player)) && !(event.isCancelled())) {
             this.name_bans.put(player, "No reason given.");
         }
     }
 
     public void banPlayerByName(final String player, final String reason) {
-        if (!(this.name_bans.containsKey(player))) {
+        OAPlayerBannedEvent event = new OAPlayerBannedEvent(player, reason);
+        this.callEvent(event);
+        if (!(this.name_bans.containsKey(player)) && !(event.isCancelled())) {
             this.name_bans.put(player, reason);
         }
     }

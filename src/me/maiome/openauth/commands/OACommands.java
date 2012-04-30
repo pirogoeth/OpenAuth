@@ -13,10 +13,13 @@ import com.sk89q.minecraft.util.commands.*;
 
 // bukkit imports
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.MemorySection;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.Wolf;
 
 // java imports
 import java.util.Map;
@@ -257,29 +260,15 @@ public class OACommands {
         return;
     }
 
-    @Command(aliases = {"test-placement"}, desc = "", max = 0)
+    @Command(aliases = {"test"}, desc = "", max = 0)
     public static void ptest(CommandContext args, CommandSender sender) throws CommandException {
         OAPlayer player = controller.wrap((Player) sender);
         Location loc = player.getLocation();
-        Direction d = player.getSimpleDirection();
-        if (d == Direction.NORTH) {
-            // player is x-aligned, decreasing x value
-            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() + 5, loc.getBlockY(), loc.getBlockZ() + 3)).setTypeId(1);
-            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() + 5, loc.getBlockY(), loc.getBlockZ() - 3)).setTypeId(1);
-        } else if (d == Direction.WEST) {
-            // player is z-aligned, incresing z value
-            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() + 3, loc.getBlockY(), loc.getBlockZ() - 5)).setTypeId(1);
-            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() - 3, loc.getBlockY(), loc.getBlockZ() - 5)).setTypeId(1);
-        } else if (d == Direction.EAST) {
-            // player is z-aligned, decreasing z value
-            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() + 3, loc.getBlockY(), loc.getBlockZ() + 5)).setTypeId(1);
-            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() - 3, loc.getBlockY(), loc.getBlockZ() + 5)).setTypeId(1);
-        } else if (d == Direction.SOUTH) {
-            // player is x-aligned, increasing x value
-            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() - 5, loc.getBlockY(), loc.getBlockZ() + 3)).setTypeId(1);
-            loc.getWorld().getBlockAt(new Location(loc.getWorld(), loc.getBlockX() - 5, loc.getBlockY(), loc.getBlockZ() - 3)).setTypeId(1);
-        }
-        return;
+        player.getPlayer().setGameMode(GameMode.SURVIVAL);
+        Wolf w = loc.getWorld().spawn(loc.add(5, 0, 5), Wolf.class);
+        w.setAngry(true);
+        w.setTarget(((LivingEntity) player.getPlayer()));
+        w.setTarget(((LivingEntity) player.getPlayer()));
     }
 
     @Console

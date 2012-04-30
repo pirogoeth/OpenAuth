@@ -16,6 +16,7 @@ import java.math.*;
 import me.maiome.openauth.bukkit.OAPlayer;
 import me.maiome.openauth.bukkit.OAServer;
 import me.maiome.openauth.bukkit.OpenAuth;
+import me.maiome.openauth.bukkit.events.*;
 import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.Permission;
@@ -76,6 +77,8 @@ public class OAActiveLoginHandler implements OALoginHandler {
 
     public void processPlayerLogin(PlayerLoginEvent event, OAPlayer player) {
         if (!(this.isEnabled())) return;
+        OAPlayerLoginEvent _event = new OAPlayerLoginEvent(player);
+        this.controller.getOAServer().callEvent(_event);
         player.setOnline();
         // fix the players location.
         player.fixLocation();
