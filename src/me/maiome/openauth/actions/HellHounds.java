@@ -66,8 +66,9 @@ public class HellHounds implements IAction {
                 world.strikeLightningEffect(block.getLocation());
                 Wolf w = world.spawn(block.getLocation(), Wolf.class);
                 spawned.add(w);
+                w.damage(0, (Entity) target);
                 w.setNoDamageTicks((int) removal_delay);
-                w.setTarget((LivingEntity) target.getPlayer());
+                w.setFireTicks((int) removal_delay);
                 w.setAngry(true);
             }
         }
@@ -101,7 +102,7 @@ public class HellHounds implements IAction {
     }
 
     /**
-     * This method uses mine and TakSayu's directional placement algorithm and sk89q's direction detection
+     * This method uses my and TakSayu's directional placement algorithm and sk89q's direction detection
      * to place (maybe incendiary) wolves behind the player.
      */
     public List<Block> getApplicableBlocks(OAPlayer target) {

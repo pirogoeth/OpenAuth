@@ -28,11 +28,25 @@ public class OAActionCommands {
     private static OpenAuth controller;
     private static final LogHandler log = new LogHandler();
 
+    public static class ActionParentCommand {
+
+        private final OpenAuth controller;
+
+        public ActionParentCommand(OpenAuth controller) {
+            this.controller = controller;
+        }
+
+        @Command(aliases = {"action", "actions", "a"}, desc = "OpenAuth action commands",
+                 flags = "")
+        @NestedCommand({ OAActionCommands.class })
+        public static void actions() {}
+    }
+
     public OAActionCommands (OpenAuth openauth) {
         controller = openauth;
     }
 
-    @Command(aliases = {"set-action"}, usage = "<action name>", min = 1,
+    @Command(aliases = {"set"}, usage = "<action name>", min = 1,
              desc = "Sets the action performed by the OAWand.")
     @CommandPermissions({"openauth.wand.set-action"})
     public static void setaction(CommandContext args, CommandSender sender) {
@@ -79,7 +93,7 @@ public class OAActionCommands {
         }
     }
 
-    @Command(aliases = {"clear-action"}, usage = "", max = 0,
+    @Command(aliases = {"clear"}, usage = "", max = 0,
              desc = "Clears the user's current action.")
     @CommandPermissions({"openauth.wand.clear-action"})
     public static void clearaction(CommandContext args, CommandSender sender) {
@@ -90,7 +104,7 @@ public class OAActionCommands {
         return;
     }
 
-    @Command(aliases = {"undo-action"}, usage = "", min = 0, max = 2,
+    @Command(aliases = {"undo"}, usage = "", min = 0, max = 2,
              flags = "i", desc = "Undo the last action on the list.")
     @CommandPermissions({"openauth.wand.undo-action"})
     public static void undoaction(CommandContext args, CommandSender sender) {
@@ -105,7 +119,7 @@ public class OAActionCommands {
         player.sendMessage(ChatColor.BLUE + "Action has been undone.");
     }
 
-    @Command(aliases = {"list-actions"}, usage = "", max = 0,
+    @Command(aliases = {"list"}, usage = "", max = 0,
              desc = "Provide a list of actions.")
     public static void listaction(CommandContext args, CommandSender sender) {
         String list = new String();
