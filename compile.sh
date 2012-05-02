@@ -23,8 +23,8 @@ while getopts "vVhH" flag
 
 echo "[OpenAuth(${version}-${hashtag})] building.]"
 
-javac -Xlint:depreciated -Xstdout compile_log.txt -g -cp inc/craftbukkit.jar:inc/permissions.jar:inc/bukkit.jar:inc/worldedit.jar:inc/pex.jar \
-    src/me/maiome/openauth/*/*.java \
+javac -Xlint:depreciated -Xstdout compile_log.txt -sourcepath src/ -g -cp inc/craftbukkit.jar:inc/permissions.jar:inc/bukkit.jar:inc/worldedit.jar:inc/pex.jar \
+    src/me/maiome/openauth/*/*.java src/me/maiome/openauth/*/*/*.java \
     src/net/eisental/common/*/*.java
 
 errors=`cat "./compile_log.txt" | tail -n 1`
