@@ -1,15 +1,30 @@
 #!/usr/bin/env bash
 
-version=`cat src/plugin.yml | grep version | awk '{print $2}'`
-hashtag=`git log -n 1 | grep commit | awk '{ print $2 }' | cut -b 1-6`
+# ==============================================================================================================
+# configurable options
 
-while getopts "vVhH" flag
+name="OpenAuth"
+basedir="/home/pirogoeth/OpenAuth"
+javac_includes="inc/craftbukkit.jar:inc/permissions.jar:inc/bukkit.jar:inc/worldedit.jar:inc/pex.jar"
+javac_src="src/me/maiome/openauth/*/*.java src/me/maiome/openauth/*/*/*.java src/net/eisental/common/*/*.java"
+
+# configuration ENDS
+# ==============================================================================================================
+
+
+cd ${basedir}
+
+version=`cat src/plugin.yml | grep version | awk '{print $2}'`
+hashtag=`git log -n 1 | grep commit | awk '{ print $2 }' | cut -b 1-7`
+_WD=`pwd`
+
+while getopts "vVhHo:" flag
     do
         case $flag in
-            V) echo "Building for OpenAuth, version ${version}."
+            V) echo "Building for ${name}, version ${version}."
                exit 1
             ;;
-            H) echo "OpenAuth commit tag ${hashtag}"
+            H) echo "${name} commit tag ${hashtag}"
                exit 1
             ;;
             h) echo "Adding git committag to archive name."
@@ -18,14 +33,25 @@ while getopts "vVhH" flag
             v) echo "Being verbose..."
                export verbose="YES"
             ;;
+            o) echo "Output directory is now: ${OPTARG}"
+               export outdir=${OPTARG}
+            ;;
+            *) exit
+            ;;
         esac
     done
 
-echo "[OpenAuth(${version}-${hashtag})] building.]"
+function cleanup() {
+    rm -f ./{archive,compile}_log.txt
+    echo "Cleaned up logfiles!"
+    cd ${_WD}
+}
 
-javac -Xlint:depreciated -Xstdout compile_log.txt -sourcepath src/ -g -cp inc/craftbukkit.jar:inc/permissions.jar:inc/bukkit.jar:inc/worldedit.jar:inc/pex.jar \
-    src/me/maiome/openauth/*/*.java src/me/maiome/openauth/*/*/*.java \
-    src/net/eisental/common/*/*.java
+trap cleanup EXIT
+
+echo "[${name}(${version}-${hashtag})] building.]"
+
+javac -Xlint:depreciated -Xstdout compile_log.txt -sourcepath src/ -g -cp ${javac_includes} ${javac_src}
 
 errors=`cat "./compile_log.txt" | tail -n 1`
 errors_t=`echo ${errors} | tr -d "[[:space:]]"`
@@ -40,18 +66,22 @@ if [ "${verbose}" == "YES" ] ; then
     echo "$(cat compile_log.txt)"
 fi
 
-echo "[OpenAuth(${version}-${hashtag})] packing.]"
+echo "[${name}(${version}-${hashtag})] packing.]"
 
 if [ "${tagname}" == "YES" ] ; then
-    jar cvf "OpenAuth-${version}-${hashtag}.jar" -C src/ . 2>&1 1>archive_log.txt
+    OUTFILENAME="${name}-${version}-${hashtag}.jar"
 else
-    jar cvf "OpenAuth-${version}.jar" -C src/ . 2>&1 1>archive_log.txt
+    OUTFILENAME="${name}-${version}.jar"
 fi
+
+jar cvf ${OUTFILENAME} -C src/ . 2>&1 1>archive_log.txt
 
 if [ "${verbose}" == "YES" ] ; then
     echo "$(cat archive_log.txt)"
 fi
 
-rm ./*_log.txt
+if [ ! -z $outdir ] ; then
+    mv ${OUTFILENAME} ${outdir}
+fi
 
-echo "Successfully built OpenAuth ${version}-${hashtag}!"
+echo "Successfully built ${name} ${version}-${hashtag}!"

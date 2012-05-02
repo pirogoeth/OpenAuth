@@ -241,6 +241,13 @@ public class OpenAuth extends JavaPlugin {
     }
 
     /**
+     * Returns the CommandsManager instance used by OpenAuth.
+     */
+    public CommandsManager<CommandSender> getCommandsManager() {
+        return this.commands;
+    }
+
+    /**
      * Shorthand to register an event listener.
      */
     private void registerEvents(Listener listener) {
