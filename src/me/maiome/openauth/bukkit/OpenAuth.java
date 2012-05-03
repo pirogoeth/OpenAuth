@@ -148,6 +148,7 @@ public class OpenAuth extends JavaPlugin {
 
         // register command classes.
         this.dynamicCommandRegistry.register(OACommands.OAParentCommand.class);
+        this.dynamicCommandRegistry.register(OAPointsCommand.OAPointsParentCommand.class);
 
         // generate sessions for all users
         this.sc.createAll();

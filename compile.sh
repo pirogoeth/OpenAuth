@@ -18,7 +18,7 @@ version=`cat src/plugin.yml | grep version | awk '{print $2}'`
 hashtag=`git log -n 1 | grep commit | awk '{ print $2 }' | cut -b 1-7`
 _WD=`pwd`
 
-while getopts "vVhHo:" flag
+while getopts "vVhHo:?" flag
     do
         case $flag in
             V) echo "Building for ${name}, version ${version}."
@@ -35,6 +35,9 @@ while getopts "vVhHo:" flag
             ;;
             o) echo "Output directory is now: ${OPTARG}"
                export outdir=${OPTARG}
+            ;;
+            \?) echo "Usage: `basename $0` [-HVhv?] [-o outfile]"
+               exit
             ;;
             *) exit
             ;;

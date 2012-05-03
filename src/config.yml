@@ -46,6 +46,8 @@
 #                        monsters will always be targetable. [default: false]
 #     golem-cruelty - allows(true)/disallows(false) targeting of golems (snowmen, iron golems..)
 #                        monsters will always be targetable. [default: false]
+# points:
+#   list-world-only - whether or not to list points in the current world only, or in all [default: false]
 
 version: 1.0
 override: true
@@ -84,3 +86,5 @@ actions:
     hounds:
         attack-delay: 60
         removal-delay: 600
+points:
+    list-world-only: false
