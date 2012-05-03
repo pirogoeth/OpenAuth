@@ -12,11 +12,11 @@ javac_src="src/me/maiome/openauth/*/*.java src/me/maiome/openauth/*/*/*.java src
 # ==============================================================================================================
 
 
+_WD=`pwd`
 cd ${basedir}
 
 version=`cat src/plugin.yml | grep version | awk '{print $2}'`
 hashtag=`git log -n 1 | grep commit | awk '{ print $2 }' | cut -b 1-7`
-_WD=`pwd`
 
 while getopts "vVhHo:?" flag
     do
@@ -85,6 +85,8 @@ fi
 
 if [ ! -z $outdir ] ; then
     mv ${OUTFILENAME} ${outdir}
+elif [ `pwd` != ${_WD} ] && [ -z $outdir ] ; then
+    mv ${OUTFILENAME} ${_WD}
 fi
 
 echo "Successfully built ${name} ${version}-${hashtag}!"
