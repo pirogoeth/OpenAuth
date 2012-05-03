@@ -64,6 +64,9 @@ public class OAServer {
         log.exDebug(String.format("WhitelistSave: {DELAY: %s, PERIOD: %s}", Long.toString(wlsave_delay), Long.toString(wlsave_period)));
         log.exDebug(String.format("LoginHandler: {ENABLED: %s, EXTENDABLE: %s}", Boolean.toString(lh_enabled), Boolean.toString(lh_extendable)));
         log.exDebug(String.format("WhitelistHandler: {ENABLED: %s, EXTENDABLE: %s}", Boolean.toString(wh_enabled), Boolean.toString(wh_extendable)));
+
+        // register the OAServer instance.
+        OpenAuth.setOAServer(this);
     }
 
     // scheduling
@@ -289,6 +292,10 @@ public class OAServer {
     }
 
     public void saveBans() {
+        this.saveBans(true);
+    }
+
+    public void saveBans(boolean save) {
         try {
             ConfigInventory.DATA.getConfig().set("ban_storage.ip", this.ip_bans);
             ConfigInventory.DATA.getConfig().set("ban_storage.name", this.name_bans);
@@ -298,7 +305,9 @@ public class OAServer {
             log.exDebug(e.getMessage());
             return;
         }
-        Config.save_data();
+        if (save == true) {
+            Config.save_data();
+        }
     }
 
     public void loadBans() {

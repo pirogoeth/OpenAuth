@@ -233,7 +233,7 @@ public class OAPlayer {
     }
 
     public void saveLocation(String name) {
-        this.locations.put(name, this.getLocation());
+        this.saveLocation(name, this.getLocation());
     }
 
     public void saveLocation(String name, Location loc) {
@@ -334,6 +334,7 @@ public class OAPlayer {
         } catch (java.lang.NullPointerException e) {}
         this.setState(PlayerState.OFFLINE);
         ConfigInventory.DATA.getConfig().set(String.format("locations.%s", this.getName()), this.locations);
+        ConfigInventory.DATA.save();
         // this.getServer().callEvent(new OAPlayerOfflineEvent(this));
     }
 

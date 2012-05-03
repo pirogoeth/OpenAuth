@@ -71,12 +71,10 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
 
     public void saveWhitelist() {
         ConfigInventory.DATA.getConfig().set("whitelist", this.whitelist);
-        log.exDebug("Saved whitelist.");
     }
 
     public void loadWhitelist() {
         this.whitelist.addAll(ConfigInventory.DATA.getConfig().getStringList("whitelist"));
-        log.exDebug("Loaded whitelist.");
     }
 
     public void whitelistPlayer(OAPlayer player) {

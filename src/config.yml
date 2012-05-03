@@ -13,6 +13,7 @@
 # session-prune: (player session pruning)
 #   delay - how long to wait before starting the pruning task [default: 6000 == 5 minutes]
 #   period - how long to go in between running the task [default: 12000 == 10 minutes]
+#   epsilon - how many sessions do i need to be inactive before i actually start pruning? [default: 3]
 # wand-id:
 #   this is the id of the admin wand item [default: 369 (blaze rod)]
 # login-handler, whitelist-handler: (handler types {default (or on), off, extended})
@@ -58,6 +59,7 @@ save-whitelist-delay: 18000
 save-whitelist-period: 72000
 session-prune-delay: 6000
 session-prune-period: 12000
+session-prune-epsilon: 3
 wand-id: 369
 login-handler: default
 whitelist-handler: default

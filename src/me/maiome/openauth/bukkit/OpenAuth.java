@@ -62,7 +62,7 @@ public class OpenAuth extends JavaPlugin {
     /**
      * Holds an OAServer instance.
      */
-    public OAServer oaserver;
+    private static OAServer oaserver;
 
     /**
      * Holds OAPlayer instances.
@@ -72,7 +72,7 @@ public class OpenAuth extends JavaPlugin {
     /**
      * Session controller.
      */
-    public SessionController sc;
+    private static SessionController sc;
 
     /**
      * Holds the gateway to all permission verification.
@@ -99,10 +99,10 @@ public class OpenAuth extends JavaPlugin {
         // set logging level
         log.setExtraneousDebugging((ConfigInventory.MAIN.getConfig().getBoolean("debug", false) == false) ? false : true);
 
-        // initialise our OAServer instance
-        this.oaserver = new OAServer(this, this.getServer());
+        // initialise the OAServer
+        new OAServer(this, this.getServer());
         // initialise out session controller
-        this.sc = new SessionController(this);
+        new SessionController(this);
 
         // check if we need to override.
         if (ConfigInventory.MAIN.getConfig().getBoolean("override", false) == true) {
@@ -119,8 +119,8 @@ public class OpenAuth extends JavaPlugin {
         this.version = this.getDescription().getVersion();
 
         // start scheduler tasks
-        this.oaserver.startSchedulerTasks();
-        this.sc.startSchedulerTasks();
+        oaserver.startSchedulerTasks();
+        sc.startSchedulerTasks();
 
         // register our command manager.
         this.commands = new CommandsManager<CommandSender>() {
@@ -137,7 +137,7 @@ public class OpenAuth extends JavaPlugin {
         this.dynamicCommandRegistry = new CommandsManagerRegistration(this, this.commands);
 
         // load ALL the bans!
-        this.oaserver.loadBans();
+        oaserver.loadBans();
 
         // setup instance injector
         this.commands.setInjector(new SimpleInjector(this));
@@ -151,7 +151,7 @@ public class OpenAuth extends JavaPlugin {
         this.dynamicCommandRegistry.register(OAPointsCommand.OAPointsParentCommand.class);
 
         // generate sessions for all users
-        this.sc.createAll();
+        sc.createAll();
 
         // loaded.
         log.info("Enabled version " + version + ".");
@@ -163,10 +163,14 @@ public class OpenAuth extends JavaPlugin {
     @Override
     public void onDisable () {
         // save ALL the bans!
-        this.oaserver.saveBans();
-
-        // save the data as our last step.
+        oaserver.saveBans(false);
+        // save the whitelist
+        oaserver.getWhitelistHandler().saveWhitelist();
+        // shutdown all OA tasks
+        oaserver.cancelAllOATasks();
+        // save the data.
         Config.save_data();
+
         log.info("Disabled version " + version + ".");
     }
 
@@ -230,15 +234,41 @@ public class OpenAuth extends JavaPlugin {
     /**
      * Returns the server instance that we are using.
      */
-    public OAServer getOAServer() {
-        return this.oaserver;
+    public static OAServer getOAServer() {
+        return oaserver;
+    }
+
+    /**
+     * Sets the server instance that we will be using.
+     *
+     * This *CANNOT* be used if the server is already set.
+     */
+    public static void setOAServer(OAServer oaserver) {
+        if (OpenAuth.oaserver != null) {
+            throw new UnsupportedOperationException("Cannot redefine a OAServer instance.");
+        }
+
+        OpenAuth.oaserver = oaserver;
     }
 
     /**
      * Returns the session controller instance.
      */
-    public SessionController getSessionController() {
-        return this.sc;
+    public static SessionController getSessionController() {
+        return sc;
+    }
+
+    /**
+     * Sets the SessionController instance that we will be using.
+     *
+     * This *CANNOT* be reset if the controller is already set.
+     */
+    public static void setSessionController(SessionController sc) {
+        if (OpenAuth.sc != null) {
+            throw new UnsupportedOperationException("Cannot redefine a SessionController instance.");
+        }
+
+        OpenAuth.sc = sc;
     }
 
     /**

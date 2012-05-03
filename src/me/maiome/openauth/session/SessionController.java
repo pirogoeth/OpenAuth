@@ -31,6 +31,7 @@ public class SessionController {
     // task fields
     private final long prune_delay = ConfigInventory.MAIN.getConfig().getLong("session-prune-delay", 6000L);
     private final long prune_period = ConfigInventory.MAIN.getConfig().getLong("session-prune-period", 12000L);
+    private final int prune_epsilon = ConfigInventory.MAIN.getConfig().getInt("session-prune-epsilon", 3);
 
     // scheduler tasks
     private Runnable pruning_task = new Runnable () {
@@ -44,9 +45,13 @@ public class SessionController {
                 }
             }
 
-            Iterator prune = pruning.iterator();
-            while (prune.hasNext()) {
-                forget(prune.next());
+            if (pruning.size() < prune_epsilon) {
+                return;
+            }
+
+            Iterator pruner = pruning.iterator();
+            while (pruner.hasNext()) {
+                forget(pruner.next());
             }
 
             log.exDebug(String.format("Pruned %d sessions.", pruning.size()));
@@ -57,6 +62,9 @@ public class SessionController {
         this.controller = controller;
         this.server = this.controller.getOAServer();
         log.exDebug(String.format("Session Pruning: {DELAY: %s, PERIOD: %s}", Long.toString(prune_delay), Long.toString(prune_period)));
+
+        // register the SessionController instance.
+        OpenAuth.setSessionController(this);
     }
 
     public void startSchedulerTasks() {
