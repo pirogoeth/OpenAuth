@@ -25,13 +25,28 @@ public class SessionController {
     private Map<OAPlayer, Session> session_bag = new HashMap<OAPlayer, Session>();
     private LogHandler log = new LogHandler();
     private OpenAuth controller;
-    private OAServer server;
+    private OAServer server = OpenAuth.getOAServer();
     private boolean started_tasks = false;
 
     // task fields
     private final long prune_delay = ConfigInventory.MAIN.getConfig().getLong("session-prune-delay", 6000L);
     private final long prune_period = ConfigInventory.MAIN.getConfig().getLong("session-prune-period", 12000L);
     private final int prune_epsilon = ConfigInventory.MAIN.getConfig().getInt("session-prune-epsilon", 3);
+
+    public SessionController (OpenAuth controller) {
+        this.controller = controller;
+        log.exDebug(String.format("Session Pruning: {DELAY: %s, PERIOD: %s}", Long.toString(prune_delay), Long.toString(prune_period)));
+
+        // register the SessionController instance.
+        OpenAuth.setSessionController(this);
+    }
+
+    public void startSchedulerTasks() {
+        if (this.started_tasks == true) return;
+        this.started_tasks = true;
+        // run scheduler tasks
+        this.server.scheduleAsynchronousRepeatingTask(this.prune_delay, this.prune_period, this.pruning_task);
+    }
 
     // scheduler tasks
     private Runnable pruning_task = new Runnable () {
@@ -58,22 +73,6 @@ public class SessionController {
         }
     };
 
-    public SessionController (OpenAuth controller) {
-        this.controller = controller;
-        this.server = this.controller.getOAServer();
-        log.exDebug(String.format("Session Pruning: {DELAY: %s, PERIOD: %s}", Long.toString(prune_delay), Long.toString(prune_period)));
-
-        // register the SessionController instance.
-        OpenAuth.setSessionController(this);
-    }
-
-    public void startSchedulerTasks() {
-        if (this.started_tasks == true) return;
-        this.started_tasks = true;
-        // run scheduler tasks
-        this.server.scheduleAsynchronousRepeatingTask(this.prune_delay, this.prune_period, this.pruning_task);
-    }
-
     public OpenAuth getController() {
         return this.controller;
     }
@@ -82,6 +81,17 @@ public class SessionController {
         for (Player player : this.server.getServer().getOnlinePlayers()) {
             this.get(player);
         }
+    }
+
+    public void destroyAll() {
+        List<OAPlayer> players = new ArrayList<OAPlayer>();
+        for (Map.Entry<OAPlayer, Session> entry : this.session_bag.entrySet()) {
+            players.add((OAPlayer) entry.getKey());
+        }
+        for (OAPlayer player : players) {
+            player.destroySession();
+        }
+        if (players.size() >= 1) log.exDebug(String.format("Destroyed %d sessions.", players.size()));
     }
 
     private Session create(OAPlayer player) {
@@ -100,6 +110,10 @@ public class SessionController {
         Session session = new Session(this, this.controller.wrap(player));
         this.remember(session);
         return session;
+    }
+
+    public Session createTemp(OAPlayer player) {
+        return new Session(this, player);
     }
 
     public void remember(Session session) {

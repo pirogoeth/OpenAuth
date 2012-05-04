@@ -168,6 +168,8 @@ public class OpenAuth extends JavaPlugin {
         oaserver.getWhitelistHandler().saveWhitelist();
         // shutdown all OA tasks
         oaserver.cancelAllOATasks();
+        // destroy all living sessions in case this is a reload
+        sc.destroyAll();
         // save the data.
         Config.save_data();
 
@@ -312,7 +314,7 @@ public class OpenAuth extends JavaPlugin {
     public OAPlayer wrap(Player player) {
         if (!(player instanceof org.bukkit.entity.LivingEntity) && (player instanceof org.bukkit.entity.Player)) return null;
         if (!(players.containsKey(player.getName()))) {
-            OAPlayer _player = new OAPlayer(this.oaserver, player);
+            OAPlayer _player = new OAPlayer(player);
             players.put(player.getName(), _player);
             return _player;
         } else if (players.containsKey(player.getName())) {
@@ -323,7 +325,7 @@ public class OpenAuth extends JavaPlugin {
 
     public OAPlayer wrap(PlayerLoginEvent event) {
         if (!(players.containsKey(event.getPlayer().getName()))) {
-            OAPlayer _player = new OAPlayer(this.oaserver, event);
+            OAPlayer _player = new OAPlayer(event);
             players.put(event.getPlayer().getName(), _player);
             return _player;
         } else if (players.containsKey(event.getPlayer().getName())) {

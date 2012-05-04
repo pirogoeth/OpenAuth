@@ -42,20 +42,20 @@ public class OAPlayer {
 
     // construct ALL the things!
 
-    public OAPlayer(OAServer server, Player player) {
+    public OAPlayer(Player player) {
         this.player = player;
-        this.server = server;
+        this.server = OpenAuth.getOAServer();
         this.state = PlayerState.UNKNOWN;
-        this.sc = this.server.getSessionController();
+        this.sc = OpenAuth.getSessionController();
 
         this.player_ip = player.getAddress().getAddress().toString();
     }
 
-    public OAPlayer(OAServer server, PlayerLoginEvent event) {
+    public OAPlayer(PlayerLoginEvent event) {
         this.player = event.getPlayer();
-        this.server = server;
+        this.server = OpenAuth.getOAServer();
         this.state = PlayerState.UNKNOWN;
-        this.sc = this.server.getSessionController();
+        this.sc = OpenAuth.getSessionController();
 
         this.player_ip = event.getAddress().toString();
     }
@@ -190,9 +190,7 @@ public class OAPlayer {
 
     public void setLocation(Location location, double pitch, double yaw) {
         float _pitch = Float.parseFloat(Double.toString(pitch)), _yaw = Float.parseFloat(Double.toString(yaw));
-        location.setPitch(_pitch);
-        location.setYaw(_yaw);
-        this.setLocation(location);
+        this.setLocation(location, _pitch, _yaw);
     }
 
     public void setLocation(Location location, float pitch, float yaw) {
@@ -214,10 +212,7 @@ public class OAPlayer {
     }
 
     public void setLocation(float x, float y, float z, float pitch, float yaw) {
-        Location location = new Location(this.getWorld(), x, y, z);
-        location.setPitch(pitch);
-        location.setYaw(yaw);
-        this.setLocation(location);
+        this.setLocation(this.getWorld(), x, y, z, pitch, yaw);
     }
 
     public void setLocation(World w, float x, float y, float z) {
@@ -231,6 +226,8 @@ public class OAPlayer {
         location.setYaw(yaw);
         this.setLocation(location);
     }
+
+    // location serialisation
 
     public void saveLocation(String name) {
         this.saveLocation(name, this.getLocation());
