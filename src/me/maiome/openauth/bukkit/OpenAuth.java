@@ -162,6 +162,10 @@ public class OpenAuth extends JavaPlugin {
      */
     @Override
     public void onDisable () {
+        // set each player offline before shutting down
+        for (Map.Entry<String, OAPlayer> entry : this.players.entrySet()) {
+            ((OAPlayer) entry.getValue()).setOffline();
+        }
         // save ALL the bans!
         oaserver.saveBans(false);
         // save the whitelist
@@ -173,7 +177,7 @@ public class OpenAuth extends JavaPlugin {
         // save the data.
         Config.save_data();
 
-        log.info("Disabled version " + version + ".");
+        log.info("Disabled v" + version + ".");
     }
 
     /**

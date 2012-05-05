@@ -35,7 +35,8 @@ public class SessionController {
 
     public SessionController (OpenAuth controller) {
         this.controller = controller;
-        log.exDebug(String.format("Session Pruning: {DELAY: %s, PERIOD: %s}", Long.toString(prune_delay), Long.toString(prune_period)));
+        log.exDebug(String.format("Session Pruning: {DELAY: %s, PERIOD: %s, EPSILON: %s}",
+            Long.toString(prune_delay), Long.toString(prune_period), Integer.toString(prune_epsilon)));
 
         // register the SessionController instance.
         OpenAuth.setSessionController(this);
@@ -78,9 +79,12 @@ public class SessionController {
     }
 
     public void createAll() {
+        int session_count = 0;
         for (Player player : this.server.getServer().getOnlinePlayers()) {
-            this.get(player);
+            this.controller.wrap(player).initSession();
+            session_count++;
         }
+        if (session_count >= 1) log.info(String.format("[SessionController] Generated %d sessions.", session_count));
     }
 
     public void destroyAll() {
