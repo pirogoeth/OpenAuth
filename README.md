@@ -1,3 +1,7 @@
+OpenAuth
+========
+* * *
+
 OpenAuth is an open, light, and extensible minecraft server authentication 
 plugin for Bukkit.
 
