@@ -25,6 +25,7 @@ import java.util.Map;
 import me.maiome.openauth.actions.*;
 import me.maiome.openauth.commands.*;
 import me.maiome.openauth.event.*;
+import me.maiome.openauth.jsonapi.*;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.Permission;
 import me.maiome.openauth.util.Config;
@@ -73,6 +74,11 @@ public class OpenAuth extends JavaPlugin {
      * Session controller.
      */
     private static SessionController sc;
+
+    /**
+     * JSONAPI Call handler.
+     */
+    private static OAJSONAPICallHandler jsch = null;
 
     /**
      * Holds the gateway to all permission verification.
@@ -152,6 +158,9 @@ public class OpenAuth extends JavaPlugin {
 
         // generate sessions for all users
         sc.createAll();
+
+        // initialise the JSONAPI call handler
+        if (OAJSONAPICallHandler.usable == true) new OAJSONAPICallHandler(this);
 
         // loaded.
         log.info("Enabled version " + version + ".");
@@ -275,6 +284,26 @@ public class OpenAuth extends JavaPlugin {
         }
 
         OpenAuth.sc = sc;
+    }
+
+    /**
+     * Returns the JSONAPI call handler instance.
+     */
+    public static OAJSONAPICallHandler getJSONAPICallHandler() {
+        return jsch;
+    }
+
+    /**
+     * Sets the OAJSONAPICallHandler instance that we will be using.
+     *
+     * This *CANNOT* be reset if the handler is set and not null.
+     */
+    public static void setJSONAPICallHandler(OAJSONAPICallHandler jsch) {
+        if (OpenAuth.jsch != null) {
+            throw new UnsupportedOperationException("Cannot redefine a OAJSONAPICallHandler instance.");
+        }
+
+        OpenAuth.jsch = jsch;
     }
 
     /**

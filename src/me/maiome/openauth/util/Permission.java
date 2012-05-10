@@ -68,7 +68,7 @@ public class Permission {
         return (Plugin) plugin.getServer().getPluginManager().getPlugin(pluginname);
     }
 
-    private static boolean packageExists(String pkg) {
+    public static boolean packageExists(String pkg) {
         try {
             Class.forName(pkg);
             return true;
