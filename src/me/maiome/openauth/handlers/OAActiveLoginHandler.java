@@ -124,7 +124,7 @@ public class OAActiveLoginHandler implements OALoginHandler {
 
     public boolean compareToCurrent(OAPlayer player, String password) {
         if (!(this.isEnabled())) return false;
-        return (ConfigInventory.DATA.getConfig().getString(String.format("credentials.%s.password"))).equals(password);
+        return (ConfigInventory.DATA.getConfig().getString(String.format("credentials.%s.password"))).equals(this.getStringHash(password));
     }
 
     public List<OAPlayer> getActivePlayers() {
