@@ -17,12 +17,14 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.MemorySection;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Wolf;
 
 // java imports
+import java.io.InputStream;
 import java.util.Map;
 import java.util.HashMap;
 
@@ -55,7 +57,9 @@ public class OACommands {
 
     @Command(aliases = {"version"}, usage = "", desc = "OpenAuth version information", min = 0, max = 0)
     public static void version(CommandContext args, CommandSender sender) throws CommandException {
-        sender.sendMessage(ChatColor.GREEN + controller.getDescription().getFullName());
+        String hashtag = (YamlConfiguration.loadConfiguration(controller.getResource("plugin.yml"))).getString("hashtag");
+        sender.sendMessage(ChatColor.GREEN + String.format(
+            "%s-%s", controller.getDescription().getFullName(), hashtag));
     }
 
     @Command(aliases = {"login"}, usage = "<password>", desc = "Login to the server.",
@@ -97,6 +101,9 @@ public class OACommands {
         if (controller.getOAServer().getLoginHandler().compareToCurrent(player, oldpass)) {
             controller.getOAServer().getLoginHandler().processPlayerRegistration(player, newpass);
             player.sendMessage(ChatColor.BLUE + "Your password has been changed!");
+            return;
+        } else {
+            player.sendMessage(ChatColor.BLUE + "Your current password was invalid, try again.");
             return;
         }
     }

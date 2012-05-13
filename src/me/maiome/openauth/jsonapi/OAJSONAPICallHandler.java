@@ -22,13 +22,26 @@ public class OAJSONAPICallHandler {
     private Map<String, Method> mmap = new HashMap<String, Method>();
     // this is a map of parent => method relations
     private Map<Method, Object> pmap = new HashMap<Method, Object>();
+    // this is the runnable task to register the call handlers
+    private Runnable registration_task = new Runnable() {
+        public void run() {
+            registerHandler();
+        }
+    };
 
     public OAJSONAPICallHandler(OpenAuth controller) {
         this.controller = controller;
-        if (this.usable) {
-            log.info("Registering JSONAPICallHandler...");
-            this.registerHandler();
-            OpenAuth.setJSONAPICallHandler(this);
+        try {
+            if (this.usable) {
+                log.info("[OAJSONAPICallHandler] Waiting ten seconds to give the server a chance to finish loading..");
+                OpenAuth.getOAServer().scheduleSyncDelayedTask(100L, this.registration_task);
+                OpenAuth.setJSONAPICallHandler(this);
+            }
+        } catch (java.lang.NoClassDefFoundError e) {
+            log.warning("JSONAPI call handler could not be loaded -- is JSONAPI loaded?");
+        } catch (java.lang.Exception e) {
+            log.warning("Unknown exception occurred.");
+            e.printStackTrace();
         }
     }
 
@@ -74,7 +87,7 @@ public class OAJSONAPICallHandler {
             try {
                 Method m = mmap.get(method.getMethodName());
                 Object parent = pmap.get(m);
-                return m.invoke(parent, args);
+                return m.invoke(parent, new Object[]{args});
             } catch (java.lang.Exception e) {
                 e.printStackTrace();
             }
