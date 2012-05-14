@@ -29,6 +29,9 @@ import me.maiome.openauth.util.WhitelistStatus;
 
 public class OAServer {
 
+    protected final int factor = (17 * 5);
+    protected final int sid = 100;
+
     private OpenAuth controller;
     private Server server;
     private LogHandler log = new LogHandler();
@@ -67,6 +70,14 @@ public class OAServer {
 
         // register the OAServer instance.
         OpenAuth.setOAServer(this);
+    }
+
+    public String toString() {
+        return String.format("OAServer{autosave_delay=%d,autosave_period=%d,wlsave_delay=%d,wlsave_period=%d}", this.autosave_delay, this.autosave_period, this.wlsave_delay, this.wlsave_period);
+    }
+
+    public int hashCode() {
+        return (int) Math.abs(((this.factor) + (this.controller.hashCode() + this.server.hashCode() + this.serial)));
     }
 
     // scheduling
