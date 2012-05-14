@@ -28,6 +28,11 @@ import me.maiome.openauth.util.WhitelistStatus;
 
 public class OAPlayer {
 
+    // class internal identification
+    protected transient final int factor = (17 * 5);
+    protected transient final int serial = 101;
+
+    // normal class variables
     private final OAServer server;
     private final Player player;
     private final LogHandler log = new LogHandler();
@@ -59,6 +64,30 @@ public class OAPlayer {
         this.sc = OpenAuth.getSessionController();
 
         this.player_ip = event.getAddress().toString();
+    }
+
+    public String toString() {
+        return String.format("OAPlayer{name=%s,ip=%s,state=%s}", this.getName(), this.player_ip, this.state.toString());
+    }
+
+    public int hashCode() {
+        return (int) Math.abs(((this.factor) + (this.server.hashCode() + this.player.hashCode() + this.serial)));
+    }
+
+    public boolean equals(Object obj) {
+        if (!(obj instanceof OAPlayer)) return false;
+        if (obj == null) return false;
+
+        OAPlayer pl = null;
+
+        try {
+            pl = (OAPlayer) obj;
+        } catch (java.lang.ClassCastException e) {
+            return false;
+        }
+
+        if (pl.getName().equals(this.getName()) && pl.getIP() == this.getIP()) return true;
+        else return false;
     }
 
     // enumerate all possible player states
@@ -172,9 +201,14 @@ public class OAPlayer {
         return this.player.getLocation().getPitch();
     }
 
+    public float recalculateYaw(float yaw) {
+        yaw = ((yaw - 90) % 360);
+        yaw = ((yaw < 0) ? (yaw + 360) : yaw);
+        return yaw;
+    }
 
     public float getYaw() {
-        return this.player.getLocation().getYaw();
+        return this.recalculateYaw(this.player.getLocation().getYaw());
     }
 
     public Location getLocation() {
@@ -190,7 +224,7 @@ public class OAPlayer {
     }
 
     public void setLocation(Location location, double pitch, double yaw) {
-        float _pitch = Float.parseFloat(Double.toString(pitch)), _yaw = Float.parseFloat(Double.toString(yaw));
+        float _pitch = Float.parseFloat(Double.toString(pitch)), _yaw = this.recalculateYaw(Float.parseFloat(Double.toString(yaw)));
         this.setLocation(location, _pitch, _yaw);
     }
 
@@ -208,7 +242,7 @@ public class OAPlayer {
     }
 
     public void setLocation(float x, float y, float z, double pitch, double yaw) {
-        float _pitch = Float.parseFloat(Double.toString(pitch)), _yaw = Float.parseFloat(Double.toString(yaw));
+        float _pitch = Float.parseFloat(Double.toString(pitch)), _yaw = this.recalculateYaw(Float.parseFloat(Double.toString(yaw)));
         this.setLocation(x, y, z, _pitch, _yaw);
     }
 
@@ -224,7 +258,7 @@ public class OAPlayer {
     public void setLocation(World w, float x, float y, float z, float pitch, float yaw) {
         Location location = new Location(w, x, y, z);
         location.setPitch(pitch);
-        location.setYaw(yaw);
+        location.setYaw(this.recalculateYaw(yaw));
         this.setLocation(location);
     }
 
