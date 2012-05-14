@@ -54,6 +54,32 @@ public class Session {
         }
     }
 
+    @Override
+    public String toString() {
+        return String.format("Session{player=%s,freeze=%b,frozen=%b,identified=%b}", this.player.getName(), this.freeze, this.frozen, this.identified);
+    }
+
+    @Override
+    public int hashCode() {
+        return (int) ((17 * 6) + Math.abs((this.controller.hashCode() + this.sc.hashCode() + this.player.getName().hashCode() + this.wand_id)));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Session)) return false;
+        if (obj == null) return false;
+
+        Session sess = null;
+
+        try {
+            sess = (Session) obj;
+        } catch (java.lang.ClassCastException e) {
+            return false;
+        }
+
+        return (this.toString.equals(sess.toString())) && (this.hashCode() == sess.hashCode())
+    }
+
     public OAPlayer getPlayer() {
         return this.player;
     }
