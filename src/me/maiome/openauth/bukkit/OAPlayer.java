@@ -20,9 +20,10 @@ import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAServer;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.ConfigInventory;
+import me.maiome.openauth.util.LocationSerialisable;
 import me.maiome.openauth.util.LogHandler;
-import me.maiome.openauth.util.Permission;
 import me.maiome.openauth.util.LoginStatus;
+import me.maiome.openauth.util.Permission;
 import me.maiome.openauth.util.WhitelistStatus;
 
 public class OAPlayer {
@@ -234,11 +235,11 @@ public class OAPlayer {
     }
 
     public void saveLocation(String name, Location loc) {
-        this.locations.put(name, loc);
+        this.locations.put(name, new LocationSerialisable(loc));
     }
 
     public Location getSavedLocation(String name) {
-        return (Location) this.locations.get(name);
+        return (Location) (((LocationSerialisable) this.locations.get(name)).getLocation());
     }
 
     public Map<String, Object> getSavedLocations() {
@@ -316,6 +317,7 @@ public class OAPlayer {
         try {
             this.locations = (Map<String, Object>) ConfigInventory.DATA.getConfig().getConfigurationSection(String.format("locations.%s", this.getName())).getValues(true);
         } catch (java.lang.NullPointerException e) {
+            this.sendMessage(ChatColor.RED + "Sorry, but there was a problem loading your saved locations :/");
             this.locations = new HashMap<String, Object>();
         }
         // this.getServer().callEvent(new OAPlayerOnlineEvent(this));
@@ -331,7 +333,6 @@ public class OAPlayer {
         } catch (java.lang.NullPointerException e) {}
         this.setState(PlayerState.OFFLINE);
         ConfigInventory.DATA.getConfig().set(String.format("locations.%s", this.getName()), this.locations);
-        ConfigInventory.DATA.save();
         // this.getServer().callEvent(new OAPlayerOfflineEvent(this));
     }
 

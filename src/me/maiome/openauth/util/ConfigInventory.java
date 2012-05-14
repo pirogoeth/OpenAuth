@@ -43,6 +43,14 @@ public enum ConfigInventory {
         return;
     }
 
+    public void reload(boolean save) {
+        if (save == true) {
+            this.save();
+        }
+        YamlConfiguration _conf = YamlConfiguration.loadConfiguration(new File(this.file.getPath()));
+        store.put(this, _conf);
+    }
+
     public static YamlConfiguration getByConstant(final ConfigInventory ci) {
         return (YamlConfiguration) store.get(ci);
     }

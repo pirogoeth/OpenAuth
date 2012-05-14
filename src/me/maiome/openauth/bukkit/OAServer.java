@@ -316,7 +316,7 @@ public class OAServer {
             this.name_bans = (Map<String, Object>) ConfigInventory.DATA.getConfig().getConfigurationSection("ban_storage.name").getValues(true);
         } catch (java.lang.Exception e) {
             log.exDebug("Exception occurred while loading bans (this could just mean you have no bans to load).");
-            log.exDebug(e.getMessage());
+            e.printStackTrace();
             return;
         }
     }

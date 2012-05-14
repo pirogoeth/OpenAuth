@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.serialization.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.Listener;
@@ -30,6 +31,7 @@ import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.Permission;
 import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.ConfigInventory;
+import me.maiome.openauth.util.LocationSerialisable;
 import me.maiome.openauth.util.LogHandler;
 
 // bundled imports
@@ -43,6 +45,10 @@ import com.sk89q.minecraft.util.commands.*; // command framework
  * @author pirogoeth
  */
 public class OpenAuth extends JavaPlugin {
+
+    static {
+        ConfigurationSerialization.registerClass(LocationSerialisable.class);
+    }
 
     /**
      * Initialises configurations and writes defaults.
@@ -174,7 +180,7 @@ public class OpenAuth extends JavaPlugin {
      * Deal with the disabling of the plugin.
      */
     @Override
-    public void onDisable () {
+    public void onDisable() {
         // set each player offline before shutting down
         for (Map.Entry<String, OAPlayer> entry : this.players.entrySet()) {
             ((OAPlayer) entry.getValue()).setOffline();
@@ -188,7 +194,7 @@ public class OpenAuth extends JavaPlugin {
         // destroy all living sessions in case this is a reload
         sc.destroyAll();
         // save the data.
-        Config.save_data();
+        ConfigInventory.DATA.save();
 
         log.info("Disabled v" + version + ".");
     }

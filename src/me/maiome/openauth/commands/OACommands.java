@@ -132,6 +132,13 @@ public class OACommands {
         player.getSession().giveWand();
     }
 
+    @Command(aliases = {"save"}, usage = "", desc = "Saves the data configuration.", max = 0)
+    @CommandPermissions({ "openauth.admin.save" })
+    public static void savedata(CommandContext args, CommandSender sender) throws CommandException {
+        ConfigInventory.DATA.save();
+        sender.sendMessage(ChatColor.GREEN + "OpenAuth data has been saved.");
+    }
+
     @Command(aliases = {"test"}, desc = "This is always here to test some new thing.", max = 0)
     public static void ptest(CommandContext args, CommandSender sender) throws CommandException {
         OAPlayer player = controller.wrap((Player) sender);
