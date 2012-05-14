@@ -75,7 +75,7 @@ public class Session {
             sess = (Session) obj;
         } catch (java.lang.ClassCastException e) {
             return false;
-        }
+        };
 
         return ((this.toString.equals(sess.toString())) && (this.hashCode() == sess.hashCode()));
     }
