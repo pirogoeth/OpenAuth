@@ -26,6 +26,9 @@ public class HellHounds implements IAction {
     public static final String name = "hounds";
     public static List<OAPlayer> attacking = new ArrayList<OAPlayer>();
 
+    protected final int factor = (17 * 7);
+    protected final int serial = 304;
+
     private Session attached;
     private SessionController sc;
     private final LogHandler log = new LogHandler();
@@ -49,6 +52,14 @@ public class HellHounds implements IAction {
         this.sc = server.getController().getSessionController();
         this.attached = attached;
         this.setSender(this.attached.getPlayer());
+    }
+
+    public String toString() {
+        return String.format("HellHounds{permissible=%s}", this.permissible);
+    }
+
+    public int hashCode() {
+        return (int) Math.abs(((this.factor) + (this.server.hashCode() + this.attached.hashCode() + this.serial)));
     }
 
     // task for auto-destruction of wolves

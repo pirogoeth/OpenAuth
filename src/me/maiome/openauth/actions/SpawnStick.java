@@ -29,6 +29,9 @@ public class SpawnStick implements IAction {
 
     public static final String name = "spawn";
 
+    protected final int factor = (17 * 7);
+    protected final int serial = 303;
+
     private String[] args = null;
     private Session attached;
     private SessionController sc;
@@ -50,6 +53,14 @@ public class SpawnStick implements IAction {
 
     public String getName() {
         return name;
+    }
+
+    public String toString() {
+        return String.format("SpawnStick{permissible=%s}", this.permissible);
+    }
+
+    public int hashCode() {
+        return (int) Math.abs(((this.factor) + (this.server.hashCode() + this.attached.hashCode() + this.serial)));
     }
 
     public boolean allowed() {

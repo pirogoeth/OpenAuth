@@ -19,6 +19,9 @@ public class FreezeStick implements IAction {
 
     public static final String name = "freeze";
 
+    protected final int factor = (17 * 7);
+    protected final int serial = 302;
+
     private String[] args = null;
     private Session attached;
     private SessionController sc;
@@ -39,6 +42,14 @@ public class FreezeStick implements IAction {
 
     public String getName() {
         return name;
+    }
+
+    public String toString() {
+        return String.format("FreezeStick{permissible=%s}", this.permissible);
+    }
+
+    public int hashCode() {
+        return (int) Math.abs(((this.factor) + (this.server.hashCode() + this.attached.hashCode() + this.serial)));
     }
 
     public boolean allowed() {

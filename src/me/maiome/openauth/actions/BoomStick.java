@@ -34,6 +34,9 @@ public class BoomStick implements IAction {
 
     public static final String name = "boom";
 
+    protected final int factor = (17 * 7);
+    protected final int serial = 301;
+
     private String[] args = null;
     private Session attached;
     private SessionController sc;
@@ -59,6 +62,14 @@ public class BoomStick implements IAction {
 
     public String getName() {
         return name;
+    }
+
+    public String toString() {
+        return String.format("BoomStick{permissible=%s}", this.permissible);
+    }
+
+    public int hashCode() {
+        return (int) Math.abs(((this.factor) + (this.server.hashCode() + this.attached.hashCode() + this.serial)));
     }
 
     public boolean allowed() {

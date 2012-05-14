@@ -15,6 +15,9 @@ import java.util.List;
 
 public class OAActiveWhitelistHandler implements OAWhitelistHandler {
 
+    protected final int factor = (17 * 8);
+    protected final int serial = 401;
+
     private List<String> whitelist = new ArrayList<String>();
     private OpenAuth controller;
     private final LogHandler log = new LogHandler();
@@ -29,6 +32,14 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
                 log.exDebug(" => " + name);
             }
         }
+    }
+
+    public String toString() {
+        return String.format("OAActiveWhitelistHandler{enabled=%b}", this.enabled);
+    }
+
+    public int hashCode() {
+        return (int) Math.abs(((this.factor) + (this.controller.hashCode() + this.serial)));
     }
 
     public void setEnabled(boolean b) {

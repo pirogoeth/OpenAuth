@@ -29,6 +29,9 @@ import me.maiome.openauth.util.Permission;
 
 public class Session {
 
+    protected transient final int factor = (17 * 6);
+    protected transient final int serial = 201;
+
     private LogHandler log = new LogHandler();
     private OpenAuth controller;
     private SessionController sc;
@@ -61,7 +64,7 @@ public class Session {
 
     @Override
     public int hashCode() {
-        return (int) ((17 * 6) + Math.abs((this.controller.hashCode() + this.sc.hashCode() + this.player.getName().hashCode() + this.wand_id)));
+        return (int) ((this.factor) + Math.abs((this.controller.hashCode() + this.sc.hashCode() + this.player.getName().hashCode() + this.wand_id + this.serial)));
     }
 
     @Override
