@@ -30,7 +30,7 @@ import me.maiome.openauth.util.WhitelistStatus;
 public class OAServer {
 
     protected final int factor = (17 * 5);
-    protected final int sid = 100;
+    protected final int serial = 100;
 
     private OpenAuth controller;
     private Server server;
