@@ -77,7 +77,7 @@ public class Session {
             return false;
         }
 
-        return (this.toString.equals(sess.toString())) && (this.hashCode() == sess.hashCode())
+        return (this.toString.equals(sess.toString())) && (this.hashCode() == sess.hashCode());
     }
 
     public OAPlayer getPlayer() {
