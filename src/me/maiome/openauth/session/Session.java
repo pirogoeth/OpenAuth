@@ -43,6 +43,7 @@ public class Session {
     private boolean identified = false;
     private List<IAction> actions = new ArrayList<IAction>();
     private Location lloc;
+    private long start_time = System.getTimeMillis();
 
     protected final int wand_id = ConfigInventory.MAIN.getConfig().getInt("wand-id");
 
@@ -81,6 +82,10 @@ public class Session {
         };
 
         return ((this.toString().equals(sess.toString())) && (this.hashCode() == sess.hashCode()));
+    }
+    
+    public long getAge() {
+        return (System.getTimeMillis() - this.start_time) / 1000L;
     }
 
     public OAPlayer getPlayer() {
