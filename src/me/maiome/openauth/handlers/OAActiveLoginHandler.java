@@ -131,6 +131,8 @@ public class OAActiveLoginHandler implements OALoginHandler {
     public void processPlayerRegistration(OAPlayer player, String password) {
         if (!(this.isEnabled())) return;
         ConfigInventory.DATA.getConfig().set(String.format("credentials.%s.password", player.getName()), this.getStringHash(password));
+        OAPlayerRegistrationEvent event = new OAPlayerRegistrationEvent(player);
+        OpenAuth.getOAServer().callEvent(event);
     }
 
     public boolean compareToCurrent(OAPlayer player, String password) {

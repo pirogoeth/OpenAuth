@@ -168,6 +168,7 @@ public class OpenAuth extends JavaPlugin {
         // initialise the JSONAPI call handler
         try {
             new OAJSONAPICallHandler(this);
+            OAJSONAPINativeMethods.load();
         } catch (java.lang.NoClassDefFoundError e) {
             log.warning("JSONAPI call handler could not be loaded -- is JSONAPI loaded?");
         }

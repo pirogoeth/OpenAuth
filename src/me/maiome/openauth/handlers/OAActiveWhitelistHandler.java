@@ -118,7 +118,6 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
         if (!(this.isEnabled())) return;
         if (this.whitelist.contains(name)) {
             this.whitelist.remove(name);
-            this.saveWhitelist();
         } else {
             return;
         }

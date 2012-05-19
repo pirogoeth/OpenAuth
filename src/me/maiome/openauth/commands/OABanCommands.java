@@ -57,42 +57,36 @@ public class OABanCommands {
              min = 1, max = -1)
     @CommandPermissions({ "openauth.ban.ip" })
     public static void banIP(CommandContext args, CommandSender sender) throws CommandException {
-        String reason;
+        String reason = (args.argsLength() > 1 ? args.getJoinedStrings(1) : "No reason given.");
         if (controller.wrap(args.getString(0)) == null) {
             sender.sendMessage(ChatColor.BLUE + "Please provide a valid player to ban.");
             return;
         }
-        if (args.argsLength() > 1) {
-            // there has been a reason given.
-            reason = args.getJoinedStrings(1);
-            controller.getOAServer().banPlayerByIP(controller.wrap(args.getString(0)), reason);
-            controller.getOAServer().kickPlayer(controller.wrap(args.getString(0)), reason);
-            sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been banned.", args.getString(0)));
-        } else {
-            // there has not been a reason given
-            controller.getOAServer().banPlayerByIP(controller.wrap(args.getString(0)));
-            controller.getOAServer().kickPlayer(controller.wrap(args.getString(0)));
-            sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been banned.", args.getString(0)));
-        }
+        controller.getOAServer().banPlayerByIP(controller.wrap(args.getString(0)), reason);
+        controller.getOAServer().kickPlayer(controller.wrap(args.getString(0)), reason);
+        sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been banned.", args.getString(0)));
     }
 
     @Console
     @Command(aliases = {"unban-ip"}, usage = "<user|IP>", desc = "Allows removal of an IP ban.",
-             min = 1, max = 1)
+             min = 1)
     @CommandPermissions({ "openauth.unban.ip" })
     public static void unbanIP(CommandContext args, CommandSender sender) throws CommandException {
         OAPlayer player = controller.forciblyWrapOAPlayer(args.getString(0));
+        String reason = (args.argsLength() > 1 ? args.getJoinedStrings(1) : "No reason given.");
         if (player == null && args.getString(0).charAt(0) != '/') {
             sender.sendMessage(ChatColor.BLUE + "You need to provide the banned IP, as this user does not exist in my memory.");
             return;
         } else if (args.getString(0).charAt(0) == '/') {
             controller.getOAServer().unbanPlayerByIP(args.getString(0));
             sender.sendMessage(ChatColor.BLUE + String.format("IP %s has been removed from the ban list.", args.getString(0)));
+            log.info(String.format("%s was unbanned! [Reason: %s]", args.getString(0), args.getJoinedStrings(1)));
             return;
         }
         try {
             controller.getOAServer().unbanPlayerByIP(player.getIP());
             sender.sendMessage(ChatColor.BLUE + String.format("Player %s(%s) has been unbanned.", player.getName(), player.getIP()));
+            log.info(String.format("%s(%s) was unbanned! [Reason: %s]", player.getName(), player.getIP(), args.getJoinedStrings(1)));
         } catch (java.lang.NullPointerException e) {
             log.warning("Was not able to get a valid IP from OAPlayer instance (" + player.toString() + "). Please report this.");
         }
@@ -134,12 +128,14 @@ public class OABanCommands {
              min = 1, max = 1)
     @CommandPermissions({ "openauth.unban.name" })
     public static void unbanName(CommandContext args, CommandSender sender) throws CommandException {
+        String reason = (args.argsLength() > 1 ? args.getJoinedStrings(1) : "No reason given.");
         if (!(controller.getOAServer().hasNameBan(args.getString(0)))) {
             sender.sendMessage(ChatColor.BLUE + String.format("There is not an existing ban for %s.", args.getString(0)));
             return;
         } else {
             controller.getOAServer().unbanPlayerByName(args.getString(0));
             sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been unbanned.", args.getString(0)));
+            log.info(String.format("%s has been unbanned! [Reason: %s]", args.getString(0), reason));
         }
         return;
     }

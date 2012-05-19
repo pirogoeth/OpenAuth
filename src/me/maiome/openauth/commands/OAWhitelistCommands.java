@@ -3,6 +3,7 @@ package me.maiome.openauth.commands;
 // internal imports
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAPlayer;
+import me.maiome.openauth.bukkit.events.*;
 import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.LogHandler;
 import me.maiome.openauth.util.ConfigInventory;
@@ -45,7 +46,7 @@ public class OAWhitelistCommands {
             controller = openauth;
         }
 
-        @Command(aliases = {"whitelist", "wl"}, desc = "OpenAuth whitelist commands",
+        @Command(aliases = {"whitelist", "w"}, desc = "OpenAuth whitelist commands",
                  flags = "", min = 1)
         @NestedCommand({OAWhitelistCommands.class})
         public static void openAuth() {}
@@ -57,6 +58,12 @@ public class OAWhitelistCommands {
     @CommandPermissions({ "openauth.whitelist.add" })
     public static void whitelistadd(CommandContext args, CommandSender sender) throws CommandException {
         if (controller.getOAServer().getWhitelistHandler().isEnabled()) {
+            OAPlayerWhitelistedEvent event = new OAPlayerWhitelistedEvent(args.getString(0));
+            OpenAuth.getOAServer().callEvent(event);
+            if (event.isCancelled()) {
+                sender.sendMessage(ChatColor.BLUE + String.format("Player %s is not able to be whitelisted.", args.getString(0)));
+                return;
+            }
             controller.getOAServer().getWhitelistHandler().whitelistPlayer(args.getString(0));
             sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been whitelisted.", args.getString(0)));
             return;
@@ -88,6 +95,12 @@ public class OAWhitelistCommands {
     @CommandPermissions({ "openauth.whitelist.remove" })
     public static void whitelistremove(CommandContext args, CommandSender sender) throws CommandException {
         if (controller.getOAServer().getWhitelistHandler().isEnabled()) {
+            OAPlayerUnwhitelistedEvent event = new OAPlayerUnwhitelistedEvent(args.getString(0));
+            OpenAuth.getOAServer().callEvent(event);
+            if (event.isCancelled()) {
+                sender.sendMessage(ChatColor.BLUE + String.format("Player %s is not able to be unwhitelisted.", args.getString(0)));
+                return;
+            }
             controller.getOAServer().getWhitelistHandler().unwhitelistPlayer(args.getString(0));
             sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been unwhitelisted.", args.getString(0)));
             return;

@@ -18,6 +18,7 @@ import java.util.Map;
 // internal imports
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAServer;
+import me.maiome.openauth.bukkit.events.*;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LocationSerialisable;
@@ -92,7 +93,7 @@ public class OAPlayer {
 
     // enumerate all possible player states
 
-    private enum PlayerState {
+    public enum PlayerState {
         ONLINE,
         OFFLINE,
         BANNED,
@@ -201,14 +202,8 @@ public class OAPlayer {
         return this.player.getLocation().getPitch();
     }
 
-    public float recalculateYaw(float yaw) {
-        yaw = ((yaw - 90) % 360);
-        yaw = ((yaw < 0) ? (yaw + 360) : yaw);
-        return yaw;
-    }
-
     public float getYaw() {
-        return this.recalculateYaw(this.player.getLocation().getYaw());
+        return this.player.getLocation().getYaw();
     }
 
     public Location getLocation() {
@@ -224,7 +219,7 @@ public class OAPlayer {
     }
 
     public void setLocation(Location location, double pitch, double yaw) {
-        float _pitch = Float.parseFloat(Double.toString(pitch)), _yaw = this.recalculateYaw(Float.parseFloat(Double.toString(yaw)));
+        float _pitch = Float.parseFloat(Double.toString(pitch)), _yaw = Float.parseFloat(Double.toString(yaw));
         this.setLocation(location, _pitch, _yaw);
     }
 
@@ -242,7 +237,7 @@ public class OAPlayer {
     }
 
     public void setLocation(float x, float y, float z, double pitch, double yaw) {
-        float _pitch = Float.parseFloat(Double.toString(pitch)), _yaw = this.recalculateYaw(Float.parseFloat(Double.toString(yaw)));
+        float _pitch = Float.parseFloat(Double.toString(pitch)), _yaw = Float.parseFloat(Double.toString(yaw));
         this.setLocation(x, y, z, _pitch, _yaw);
     }
 
@@ -258,7 +253,7 @@ public class OAPlayer {
     public void setLocation(World w, float x, float y, float z, float pitch, float yaw) {
         Location location = new Location(w, x, y, z);
         location.setPitch(pitch);
-        location.setYaw(this.recalculateYaw(yaw));
+        location.setYaw(yaw);
         this.setLocation(location);
     }
 
@@ -273,7 +268,10 @@ public class OAPlayer {
     }
 
     public Location getSavedLocation(String name) {
-        return (Location) (((LocationSerialisable) this.locations.get(name)).getLocation());
+        Location loc = (Location) (((LocationSerialisable) this.locations.get(name)).getLocation());
+        loc.setPitch(this.getPitch());
+        loc.setYaw(this.getYaw());
+        return loc;
     }
 
     public Map<String, Object> getSavedLocations() {
@@ -286,6 +284,18 @@ public class OAPlayer {
 
     public void deleteLocation(String name) {
         this.locations.remove(name);
+    }
+
+    public void loadLocations() {
+        try {
+            this.locations = (Map<String, Object>) ConfigInventory.DATA.getConfig().getConfigurationSection("locations." + this.getName()).getValues(true);
+        } catch (java.lang.NullPointerException e) {
+            this.sendMessage(ChatColor.RED + "Sorry, but there was a problem loading your saved locations :/");
+        }
+    }
+
+    public void saveLocations() {
+        ConfigInventory.DATA.getConfig().set("locations." + this.getName(), this.locations);
     }
 
     /**
@@ -348,13 +358,8 @@ public class OAPlayer {
         if (this.session != null) this.updateIP();
         if (this.flying) this.fly(true);
         this.state = PlayerState.ONLINE;
-        try {
-            this.locations = (Map<String, Object>) ConfigInventory.DATA.getConfig().getConfigurationSection(String.format("locations.%s", this.getName())).getValues(true);
-        } catch (java.lang.NullPointerException e) {
-            this.sendMessage(ChatColor.RED + "Sorry, but there was a problem loading your saved locations :/");
-            this.locations = new HashMap<String, Object>();
-        }
-        // this.getServer().callEvent(new OAPlayerOnlineEvent(this));
+        this.loadLocations();
+        this.getServer().callEvent(new OAPlayerOnlineEvent(this));
     }
 
     public boolean isOnline() {
@@ -365,14 +370,14 @@ public class OAPlayer {
         try {
             this.session.clearAction();
         } catch (java.lang.NullPointerException e) {}
+        this.saveLocations();
         this.setState(PlayerState.OFFLINE);
-        ConfigInventory.DATA.getConfig().set(String.format("locations.%s", this.getName()), this.locations);
-        // this.getServer().callEvent(new OAPlayerOfflineEvent(this));
+        this.getServer().callEvent(new OAPlayerOfflineEvent(this));
     }
 
     private void setState(PlayerState state) {
+        this.getServer().callEvent(new OAPlayerStateChangedEvent(this, this.state, state));
         this.state = state;
-        // this.getServer().callEvent(new OAPlayerStateChangedEvent(this, state));
     }
 
     public PlayerState getState() {

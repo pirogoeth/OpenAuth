@@ -142,10 +142,8 @@ public class OACommands {
     @Command(aliases = {"test"}, desc = "This is always here to test some new thing.", max = 0)
     public static void ptest(CommandContext args, CommandSender sender) throws CommandException {
         OAPlayer player = controller.wrap((Player) sender);
-        Location loc = player.getLocation();
-        player.getPlayer().setGameMode(GameMode.SURVIVAL);
-        Wolf w = loc.getWorld().spawn(loc.add(5, 0, 5), Wolf.class);
-        w.setAngry(true);
-        w.damage(0, (Entity) player.getPlayer());
+        float yaw = player.getYaw();
+        float pitch = player.getPitch();
+        player.sendMessage(String.format("pitch=%f,yaw=%f", pitch, yaw));
     }
 }

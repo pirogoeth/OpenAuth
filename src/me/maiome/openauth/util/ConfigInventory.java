@@ -34,7 +34,7 @@ public enum ConfigInventory {
         return this.file;
     }
 
-    public void save() {
+    public synchronized void save() {
         try {
             this.config.save(this.file);
         } catch (java.lang.Exception e) {

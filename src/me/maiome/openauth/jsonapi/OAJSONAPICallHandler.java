@@ -20,8 +20,6 @@ public class OAJSONAPICallHandler {
     private OAServer server = OpenAuth.getOAServer();
     // this is a map of method call names to methods to run for said names.
     private Map<String, Method> mmap = new HashMap<String, Method>();
-    // this is a map of parent => method relations
-    private Map<Method, Object> pmap = new HashMap<Method, Object>();
     // this is the runnable task to register the call handlers
     private Runnable registration_task = new Runnable() {
         public void run() {
@@ -62,19 +60,28 @@ public class OAJSONAPICallHandler {
     }
 
     // this registers a method in the map to be checked for and run later.
-    public void registerMethod(String name, Method m, Object parent) {
-        if (this.mmap.containsKey(name) || this.mmap.containsKey(m)) return;
-        this.mmap.put(name, m);
-        this.pmap.put(m, parent);
-    }
-
-    // this deregisters a method
-    public void deregisterMethod(String name) {
-        if (!(this.mmap.containsKey(name))) return;
-        try {
-            this.pmap.remove(this.mmap.get(name));
-        } catch (java.lang.Exception e) {}
-        this.mmap.remove(name);
+    public void registerClass(Class<?> clazz) {
+        Method[] methods = clazz.getMethods();
+        int registered = 0;
+        for (Method method : methods) {
+            if (!(method.isAnnotationPresent(OAJSONAPIMethod.class))) {
+                continue;
+            } else if (!(Modifier.isStatic(method.getModifiers()))) {
+                continue; // I don't want to have to deal with non-static methods right now.
+            } else { // we'll register it because: a) has OAJSONAPIMethod annotation; b) it's a static method.
+                OAJSONAPIMethod anno = method.getAnnotation(OAJSONAPIMethod.class);
+                String name = ((anno.name().equals("null")) ? method.getName() : anno.name());
+                if (this.mmap.containsKey(name)) {
+                    log.warning("Method map already contains method with the name " + name + "!");
+                    continue;
+                }
+                this.mmap.put(name, method);
+                registered++;
+            }
+        }
+        if (registered > 0) {
+            log.exDebug(String.format("[OAJSONAPICallHandler] Registered %d methods from class %s.", registered, clazz.getCanonicalName()));
+        }
     }
 
     public class CallHandler implements JSONAPICallHandler {
@@ -86,8 +93,7 @@ public class OAJSONAPICallHandler {
         public Object handle(APIMethodName method, Object[] args) {
             try {
                 Method m = mmap.get(method.getMethodName());
-                Object parent = pmap.get(m);
-                return m.invoke(parent, new Object[]{args});
+                return m.invoke(null, new Object[]{args});
             } catch (java.lang.Exception e) {
                 e.printStackTrace();
             }
