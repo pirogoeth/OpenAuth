@@ -11,8 +11,7 @@ public class OAJSONAPINativeMethods {
 
     public static void load() {
         try {
-            callhandler = OpenAuth.getJSONAPICallHandler();
-            callhandler.registerClass(OAJSONAPINativeMethods.class);
+            OpenAuth.getJSONAPICallHandler().registerClass(OAJSONAPINativeMethods.class);
         } catch (java.lang.Exception e) {
             log.info("[OAJSONAPINativeMethods] Error registering class with JSONAPI call handler -- is JSONAPI loaded?");
             e.printStackTrace();
