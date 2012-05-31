@@ -1,6 +1,7 @@
 package me.maiome.openauth.bukkit;
 
 // bukkit imports
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -35,36 +36,48 @@ public class OAPlayer {
 
     // normal class variables
     private final OAServer server;
-    private final Player player;
     private final LogHandler log = new LogHandler();
-    private Session session = null;
     private final SessionController sc;
+    private Player player;
+    private String name = null;
+    private Session session = null;
     private List<String> ip_list = new ArrayList<String>();
     private Map<String, Object> locations = new HashMap<String, Object>();
-    private PlayerState state;
+    private PlayerState state = PlayerState.UNKNOWN;
     private boolean ip_changed = false;
     private boolean flying = false;
 
     private String player_ip = null;
 
+    // ip update task
+    private Runnable updateip = new Runnable() {
+        public void run() {
+            updateIP();
+        }
+    };
+
     // construct ALL the things!
 
     public OAPlayer(Player player) {
         this.player = player;
+        this.name = player.getName();
         this.server = OpenAuth.getOAServer();
         this.state = PlayerState.UNKNOWN;
         this.sc = OpenAuth.getSessionController();
+        this.session = this.sc.get(this);
 
-        this.player_ip = player.getAddress().getAddress().toString();
+        this.player_ip = player.getAddress().getAddress().getHostAddress();
     }
 
     public OAPlayer(PlayerLoginEvent event) {
         this.player = event.getPlayer();
+        this.name = event.getPlayer().getName();
         this.server = OpenAuth.getOAServer();
         this.state = PlayerState.UNKNOWN;
         this.sc = OpenAuth.getSessionController();
+        this.session = this.sc.get(this);
 
-        this.player_ip = event.getAddress().toString();
+        this.player_ip = event.getAddress().getHostAddress();
     }
 
     public String toString() {
@@ -72,7 +85,7 @@ public class OAPlayer {
     }
 
     public int hashCode() {
-        return (int) Math.abs(((this.factor) + (this.server.hashCode() + this.player.hashCode() + this.serial)));
+        return (int) Math.abs(((this.factor) + (this.name.hashCode() + this.server.hashCode() + this.player.hashCode() + this.serial)));
     }
 
     public boolean equals(Object obj) {
@@ -89,6 +102,35 @@ public class OAPlayer {
 
         if (pl.getName().equals(this.getName()) && pl.getIP() == this.getIP()) return true;
         else return false;
+    }
+
+    // THIS IS SUPER IMPORTANT. basically, updates all the player information and such to keep outdates from happening.
+
+    public void update() {
+        Player player = Bukkit.getServer().getPlayerExact(this.name);
+        try {
+            try {
+                if (player == null) {
+                    // player most likely logged off?
+                } else if (this.player == null) {
+                    try {
+                        this.player = Bukkit.getServer().getPlayerExact(this.name);
+                    } catch (java.lang.Exception e) {
+                        this.player = null; // we just broke everything with this line :D
+                    }
+                } else if (player != null && !(player.equals(this.player))) {
+                    this.player = player;
+                }
+            } catch (java.lang.Exception e) {
+                e.printStackTrace();
+            }
+        } catch (java.lang.NullPointerException e) {
+            log.warning("There's a chance things have broken like my Lego Star Wars set. TACTICAL STACKTRACE INBOUND.");
+            e.printStackTrace();
+        } catch (java.lang.Exception e) {
+            e.printStackTrace();
+        }
+        return;
     }
 
     // enumerate all possible player states
@@ -109,7 +151,7 @@ public class OAPlayer {
     // wrapper methods
 
     public String getName() {
-        return this.player.getName();
+        return (this.name != null ? this.name : (this.player.getName() != null ? this.player.getName() : null));
     }
 
     public Player getPlayer() {
@@ -144,7 +186,7 @@ public class OAPlayer {
 
     public void updateIP() {
         try {
-            this.player_ip = (this.player.getAddress().toString() == this.player_ip) ? this.player_ip : this.player.getAddress().toString();
+            this.player_ip = (this.player.getAddress().getAddress().getHostAddress() == this.player_ip) ? this.player_ip : this.player.getAddress().getAddress().getHostAddress();
             if (!(this.ip_list.contains(this.player_ip))) {
                 this.ip_list.add(this.player_ip);
                 this.ip_changed = true;
@@ -359,6 +401,7 @@ public class OAPlayer {
         if (this.flying) this.fly(true);
         this.state = PlayerState.ONLINE;
         this.loadLocations();
+        this.getServer().scheduleSyncDelayedTask(100L, this.updateip);
         this.getServer().callEvent(new OAPlayerOnlineEvent(this));
     }
 

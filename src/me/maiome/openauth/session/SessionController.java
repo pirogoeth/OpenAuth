@@ -92,7 +92,7 @@ public class SessionController {
     public void createAll() {
         int session_count = 0;
         for (Player player : this.server.getServer().getOnlinePlayers()) {
-            this.controller.wrap(player).initSession();
+            this.controller.wrap(player);
             session_count++;
         }
         if (session_count >= 1) log.info(String.format("[SessionController] Generated %d sessions.", session_count));
@@ -106,7 +106,7 @@ public class SessionController {
         for (OAPlayer player : players) {
             player.destroySession();
         }
-        if (players.size() >= 1) log.exDebug(String.format("Destroyed %d sessions.", players.size()));
+        if (players.size() >= 1) log.exDebug(String.format("[SessionController] Destroyed %d sessions.", players.size()));
     }
 
     private Session create(OAPlayer player) {
@@ -153,7 +153,7 @@ public class SessionController {
         if (this.session_bag.containsKey(player)) {
             return this.session_bag.get(player);
         } else {
-            log.exDebug(String.format("Creating session for OAPlayer %s.", player.getName()));
+            log.exDebug(String.format("[SessionController] Creating session for OAPlayer %s.", player.getName()));
             return this.create(player);
         }
     }

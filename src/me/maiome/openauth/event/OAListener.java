@@ -76,19 +76,18 @@ public class OAListener implements Listener {
         }
     }
 
-    /** 
+    /**
      * Called when a player logs in.
      *
      * This will be used to for ban and whitelist features.
      */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerLogin(PlayerLoginEvent event) {
-        OAPlayer player = this.controller.wrap(event);
+        OAPlayer player = (this.controller.wrap(event));
         this.controller.getOAServer().getWhitelistHandler().processPlayerJoin(event, player);
         if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) return;
         this.controller.getOAServer().getLoginHandler().processPlayerLogin(event, player);
         if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) return;
-        player.initSession();
         player.getSession().setLoginLocation();
         return;
     }
@@ -99,22 +98,29 @@ public class OAListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerJoin(PlayerJoinEvent event) {
         OAPlayer player = this.controller.wrap(event.getPlayer());
-        if (ConfigInventory.MAIN.getConfig().getBoolean("auth.greet-players", true) == true) {
+        player.update();
+        boolean greet = ConfigInventory.MAIN.getConfig().getBoolean("auth.greet-players", true);
+        if (greet == true) {
             if (!(player.getPlayer().hasPlayedBefore())) {
                 player.sendMessage(ChatColor.GREEN + String.format(
                     "Welcome to %s, %s! To player on our server, we require you to register with OpenAuth.",
                     player.getServer().getServer().getServerName(), player.getName()
                 ));
                 player.sendMessage(ChatColor.GREEN + "To register, use this command: /oa register <password>");
-            } else if (player.getPlayer().hasPlayedBefore() && !(player.getSession().isIdentified())) {
+            } else if (!(player.getSession().isIdentified())) {
                 player.sendMessage(ChatColor.GREEN + String.format(
                     "Welcome back to %s, %s! Please login to play! To login, use: /oa login <password>",
                     player.getServer().getServer().getServerName(), player.getName()
                 ));
-            } else if (player.getPlayer().hasPlayedBefore() && player.getSession().isIdentified()) {
+            } else if (player.getSession().isIdentified()) {
                 player.sendMessage(ChatColor.GREEN + String.format(
                     "Welcome back to %s, %s! Enjoy your stay!",
                     player.getServer().getServer().getServerName(), player.getName()
+                ));
+            } else {
+                player.sendMessage(ChatColor.GREEN + String.format(
+                    "Hi, %s. You must be some strange transient entity from another dimension (or at least another server)...",
+                    player.getName()
                 ));
             }
         }

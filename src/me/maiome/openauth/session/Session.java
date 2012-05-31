@@ -43,13 +43,14 @@ public class Session {
     private boolean identified = false;
     private List<IAction> actions = new ArrayList<IAction>();
     private Location lloc;
-    private long start_time = System.currentTimeMillis();
+    private long spawn_time;
 
     protected final int wand_id = ConfigInventory.MAIN.getConfig().getInt("wand-id");
 
     public Session (SessionController sc, OAPlayer player) {
         this.controller = sc.getController();
         this.server = player.getServer();
+        this.spawn_time = System.currentTimeMillis();
         this.sc = sc;
         this.player = player;
         if (this.freeze) {
@@ -85,7 +86,7 @@ public class Session {
     }
 
     public long getAge() {
-        return (System.currentTimeMillis() - this.start_time) / 1000L;
+        return (System.currentTimeMillis() - this.spawn_time) / 1000L;
     }
 
     public OAPlayer getPlayer() {
@@ -248,7 +249,7 @@ public class Session {
 
     public void undoLastActions(int i) {
         int n = (this.actions.size() - i);
-        if (0 > n || i > this.actions.size()) {
+        if (0 > n || i >= n) {
             this.player.sendMessage(ChatColor.BLUE + "Undoing ALL of your actions, since you have given me a number that is greater than or equal to the number of actions performed.");
             for (IAction a : this.actions) {
                 a.undo();
@@ -257,14 +258,14 @@ public class Session {
             this.actions.clear();
             return;
         }
-        for (int c = 1; c <= i; c++) {
+        for (int c = 0; c < i; c++) {
             try {
-                this.actions.get((c - 1)).undo(); // converting one-indexed to zero-indexed
-                this.actions.remove((c - 1)); // here too
+                this.actions.get(c).undo(); // converting one-indexed to zero-indexed
+                this.actions.remove(c); // here too
             } catch (java.lang.IndexOutOfBoundsException e) {
                 this.player.sendMessage(ChatColor.BLUE + String.format(
                     "I was only able to undo your last %d actions. Actions %d through %d don't exist.",
-                    (c - 1), (c), (i)
+                    (c + 1), (c), (i)
                 ));
                 break;
             }

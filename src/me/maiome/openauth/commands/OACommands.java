@@ -15,6 +15,7 @@ import com.sk89q.minecraft.util.commands.*;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.block.Block;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.MemorySection;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -25,8 +26,10 @@ import org.bukkit.entity.Wolf;
 
 // java imports
 import java.io.InputStream;
+import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.HashSet;
 
 // etCommon imports
 import net.eisental.common.page.Pager;
@@ -139,11 +142,25 @@ public class OACommands {
         sender.sendMessage(ChatColor.GREEN + "OpenAuth data has been saved.");
     }
 
-    @Command(aliases = {"test"}, desc = "This is always here to test some new thing.", max = 0)
+    @Command(aliases = {"otest"}, desc = "This is always here to test some new thing.", max = 1)
+    public static void otest(CommandContext args, CommandSender sender) throws CommandException {
+        OAPlayer player = controller.wrap((Player) sender);
+        player.destroySession();
+        player.kickPlayer("Your session has been terminated.");
+    }
+
+    @Command(aliases = {"test"}, desc = "This is always here to test some new thing.", max = 1)
     public static void ptest(CommandContext args, CommandSender sender) throws CommandException {
         OAPlayer player = controller.wrap((Player) sender);
-        float yaw = player.getYaw();
-        float pitch = player.getPitch();
-        player.sendMessage(String.format("pitch=%f,yaw=%f", pitch, yaw));
+        int dist = ((args.argsLength() > 0) ? Integer.parseInt(args.getString(0)) : 5);
+        HashSet<Byte> transparent = new HashSet<Byte>();
+        transparent.add(new Integer(0).byteValue());
+        transparent.add(new Integer(1).byteValue());
+        List<Block> sight = player.getPlayer().getLineOfSight(transparent, dist);
+        StringBuilder blocklist = new StringBuilder();
+        for (Block b : sight) {
+            blocklist.append(b.getTypeId() + ",");
+        }
+        sender.sendMessage(ChatColor.BLUE + blocklist.toString());
     }
 }

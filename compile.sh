@@ -37,7 +37,7 @@ hashtag=`git log -n 1 | grep commit | awk '{ print $2 }' | cut -b 1-7`
 #===============================================================================================================
 
 
-while getopts "vhpo:VH?" flag
+while getopts "vhpr:o:VH?" flag
     do
         case $flag in
             V) echo -e "${_bc_y}Building for ${name}, version ${version}."
@@ -58,6 +58,9 @@ while getopts "vhpo:VH?" flag
             p) echo -e "${_bc_y}Writing git committag to plugin.yml."
                export pct="YES"
             ;;
+            r) echo -e "${_bc_r}Remote transfer enabled!"
+               export remote=${OPTARG}
+            ;;
             \?) echo "Usage: `basename $0` [-HVhv?] [-o outfile]"
                exit
             ;;
@@ -67,7 +70,7 @@ while getopts "vhpo:VH?" flag
     done
 
 function cleanup() {
-    rm -f ./{archive,compile}_log.txt
+    rm -f ./{archive,compile,scp}_log.txt
     echo -e "${_bc_y}Cleaned up logfiles!${_bc_nc}"
     cd ${_WD}
 }
@@ -120,7 +123,16 @@ if [ "${verbose}" == "YES" ] ; then
     echo "$(cat archive_log.txt)"
 fi
 
-if [ ! -z $outdir ] ; then
+if [ ! -z $remote ] ; then
+    echo -e "${_bc_y}[Uploading ${name}(${version}-${hashtag}) to ${remote}...]${_bc_nc}"
+    scp -p ${OUTFILENAME} ${remote} 2>&1 1>scp_log.txt
+    status=$?
+    if [ ! ${status} == 0 ] ; then
+        echo -e "[ ${_bc_r} TRANSFER FAIL ${_bc_nc} ]"
+    elif [ ${status} == 0 ] ; then
+        echo -e "[ ${_bc_g} TRANSFER OK ${_bc_nc} ]"
+    fi
+elif [ ! -z $outdir ] ; then
     mv ${OUTFILENAME} ${outdir}
 elif [ `pwd` != ${_WD} ] && [ -z $outdir ] ; then
     mv ${OUTFILENAME} ${_WD}
