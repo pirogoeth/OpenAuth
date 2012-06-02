@@ -1,13 +1,21 @@
 #!/usr/bin/env bash
 
+declare -a upstream
+
 # ==============================================================================================================
 # configurable options
 
 name="OpenAuth"
 basedir="/home/pirogoeth/OpenAuth"
+incdir="${basedir}/inc"
 plugin_datafile="src/plugin.yml"
 javac_includes="inc/craftbukkit.jar:inc/permissions.jar:inc/bukkit.jar:inc/worldedit.jar:inc/pex.jar:inc/JSONAPI.jar"
 javac_src="src/me/maiome/openauth/*/*.java src/me/maiome/openauth/*/*/*.java src/net/eisental/common/*/*.java"
+
+# upstream resources to run compile first to get an UPDATED resource.
+# this will read a resourcelist located at ~/.bcs-resources
+
+upstream=(  )
 
 # configuration ENDS
 # ==============================================================================================================
@@ -32,10 +40,26 @@ cd ${basedir}
 
 version=`cat src/plugin.yml | grep "version" | awk '{print $2}'`
 hashtag=`git log -n 1 | grep commit | awk '{ print $2 }' | cut -b 1-7`
+resource="${name},${basedir}"
+compiler_resources=${HOME}/.bcs-resources
 
 # context vars/statement ENDS
 #===============================================================================================================
 
+function pass() {
+    echo "" >/dev/null
+} # pythonic function.
+
+# make sure this possible {up,down}stream is listed in compiler resources
+if test ! -e ${compiler_resources} ; then
+  touch ${compiler_resources}
+fi
+if (grep -Fxq "${resource};" ${compiler_resources}) ; then
+  # nothing to do, we're already a resource, also need to fill in this conditional block >_>
+  pass
+else
+  echo "${resource};" >> ${compiler_resources}
+fi
 
 while getopts "vhpr:o:VH?" flag
     do
@@ -69,13 +93,65 @@ while getopts "vhpr:o:VH?" flag
         esac
     done
 
+function parse_upstreams() {
+    function getKey() {
+        echo ${1//','/ } | awk '{print $1};'
+    }
+    function getValue() {
+        echo ${1//','/ } | awk '{print $2};'
+    }
+    function clearUpstreamLog() {
+        echo "" > ./upstream_log.txt
+    }
+    resources=`cat ${compiler_resources}`
+    resources=${resources//$'\n'/}
+    resources=${resources//";"/ }
+
+    res_ar=( ${resources} )
+
+    for (( i=0; $i<${#res_ar[@]}; i++ ))
+        do
+            key=$(getKey ${res_ar[$i]})
+            value=$(getValue ${res_ar[$i]})
+            export "${key}"="${value}"
+        done
+
+    # build upstreams
+
+    for (( i=0; $i<${#upstream[$i]}; i++ ))
+        do
+            if test -z ${!upstream[$i]} ; then # the upstream doesnt exist
+                echo "${_bc_r}[FATAL! Upstream project ${upstream[$i]} can not be found! Aborting!]${_bc_nc}"
+                exit 1
+            elif test ! -z ${!upstream[$i]} ; then # the upstream exists
+                echo -en "[${_bc_y}Building upstream project ${upstream[$i]}...${_bc_nc}]"
+                ${!upstream[$i]}/compile.sh -po ${incdir}/${upstream[$i]} 2>&1 1>./upstream_log.txt
+                upstream_status=$?
+                if ((${upstream_status} != 0)) ; then
+                    echo -e "           [ ${_bc_r} FAILED {${upstream_status}}. $_bc_nc} ]"
+                    cat ./upstream_log.txt
+                    exit 1
+                elif ((${upstream_status} == 0)) ; then
+                    echo -e "           [ ${_bc_g} OK. ${_bc_nc} ]"
+                    clearUpstreamLog
+                    continue
+                fi
+            fi
+        done
+}
+
 function cleanup() {
-    rm -f ./{archive,compile,scp}_log.txt
+    rm -f ./{archive,compile,scp,upstream}_log.txt
     echo -e "${_bc_y}Cleaned up logfiles!${_bc_nc}"
     cd ${_WD}
 }
 
 trap cleanup EXIT
+
+# first, build any upstreams.
+if ((${#upstream[@]} > 0)) ; then # we have upstreams to parse and build
+    parse_upstreams
+fi
 
 echo -en "${_bc_y}[${name}(${version}-${hashtag})] building.]${_bc_nc}"
 
@@ -129,6 +205,7 @@ if [ ! -z $remote ] ; then
     status=$?
     if [ ! ${status} == 0 ] ; then
         echo -e "[ ${_bc_r} TRANSFER FAIL ${_bc_nc} ]"
+        exit 1
     elif [ ${status} == 0 ] ; then
         echo -e "[ ${_bc_g} TRANSFER OK ${_bc_nc} ]"
     fi
@@ -139,3 +216,4 @@ elif [ `pwd` != ${_WD} ] && [ -z $outdir ] ; then
 fi
 
 echo -e "${_bc_g}Successfully built ${name} ${version}-${hashtag}!${_bc_nc}"
+exit 0
