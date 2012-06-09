@@ -14,6 +14,7 @@ import org.bukkit.entity.Wolf;
 // internal
 import me.maiome.openauth.bukkit.*;
 import me.maiome.openauth.bukkit.OAPlayer.Direction;
+import me.maiome.openauth.metrics.Tracker;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.*;
 
@@ -23,16 +24,17 @@ import java.util.List;
 
 public class HellHounds implements IAction {
 
-    public static final String name = "hounds";
-    public static List<OAPlayer> attacking = new ArrayList<OAPlayer>();
-
     protected final int factor = (17 * 7);
     protected final int serial = 304;
+
+    public static final String name = "hounds";
+    public static final Tracker tracker = new Tracker("HellHounds");
+    public static List<OAPlayer> attacking = new ArrayList<OAPlayer>();
 
     private Session attached;
     private SessionController sc;
     private final LogHandler log = new LogHandler();
-    private final String permissible = "openauth.action.send-hounds";
+    private final String permissible = "openauth.action.fetch-me-their-souls";
     private final long attack_delay = ConfigInventory.MAIN.getConfig().getLong("actions.hounds.attack-delay", 60L);
     private final long removal_delay = ConfigInventory.MAIN.getConfig().getLong("actions.hounds.removal-delay", 600L);
     private OAServer server;
@@ -182,6 +184,7 @@ public class HellHounds implements IAction {
 
     // player attack method
     public void run(OAPlayer player) {
+        tracker.increment();
         if (attacking.contains(player)) {
             this.sender.sendMessage(ChatColor.BLUE + String.format("Player %s is already being attacked.", player.getName()));
             this.used = false;

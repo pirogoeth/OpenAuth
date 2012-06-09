@@ -9,6 +9,7 @@ import org.bukkit.entity.Entity;
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAPlayer;
 import me.maiome.openauth.bukkit.OAServer;
+import me.maiome.openauth.metrics.Tracker;
 import me.maiome.openauth.session.Session;
 import me.maiome.openauth.session.SessionController;
 import me.maiome.openauth.util.ConfigInventory;
@@ -17,10 +18,11 @@ import me.maiome.openauth.util.Permission;
 
 public class FreezeStick implements IAction {
 
-    public static final String name = "freeze";
-
     protected final int factor = (17 * 7);
     protected final int serial = 302;
+
+    public static final String name = "freeze";
+    public static final Tracker tracker = new Tracker("FreezeStick");
 
     private String[] args = null;
     private Session attached;
@@ -92,6 +94,7 @@ public class FreezeStick implements IAction {
 
     public void run(final OAPlayer player) {
         this.target = player;
+        tracker.increment();
         this.target.getSession().setFrozen(true);
         this.target.sendMessage(String.format("%sYou have been frozen by %s.", ChatColor.BLUE, this.sender.getName()));
         this.used = true;

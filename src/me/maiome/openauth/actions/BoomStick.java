@@ -24,6 +24,7 @@ import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAPlayer;
 import me.maiome.openauth.bukkit.OAServer;
 import me.maiome.openauth.event.OAExplosionListener;
+import me.maiome.openauth.metrics.Tracker;
 import me.maiome.openauth.session.Session;
 import me.maiome.openauth.session.SessionController;
 import me.maiome.openauth.util.ConfigInventory;
@@ -32,10 +33,11 @@ import me.maiome.openauth.util.Permission;
 
 public class BoomStick implements IAction {
 
-    public static final String name = "boom";
-
     protected final int factor = (17 * 7);
     protected final int serial = 301;
+
+    public static final String name = "boom";
+    public static final Tracker tracker = new Tracker("BoomStick");
 
     private String[] args = null;
     private Session attached;
@@ -121,16 +123,22 @@ public class BoomStick implements IAction {
     public void run(final OAPlayer player) {
         this.target = player;
         this.t_location = player.getLocation();
+        tracker.increment();
         OAExplosionListener.addOAOrigin(this.t_location);
         player.getLocation().getWorld().createExplosion(
             this.t_location, this.power, this.fire);
-        this.sender.sendMessage(ChatColor.BLUE + String.format("%d blocks have been changed.", OAExplosionListener.getExplosion(this.t_location).size()));
+        try {
+            this.sender.sendMessage(ChatColor.BLUE + String.format("%d blocks have been changed.", OAExplosionListener.getExplosion(this.t_location).size()));
+        } catch (java.lang.NullPointerException e) {
+            this.sender.sendMessage(ChatColor.BLUE + "Sorry, I couldn't keep track of how many blocks were destroyed!");
+        }
         this.used = true;
     }
 
     public void run(final Block block) {
         this.target = block;
         this.t_location = block.getLocation();
+        tracker.increment();
         OAExplosionListener.addOAOrigin(this.t_location);
         block.getLocation().getWorld().createExplosion(
             this.t_location, this.power, this.fire);
@@ -140,6 +148,7 @@ public class BoomStick implements IAction {
 
     public void run(final Entity entity) {
         this.target = entity;
+        tracker.increment();
         if (entity instanceof Tameable) {
             if (((Tameable) entity).isTamed()) {
                 this.sender.sendMessage(ChatColor.RED + "You can't blow up a tamed animal..that's cruelty :/");

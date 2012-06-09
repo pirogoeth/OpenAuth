@@ -12,6 +12,7 @@ import org.bukkit.entity.Entity;
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAPlayer;
 import me.maiome.openauth.bukkit.OAServer;
+import me.maiome.openauth.metrics.Tracker;
 import me.maiome.openauth.session.Session;
 import me.maiome.openauth.session.SessionController;
 import me.maiome.openauth.util.ConfigInventory;
@@ -24,6 +25,7 @@ public class BanStick implements IAction {
     protected final int serial = 300;
 
     public static final String name = "ban";
+    public static final Tracker tracker = new Tracker("BanStick");
 
     private String[] args = null;
     private Session attached;
@@ -97,6 +99,7 @@ public class BanStick implements IAction {
     public void run(final OAPlayer player) {
         this.target = player;
         this.server.banPlayerByName(player);
+        tracker.increment();
         if (this.args != null) {
             this.server.kickPlayer(player, StringUtil.joinString(this.args, " "));
         } else {

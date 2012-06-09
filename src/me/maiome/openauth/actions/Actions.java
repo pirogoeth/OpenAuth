@@ -8,6 +8,7 @@ import java.lang.reflect.*;
 
 // internal imports
 import me.maiome.openauth.bukkit.*;
+import me.maiome.openauth.metrics.*;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
@@ -34,6 +35,56 @@ public enum Actions {
      */
     public Class getAction() {
         return this.action;
+    }
+
+    /**
+     * This allows an external plugin to register an Action.
+     *
+     * Example:
+     *   import me.maiome.openauth.actions.Actions;
+     *   ...
+     *   Actions.registerAction(ShitStick.class);
+     */
+    public static void registerAction(final Class a) {
+        // if (!(a.isAssignableFrom(IAction.class))) return;
+        try {
+            store.put((String) a.getField("name").get(a), a);
+            log.exDebug(String.format("Action %s (%s) was registered.", (String) a.getField("name").get(a), a.getCanonicalName()));
+        } catch (java.lang.Exception e) {
+            log.info("Exception occurred while registering an Action.");
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * This allows an external plugin to deregister/purge an Action.
+     *
+     * Example:
+     *   import me.maiome.openauth.actions.Actions;
+     *   ...
+     *   Actions.purgeAction(ShitStick.class);
+     */
+    public static void purgeAction(final Class a) {
+        if (!(a.isAssignableFrom(IAction.class))) return;
+        try {
+            store.remove((String) a.getField("name").get(a));
+            log.exDebug(String.format("Action %s (%s) was purged.", (String) a.getField("name").get(a), a.getCanonicalName()));
+        } catch (java.lang.Exception e) {
+            log.info("Exception occurred while purging an Action.");
+            e.printStackTrace();
+        }
+    }
+
+    // Instantiates all internal actions when the class is loaded.
+    static {
+        for (Actions a : Actions.values()) {
+            try {
+                registerAction(a.getAction());
+            } catch (java.lang.Exception e) {
+                log.info("Exception occurred while initialising Actions enumerator.");
+                e.printStackTrace();
+            }
+        }
     }
 
     /**
@@ -84,53 +135,17 @@ public enum Actions {
         return (Set<String>) store.keySet();
     }
 
-
     /**
-     * This allows an external plugin to register an Action.
-     *
-     * Example:
-     *   import me.maiome.openauth.actions.Actions;
-     *   ...
-     *   Actions.registerAction(ShitStick.class);
+     * This iterates through all actions that are registered and loads metrics data for each.
      */
-    public static void registerAction(final Class a) {
-        // if (!(a.isAssignableFrom(IAction.class))) return;
-        try {
-            store.put((String) a.getField("name").get(a), a);
-            log.exDebug(String.format("Action %s (%s) was registered.", (String) a.getField("name").get(a), a.getCanonicalName()));
-        } catch (java.lang.Exception e) {
-            log.info("Exception occurred while registering an Action.");
-            e.printStackTrace();
-        }
-    }
-
-    /**
-     * This allows an external plugin to deregister/purge an Action.
-     *
-     * Example:
-     *   import me.maiome.openauth.actions.Actions;
-     *   ...
-     *   Actions.purgeAction(ShitStick.class);
-     */
-    public static void purgeAction(final Class a) {
-        if (!(a.isAssignableFrom(IAction.class))) return;
-        try {
-            store.remove((String) a.getField("name").get(a));
-            log.exDebug(String.format("Action %s (%s) was purged.", (String) a.getField("name").get(a), a.getCanonicalName()));
-        } catch (java.lang.Exception e) {
-            log.info("Exception occurred while purging an Action.");
-            e.printStackTrace();
-        }
-    }
-
-    // Instantiates all internal actions.
-
-    static {
+    public static void loadMetricsData() {
         for (Actions a : Actions.values()) {
             try {
-                registerAction(a.getAction());
+                Class action = a.getAction();
+                OpenAuth.getMetrics().addCustomData((Tracker) action.getField("tracker").get(action));
+                log.exDebug(String.format("Registered Metrics data tracker from %s.", action.getCanonicalName()));
             } catch (java.lang.Exception e) {
-                log.info("Exception occurred while initialising Actions enumerator.");
+                log.info("Exception occurred while registering Action data trackers.");
                 e.printStackTrace();
             }
         }

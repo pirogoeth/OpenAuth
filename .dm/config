@@ -1,0 +1,33 @@
+declare -a upstream
+
+# ==============================================================================================================
+# general configurable options
+
+name="OpenAuth"
+basedir="/home/pirogoeth/OpenAuth"
+incdir="${basedir}/inc"
+plugin_datafile="src/plugin.yml"
+javac_includes="inc/craftbukkit.jar:inc/permissions.jar:inc/bukkit.jar:inc/worldedit.jar:inc/pex.jar:inc/JSONAPI.jar"
+javac_src="src/me/maiome/openauth/*/*.java src/me/maiome/openauth/*/*/*.java src/net/eisental/common/*/*.java"
+
+# upstream resources to run compile first to get an UPDATED resource.
+# this will read a resourcelist located at ~/.bcs-resources
+
+upstream=(  )
+
+# general configuration ENDS
+# ==============================================================================================================
+# dependency configuration options
+
+# this is the source of your dm deps repo.
+depsource="http://maio.me/dm"
+# this shouldnt change.
+manifest="manifest.txt"
+
+# dependency configuration ENDS
+# ==============================================================================================================
+# dm wrapper options
+
+dm_allowed_actions=( "bukkit" "bukkit-compile" )
+
+# dm wrapper options END

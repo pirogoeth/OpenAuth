@@ -6,6 +6,7 @@ import com.alecgorge.minecraft.jsonapi.api.*;
 
 // internal
 import me.maiome.openauth.bukkit.*;
+import me.maiome.openauth.metrics.Tracker;
 import me.maiome.openauth.util.*;
 
 // java
@@ -15,6 +16,8 @@ import java.util.*;
 public class OAJSONAPICallHandler {
 
     public static boolean usable = (Permission.packageExists("com.alecgorge.minecraft.jsonapi.JSONAPI") ? true : false);
+    public static Tracker tracker = new Tracker("JSONAPI Call Handler");
+
     private final LogHandler log = new LogHandler();
     private OpenAuth controller;
     private OAServer server = OpenAuth.getOAServer();

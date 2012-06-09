@@ -101,9 +101,9 @@ public class OAPointsCommand {
             return;
         } else {
             String list_str = "";
-            for (Map.Entry<String, Object> entry : player.getSavedLocations().entrySet()) {
+            for (Map.Entry<String, Location> entry : player.getSavedLocations().entrySet()) {
                 if (ConfigInventory.MAIN.getConfig().getBoolean("points.list-world-only") &&
-                  !(((Location) entry.getValue()).getWorld().getName().equals(player.getLocation().getWorld().getName()))) {
+                  !((entry.getValue()).getWorld().getName().equals(player.getLocation().getWorld().getName()))) {
                     continue;
                 } else {
                     list_str += String.format(" - %s\n", entry.getKey());

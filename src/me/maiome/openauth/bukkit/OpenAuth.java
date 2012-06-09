@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
+import org.bukkit.configuration.*;
 import org.bukkit.configuration.serialization.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -15,9 +16,13 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.Server;
 
+// ebean
+import com.avaje.ebean.EbeanServer;
+
 // java imports
 import java.io.File;
 import java.util.logging.Logger;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +30,10 @@ import java.util.Map;
 // core imports
 import me.maiome.openauth.actions.*;
 import me.maiome.openauth.commands.*;
+import me.maiome.openauth.database.*;
 import me.maiome.openauth.event.*;
 import me.maiome.openauth.jsonapi.*;
+import me.maiome.openauth.metrics.*;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.Permission;
 import me.maiome.openauth.util.Config;
@@ -51,6 +58,11 @@ public class OpenAuth extends JavaPlugin {
     }
 
     /**
+     * Static instance holder.
+     */
+    public static JavaPlugin plugin;
+
+    /**
      * Initialises configurations and writes defaults.
      */
     private Config configurationManager = new Config(this, false);
@@ -67,9 +79,19 @@ public class OpenAuth extends JavaPlugin {
     public String version;
 
     /**
+     * Metrics-typed container.
+     */
+    private static Metrics metrics = null;
+
+    /**
      * Holds an OAServer instance.
      */
     private static OAServer oaserver;
+
+    /**
+     * Holds our ebean database object.
+     */
+    private ExtendedDB database;
 
     /**
      * Holds OAPlayer instances.
@@ -105,8 +127,14 @@ public class OpenAuth extends JavaPlugin {
      * Plugin setup.
      */
     public void onEnable() {
+        // set our instance
+        OpenAuth.setInstance(this);
+
         // initialise the configuration
         this.configurationManager.initialise();
+
+        // initialise the database
+        this.initialiseDatabase();
 
         // set logging level
         log.setExtraneousDebugging((ConfigInventory.MAIN.getConfig().getBoolean("debug", false) == false) ? false : true);
@@ -173,6 +201,29 @@ public class OpenAuth extends JavaPlugin {
             log.warning("JSONAPI call handler could not be loaded -- is JSONAPI loaded?");
         }
 
+        // setup PluginMetrics
+        if (ConfigInventory.MAIN.getConfig().getBoolean("metrics-enabled", true) == true) {
+            String[] metrics_warning = {
+                "NOTICE: You have chosen to OPT-IN to PluginMetrics for this plugin!",
+                "PluginMetrics will anonymously collect statistical data about the server and this plugin to send back to the plugin author.",
+                "The data collected will only be used for statistic gathering to keep track of certain aspects of the plugin and its development.",
+                "If you'd prefer to disable PluginMetrics and keep it from loading in this plugin, open the config.yml for this plugin and change metrics-enabled to false and reload your server.",
+                "Or, while the server is running, you can run /oa settings metrics-enabled false while logged in or on the console to disable statistics collection."
+            };
+            for (String line : metrics_warning) {
+                log.info(line);
+            }
+            try {
+                this.metrics = new Metrics(this);
+                Actions.loadMetricsData();
+                this.metrics.addCustomData(OpenAuth.getJSONAPICallHandler().tracker);
+                this.metrics.enable();
+            } catch (java.lang.Exception e) {
+                log.warning("Could not load PluginMetrics!");
+                e.printStackTrace();
+            }
+        }
+
         // loaded.
         log.info("Enabled version " + version + ".");
     };
@@ -229,6 +280,33 @@ public class OpenAuth extends JavaPlugin {
         return true;
     }
 
+    // database setup
+    @Override
+    public List<Class<?>> getDatabaseClasses() {
+        List<Class<?>> list = new ArrayList<Class<?>>();
+        list.add(DBPlayer.class);
+        list.add(DBPoint.class);
+        // list.add(DBWhitelist.class);
+        // list.add(DBBanlist.class);
+        return list;
+    };
+
+    private void initialiseDatabase() {
+        Configuration config = ConfigInventory.MAIN.getConfig();
+
+        database = new ExtendedDB(OpenAuth.getInstance());
+
+        database.initializeDatabase(
+            config.getString("database.driver", "org.sqlite.JDBC"),
+            config.getString("database.url", "jdbc:sqlite:{DIR}{NAME}.db"),
+            config.getString("database.username", "captain"),
+            config.getString("database.password", "narwhal"),
+            config.getString("database.isolation", "SERIALIZABLE"),
+            config.getBoolean("database.logging", false),
+            config.getBoolean("database.rebuild", true)
+        );
+    }
+
     // various support methods
 
     /**
@@ -253,8 +331,31 @@ public class OpenAuth extends JavaPlugin {
      * Allows us to publically hand out our File instance.
      */
     @Override
-    public File getFile () {
+    public File getFile() {
         return super.getFile();
+    }
+
+    /**
+     * I think the other version of this was causing issues, so here's this!
+     */
+    @Override
+    public File getDataFolder() {
+        return new File("plugins" + File.separator + "OpenAuth");
+    }
+
+    /**
+     * Overrides the getDatabase() in JavaPlugin.class so we can use ExtendedDB.
+     */
+    @Override
+    public EbeanServer getDatabase() {
+        return this.database.getDatabase();
+    }
+
+    /**
+     * Returns the Metrics instance.
+     */
+    public static Metrics getMetrics() {
+        return metrics;
     }
 
     /**
@@ -275,6 +376,26 @@ public class OpenAuth extends JavaPlugin {
         }
 
         OpenAuth.oaserver = oaserver;
+    }
+
+    /**
+     * Returns the JavaPlugin instance that we are using.
+     */
+    public static JavaPlugin getInstance() {
+        return plugin;
+    }
+
+    /**
+     * Sets the javaPlugin instance that we will be using.
+     *
+     * This *CANNOT* be used if the plugin is already set.
+     */
+    public static void setInstance(JavaPlugin plugin) {
+        if (OpenAuth.plugin != null) {
+            throw new UnsupportedOperationException("Cannot redefine a JavaPlugin instance.");
+        }
+
+        OpenAuth.plugin = plugin;
     }
 
     /**

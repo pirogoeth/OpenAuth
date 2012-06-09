@@ -20,6 +20,7 @@ import java.util.Map;
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAServer;
 import me.maiome.openauth.bukkit.events.*;
+import me.maiome.openauth.database.DBPlayer;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LocationSerialisable;
@@ -38,11 +39,12 @@ public class OAPlayer {
     private final OAServer server;
     private final LogHandler log = new LogHandler();
     private final SessionController sc;
+    private DBPlayer data = null;
     private Player player;
     private String name = null;
     private Session session = null;
     private List<String> ip_list = new ArrayList<String>();
-    private Map<String, Object> locations = new HashMap<String, Object>();
+    private Map<String, Location> locations = new HashMap<String, Location>();
     private PlayerState state = PlayerState.UNKNOWN;
     private boolean ip_changed = false;
     private boolean flying = false;
@@ -61,6 +63,7 @@ public class OAPlayer {
     public OAPlayer(Player player) {
         this.player = player;
         this.name = player.getName();
+        this.data = OpenAuth.getOAServer().getController().getDatabase().find(DBPlayer.class, this.name);
         this.server = OpenAuth.getOAServer();
         this.state = PlayerState.UNKNOWN;
         this.sc = OpenAuth.getSessionController();
@@ -72,6 +75,7 @@ public class OAPlayer {
     public OAPlayer(PlayerLoginEvent event) {
         this.player = event.getPlayer();
         this.name = event.getPlayer().getName();
+        this.data = OpenAuth.getOAServer().getController().getDatabase().find(DBPlayer.class, this.name);
         this.server = OpenAuth.getOAServer();
         this.state = PlayerState.UNKNOWN;
         this.sc = OpenAuth.getSessionController();
@@ -306,17 +310,17 @@ public class OAPlayer {
     }
 
     public void saveLocation(String name, Location loc) {
-        this.locations.put(name, new LocationSerialisable(loc));
+        this.locations.put(name, loc);
     }
 
     public Location getSavedLocation(String name) {
-        Location loc = (Location) (((LocationSerialisable) this.locations.get(name)).getLocation());
+        Location loc = this.data.getPointList().get(name);
         loc.setPitch(this.getPitch());
         loc.setYaw(this.getYaw());
         return loc;
     }
 
-    public Map<String, Object> getSavedLocations() {
+    public Map<String, Location> getSavedLocations() {
         return this.locations;
     }
 
@@ -330,14 +334,16 @@ public class OAPlayer {
 
     public void loadLocations() {
         try {
-            this.locations = (Map<String, Object>) ConfigInventory.DATA.getConfig().getConfigurationSection("locations." + this.getName()).getValues(true);
+            this.locations = this.data.getPointList();
         } catch (java.lang.NullPointerException e) {
             this.sendMessage(ChatColor.RED + "Sorry, but there was a problem loading your saved locations :/");
         }
     }
 
     public void saveLocations() {
-        ConfigInventory.DATA.getConfig().set("locations." + this.getName(), this.locations);
+        try {
+            this.data.setPointList(this.locations);
+        } catch (java.lang.NullPointerException e) {}
     }
 
     /**

@@ -19,6 +19,7 @@ import java.util.List;
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAPlayer;
 import me.maiome.openauth.bukkit.OAServer;
+import me.maiome.openauth.metrics.Tracker;
 import me.maiome.openauth.session.Session;
 import me.maiome.openauth.session.SessionController;
 import me.maiome.openauth.util.ConfigInventory;
@@ -27,10 +28,11 @@ import me.maiome.openauth.util.Permission;
 
 public class SpawnStick implements IAction {
 
-    public static final String name = "spawn";
-
     protected final int factor = (17 * 7);
     protected final int serial = 303;
+
+    public static final String name = "spawn";
+    public static final Tracker tracker = new Tracker("SpawnStick");
 
     private String[] args = null;
     private Session attached;
@@ -114,8 +116,10 @@ public class SpawnStick implements IAction {
     public void run(final Entity entity) {}
 
     public void run(final Block block) {
+        tracker.increment();
         EntityType type = this.matchType((CommandSender) this.sender.getPlayer(), this.creature, true);
-        this.spawned = block.getLocation().getWorld().spawnCreature(block.getLocation().add(0, 1, 0), type);
+        Location spawnloc = block.getLocation().add(0, 1, 0);
+        this.spawned = block.getLocation().getWorld().spawnCreature(spawnloc, type);
     }
 
     public void undo() {

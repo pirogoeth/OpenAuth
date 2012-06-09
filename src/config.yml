@@ -4,6 +4,8 @@
 #   this options basically tells openauth that it can override bukkit's internal whitelisting and etc. [default: true]
 # debug:
 #   this tells openauth whether or not to print extra debug messages [default: false]
+# metrics-enabled:
+#   this tells the plugin whether or not to enable PluginMetrics [default: true]
 # save-ban: (ban saving)
 #   delay - how long to wait before starting to save bans [default: 6000 == 5 minutes]
 #   period - how long to go in between running the ban saving task [default: 36000 == 30 minutes]
@@ -53,6 +55,7 @@
 version: 1.0
 override: true
 debug: false
+metrics-enabled: true
 save-ban-delay: 6000
 save-ban-period: 36000
 save-whitelist-delay: 18000
@@ -63,6 +66,14 @@ session-prune-epsilon: 3
 wand-id: 369
 login-handler: default
 whitelist-handler: default
+database:
+    driver: org.sqlite.JDBC
+    url: jdbc:sqlite:{DIR}{NAME}.db
+    username: captain
+    password: narwhals
+    isolation: SERIALIZABLE
+    logging: false
+    rebuild: true
 whitelisting:
     broadcast-failures: true
     print-on-load: true
