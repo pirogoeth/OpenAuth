@@ -86,6 +86,7 @@ public class OAPointsCommand {
         if (!(player.hasSavedLocation(name))) {
             player.sendMessage(ChatColor.RED + String.format("Point %s doesn't exist!", name));
         } else {
+            player.sendMessage(String.valueOf(player.getSavedLocation(name)));
             player.setLocation(player.getSavedLocation(name));
             player.sendMessage(ChatColor.BLUE + String.format("You have been teleported to point %s!", name));
         }

@@ -3,6 +3,7 @@ package me.maiome.openauth.database;
 // internal
 import me.maiome.openauth.bukkit.OAPlayer;
 import me.maiome.openauth.bukkit.OpenAuth;
+import me.maiome.openauth.util.LogHandler;
 
 // bukkit
 import org.bukkit.Location;
@@ -38,15 +39,21 @@ public class DBPlayer {
     /**
      * List of points this player owns.
      */
-    @OneToMany(mappedBy = "player", cascade = CascadeType.ALL)
+    @OneToMany(targetEntity=DBPoint.class,
+               mappedBy = "player",
+               cascade = {
+                   CascadeType.PERSIST,
+                   CascadeType.REMOVE
+               }
+    )
     private List<DBPoint> points = new ArrayList<DBPoint>();
 
     /**
      * List of IP addresses this user has ever connected from.
      */
-    @NotEmpty
-    @NotNull
-    private List<String> addresses = new ArrayList<String>();
+    // @NotEmpty
+    // @NotNull
+    // private List<String> addresses = new ArrayList<String>(); // will implement later
 
     /**
      * OAPlayer transient for use later.
@@ -66,7 +73,8 @@ public class DBPlayer {
         this.player = player;
         this.setName(player.getName());
         // this.setIPList(player.getIPList());
-        this.setIP(player.getIP());
+        // this.setIP(player.getIP());
+        OpenAuth.getInstance().getDatabase().save(this);
     }
 
     public String getName() {
@@ -77,21 +85,25 @@ public class DBPlayer {
         this.name = name;
     }
 
-    public String getIP() {
-        return this.addresses.get(0);
-    }
-
-    public void setIP(final String ip) {
-        this.addresses.add(0, ip);
-    }
-
-    public List<String> getIPList() {
-        return this.addresses;
-    }
-
-    public void setIPList(final List<String> iplist) {
-        this.points.addAll((Collection) iplist);
-    }
+    /*
+     * public String getIP() {
+     *   return this.addresses.get(0);
+     * }
+     *
+     * public void setIP(final String ip) {
+     *    this.addresses.add(0, ip);
+     * }
+     *
+     * public List<String> getIPList() {
+     *    return this.addresses;
+     * }
+     *
+     * public void setIPList(final List<String> iplist) {
+     *    this.points.addAll((Collection) iplist);
+     * }
+     *
+     * WILL FULLY IMPLEMENT THIS LATER.
+     */
 
     public List<DBPoint> getPoints() {
         return this.points;
@@ -112,8 +124,20 @@ public class DBPlayer {
     public void setPointList(final Map<String, Location> pointmap) {
         List<DBPoint> updated = new ArrayList<DBPoint>();
         for (Map.Entry<String, Location> es : pointmap.entrySet()) {
-            DBPoint point = ((OpenAuth.getOAServer().getController().getDatabase().find(DBPoint.class, es.getKey()) == null) ? new DBPoint(this.player, es.getKey(), es.getValue()) : OpenAuth.getOAServer().getController().getDatabase().find(DBPoint.class, es.getKey()));
+            DBPoint point = OpenAuth.getInstance().getDatabase().find(DBPoint.class, es.getKey());
+            if (point == null) {
+                // this point has never existed
+                point = new DBPoint(this, es.getKey(), (Location) es.getValue());
+            }
             updated.add(point);
+        }
+        if (this.points.equals(updated)) {
+            return;
+        }
+        for (DBPoint point : this.points) {
+            if (!(updated.contains(point))) {
+                point.delete();
+            }
         }
         this.setPoints(updated);
     }

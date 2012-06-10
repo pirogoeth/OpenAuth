@@ -3,6 +3,7 @@ package me.maiome.openauth.database;
 // internal
 import me.maiome.openauth.bukkit.OAPlayer;
 import me.maiome.openauth.bukkit.OpenAuth;
+import me.maiome.openauth.util.LogHandler;
 
 // bukkit
 import org.bukkit.Location;
@@ -31,14 +32,14 @@ public class DBPoint {
     /**
      * Owner of the point.
      */
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.PERSIST)
     private DBPlayer player;
 
     /**
      * Location of the point.
      */
     @NotNull
-    private Location loc;
+    private Location location;
 
     /**
      * Mandatory constructor for ebean use.
@@ -48,10 +49,30 @@ public class DBPoint {
     /**
      * Main constructor to set up the point values.
      */
-    public DBPoint(final OAPlayer player, final String name, final Location loc) {
-        this.setPlayer(OpenAuth.getOAServer().getController().getDatabase().find(DBPlayer.class, player.getName()));
+    public DBPoint(final DBPlayer player, final String name, final Location loc) {
+        this.setPlayer(player);
         this.setName(name);
         this.setLocation(loc);
+        this.save();
+    }
+
+    @Transient
+    public String toString() {
+        return String.format("DBPoint{name=%s,location=%s}", this.name, this.location.toString());
+    }
+
+    public void save() {
+        OpenAuth.getInstance().getDatabase().save(this);
+    }
+
+    public void delete() {
+        OpenAuth.getInstance().getDatabase().delete(this);
+    }
+
+    public void rename(final String name) {
+        this.delete();
+        this.setName(name);
+        this.save();
     }
 
     public String getName() {
@@ -71,10 +92,10 @@ public class DBPoint {
     }
 
     public Location getLocation() {
-        return this.loc;
+        return this.location;
     }
 
     public void setLocation(final Location loc) {
-        this.loc = loc;
+        this.location = loc;
     }
 }

@@ -63,7 +63,7 @@ public class OAPlayer {
     public OAPlayer(Player player) {
         this.player = player;
         this.name = player.getName();
-        this.data = OpenAuth.getOAServer().getController().getDatabase().find(DBPlayer.class, this.name);
+        this.data = ((OpenAuth.getInstance().getDatabase().find(DBPlayer.class, this.name) == null) ? new DBPlayer(this) : OpenAuth.getInstance().getDatabase().find(DBPlayer.class, this.name));
         this.server = OpenAuth.getOAServer();
         this.state = PlayerState.UNKNOWN;
         this.sc = OpenAuth.getSessionController();
@@ -75,7 +75,7 @@ public class OAPlayer {
     public OAPlayer(PlayerLoginEvent event) {
         this.player = event.getPlayer();
         this.name = event.getPlayer().getName();
-        this.data = OpenAuth.getOAServer().getController().getDatabase().find(DBPlayer.class, this.name);
+        this.data = ((OpenAuth.getInstance().getDatabase().find(DBPlayer.class, this.name) == null) ? new DBPlayer(this) : OpenAuth.getInstance().getDatabase().find(DBPlayer.class, this.name));
         this.server = OpenAuth.getOAServer();
         this.state = PlayerState.UNKNOWN;
         this.sc = OpenAuth.getSessionController();
@@ -315,8 +315,6 @@ public class OAPlayer {
 
     public Location getSavedLocation(String name) {
         Location loc = this.data.getPointList().get(name);
-        loc.setPitch(this.getPitch());
-        loc.setYaw(this.getYaw());
         return loc;
     }
 
@@ -343,7 +341,9 @@ public class OAPlayer {
     public void saveLocations() {
         try {
             this.data.setPointList(this.locations);
-        } catch (java.lang.NullPointerException e) {}
+        } catch (java.lang.NullPointerException e) {
+            e.printStackTrace(); // debug
+        }
     }
 
     /**
