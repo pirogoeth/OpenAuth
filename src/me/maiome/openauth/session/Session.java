@@ -44,6 +44,7 @@ public class Session {
     private List<IAction> actions = new ArrayList<IAction>();
     private Location lloc;
     private long spawn_time;
+    private boolean hidden = false;
 
     protected final int wand_id = ConfigInventory.MAIN.getConfig().getInt("wand-id");
 
@@ -108,6 +109,11 @@ public class Session {
     }
 
     public void setIdentified(boolean identified, boolean update) {
+        if (this.frozen) {
+            // this means they're trying to bypass being frozen.
+            this.player.sendMessage(ChatColor.GREEN + "Sorry, but you're currently frozen, so I can't let you reidentify.");
+            return;
+        }
         if (update) {
             this.frozen = (identified == true) ? false : true;
         }
@@ -124,6 +130,10 @@ public class Session {
 
     public void updateFreezeState() {
         this.frozen = (this.identified == true) ? false : true;
+    }
+
+    public boolean isHidden() {
+        return this.hidden;
     }
 
     // wand methods
@@ -248,27 +258,16 @@ public class Session {
     }
 
     public void undoLastActions(int i) {
-        int n = (this.actions.size() - i);
-        if (0 > n || i >= n) {
-            this.player.sendMessage(ChatColor.BLUE + "Undoing ALL of your actions, since you have given me a number that is greater than or equal to the number of actions performed.");
-            for (IAction a : this.actions) {
-                a.undo();
-            }
-            this.player.sendMessage(ChatColor.BLUE + String.format("I have undone %d actions.", this.actions.size()));
-            this.actions.clear();
-            return;
-        }
-        for (int c = 0; c < i; c++) {
+        // list INDEXES are zero indexed. List.size() IS NOT. KEEP THIS IN MIND.
+        for (int r = 0; r < i; r++) { // r < i because r is a zero indexed number, where i is not.
             try {
-                this.actions.get(c).undo(); // converting one-indexed to zero-indexed
-                this.actions.remove(c); // here too
+                this.actions.get(0).undo();
+                this.actions.remove(0);
             } catch (java.lang.IndexOutOfBoundsException e) {
-                this.player.sendMessage(ChatColor.BLUE + String.format(
-                    "I was only able to undo your last %d actions. Actions %d through %d don't exist.",
-                    (c + 1), (c), (i)
-                ));
-                break;
+                this.player.sendMessage("All of your actions have been undone.");
+                return;
             }
         }
+        this.player.sendMessage(String.format("Your last %d actions have been undone, %s :)", i, this.player.getName()));
     }
 }

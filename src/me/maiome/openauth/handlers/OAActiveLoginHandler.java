@@ -111,11 +111,13 @@ public class OAActiveLoginHandler implements OALoginHandler {
             // this user may not be trusted
             player.getSession().setIdentified(false, true);
         }
+        this.active.add(player);
         return;
     }
 
     public void processPlayerLogout(OAPlayer player) {
         if (!(this.isEnabled())) return;
+        this.active.remove(player);
         player.setOffline();
     }
 

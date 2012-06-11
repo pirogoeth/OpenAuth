@@ -11,8 +11,17 @@ import me.maiome.openauth.util.ConfigInventory;
 // command framework imports
 import com.sk89q.minecraft.util.commands.*;
 
+// minecraft server imports
+import net.minecraft.server.EntityPlayer;
+import net.minecraft.server.MobEffect;
+import net.minecraft.server.MobEffectList;
+import net.minecraft.server.Packet41MobEffect;
+import net.minecraft.server.Packet42RemoveMobEffect;
+import net.minecraft.server.Packet201PlayerInfo;
+
 // bukkit imports
 import org.bukkit.ChatColor;
+import org.bukkit.Effect;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -26,10 +35,12 @@ import org.bukkit.entity.Wolf;
 
 // java imports
 import java.io.InputStream;
+import java.lang.reflect.Field;
 import java.util.List;
-import java.util.Map;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
+import java.util.Random;
 
 // etCommon imports
 import net.eisental.common.page.Pager;
@@ -142,11 +153,52 @@ public class OACommands {
         sender.sendMessage(ChatColor.GREEN + "OpenAuth data has been saved.");
     }
 
-    @Command(aliases = {"otest"}, desc = "This is always here to test some new thing.", max = 1)
+    @Command(aliases = {"otest"}, flags = "s", desc = "This is always here to test some new thing.", max = 1)
+    @CommandPermissions({ "openauth.admin.visibility.toggle" })
     public static void otest(CommandContext args, CommandSender sender) throws CommandException {
+        // parts of this code are based off of mbaxter's VanishNoPacket.
+        // https://github.com/mbax/VanishNoPacket/blob/master/src/org/kitteh/vanish/VanishManager.java
         OAPlayer player = controller.wrap((Player) sender);
-        player.destroySession();
-        player.kickPlayer("Your session has been terminated.");
+        Field hidden = null;
+        try {
+            hidden = OAPlayer.class.getDeclaredField("hidden");
+            hidden.setAccessible(true);
+        } catch (java.lang.NoSuchFieldException e) {
+            // this should NEVER happen anyway since I KNOW it exists.
+            return;
+        }
+        int effectid = MobEffectList.INVISIBILITY.getId();
+        try {
+            if (hidden.getBoolean(player) == true) {
+                if (args.hasFlag('s')) player.getWorld().playEffect(player.getLocation(), Effect.SMOKE, new Random().nextInt(9));
+                player.sendPacket(new Packet42RemoveMobEffect(player.getEntityId(), new MobEffect(effectid, 0, 0))); // resurface on the grid
+                player.sendPacket(new Packet201PlayerInfo(player.getName(), true, player.getPing()));
+                hidden.setBoolean(player, false);
+                for (final Player target : OpenAuth.getInstance().getServer().getOnlinePlayers()) {
+                    OAPlayer otarget = controller.wrap(target);
+                    if (target.equals(player.getPlayer())) continue;
+                    if (otarget.hasPermission("openauth.admin.sight", false)) continue;
+                    if (!(target.canSee(player.getPlayer()))) target.showPlayer(player.getPlayer());
+                }
+                player.sendMessage("You are no longer hidden!");
+            } else if (hidden.getBoolean(player) == false) {
+                if (args.hasFlag('s')) player.getWorld().playEffect(player.getLocation(), Effect.SMOKE, new Random().nextInt(9));
+                player.sendPacket(new Packet41MobEffect(player.getEntityId(), new MobEffect(MobEffectList.INVISIBILITY.getId(), 0, 0))); // get DISAPPEARED.
+                player.sendPacket(new Packet201PlayerInfo(player.getName(), false, 9999)); // hide from the status list
+                hidden.setBoolean(player, true);
+                for (final Player target : OpenAuth.getInstance().getServer().getOnlinePlayers()) {
+                    OAPlayer otarget = controller.wrap(target);
+                    if (target.equals(player.getPlayer())) continue;
+                    if (otarget.hasPermission("openauth.admin.sight", false)) continue;
+                    if (target.canSee(player.getPlayer())) target.hidePlayer(player.getPlayer());
+                }
+                player.sendMessage("You are now hidden!");
+            }
+        } catch (java.lang.IllegalAccessException e) {
+            // this also should never happen since I'm setting the value accessible, per above.
+            return;
+        }
+        return;
     }
 
     @Command(aliases = {"test"}, desc = "This is always here to test some new thing.", max = 1)

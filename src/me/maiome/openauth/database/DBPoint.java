@@ -7,6 +7,7 @@ import me.maiome.openauth.util.LogHandler;
 
 // bukkit
 import org.bukkit.Location;
+import org.bukkit.World;
 
 // javax Persistence
 import javax.persistence.*;
@@ -38,8 +39,9 @@ public class DBPoint {
     /**
      * Location of the point.
      */
-    @NotNull
-    private Location location;
+    @NotNull private String world;
+    @NotNull private double x, y, z;
+    @NotNull private float pitch, yaw;
 
     /**
      * Mandatory constructor for ebean use.
@@ -52,13 +54,26 @@ public class DBPoint {
     public DBPoint(final DBPlayer player, final String name, final Location loc) {
         this.setPlayer(player);
         this.setName(name);
-        this.setLocation(loc);
-        this.save();
+        this.setX(loc.getX());
+        this.setY(loc.getY());
+        this.setZ(loc.getZ());
+        this.setPitch(loc.getPitch());
+        this.setYaw(loc.getYaw());
+        this.setWorld(loc.getWorld().getName());
     }
 
     @Transient
     public String toString() {
-        return String.format("DBPoint{name=%s,location=%s}", this.name, this.location.toString());
+        return String.format("DBPoint{name=%s,location=%s}", this.name, this.getLocation().toString());
+    }
+
+    @Transient
+    public boolean equals(Object o) {
+        if (!(o instanceof DBPoint)) {
+            return false;
+        }
+        DBPoint point = (DBPoint) o;
+        return ((this.name.equals(point.getName())) && (this.getLocation().equals(point.getLocation())));
     }
 
     public void save() {
@@ -67,6 +82,10 @@ public class DBPoint {
 
     public void delete() {
         OpenAuth.getInstance().getDatabase().delete(this);
+    }
+
+    public void update() {
+        OpenAuth.getInstance().getDatabase().update(this);
     }
 
     public void rename(final String name) {
@@ -91,11 +110,59 @@ public class DBPoint {
         this.player = player;
     }
 
-    public Location getLocation() {
-        return this.location;
+    public double getX() {
+        return this.x;
     }
 
-    public void setLocation(final Location loc) {
-        this.location = loc;
+    public void setX(final double x) {
+        this.x = x;
+    }
+
+    public double getY() {
+        return this.y;
+    }
+
+    public void setY(final double y) {
+        this.y = y;
+    }
+
+    public double getZ() {
+        return this.z;
+    }
+
+    public void setZ(final double z) {
+        this.z = z;
+    }
+    public float getPitch() {
+        return this.pitch;
+    }
+
+    public void setPitch(final float pitch) {
+        this.pitch = pitch;
+    }
+
+    public float getYaw() {
+        return this.yaw;
+    }
+
+    public void setYaw(final float yaw) {
+        this.yaw = yaw;
+    }
+
+    public String getWorld() {
+        return this.world;
+    }
+
+    public void setWorld(final String world) {
+        this.world = world;
+    }
+
+    @Transient
+    public Location getLocation() {
+        World world = OpenAuth.getInstance().getServer().getWorld(this.getWorld());
+        if (world == null) {
+            return null;
+        }
+        return new Location(world, this.getX(), this.getY(), this.getZ(), this.getYaw(), this.getPitch());
     }
 }

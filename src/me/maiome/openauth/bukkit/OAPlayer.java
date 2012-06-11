@@ -10,6 +10,12 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.inventory.ItemStack;
 
+// minecraft server imports
+import net.minecraft.server.Packet;
+
+// craftbukkit imports
+import org.bukkit.craftbukkit.entity.CraftPlayer;
+
 // java imports
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -41,6 +47,7 @@ public class OAPlayer {
     private final SessionController sc;
     private DBPlayer data = null;
     private Player player;
+    private CraftPlayer craftplayer;
     private String name = null;
     private Session session = null;
     private List<String> ip_list = new ArrayList<String>();
@@ -156,6 +163,22 @@ public class OAPlayer {
 
     public String getName() {
         return (this.name != null ? this.name : (this.player.getName() != null ? this.player.getName() : null));
+    }
+
+    public int getEntityId() {
+        return ((CraftPlayer) this.player).getEntityId();
+    }
+
+    public int getPing() {
+        return ((CraftPlayer) this.player).getHandle().ping;
+    }
+
+    public CraftPlayer getCraftPlayer() {
+        return ((CraftPlayer) this.player);
+    }
+
+    public void sendPacket(final Packet packet) {
+        ((CraftPlayer) this.player).getHandle().netServerHandler.sendPacket(packet);
     }
 
     public Player getPlayer() {

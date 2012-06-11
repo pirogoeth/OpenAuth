@@ -139,6 +139,13 @@ public class DBPlayer {
                 point.delete();
             }
         }
+        for (DBPoint point : updated) {
+            if (!(this.points.contains(point))) {
+                point.save();
+            } else {
+                point.update();
+            }
+        }
         this.setPoints(updated);
     }
 }
