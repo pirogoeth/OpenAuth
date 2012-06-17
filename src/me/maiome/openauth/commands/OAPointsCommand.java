@@ -53,7 +53,7 @@ public class OAPointsCommand {
     @Command(aliases = {"add"}, desc = "Add a point", max = 1, min = 1)
     @CommandPermissions({ "openauth.location.points.add" })
     public static void add(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = controller.wrap((Player) sender);
+        OAPlayer player = OAPlayer.getPlayer((Player) sender);
         String name = args.getString(0);
         if (!(player.hasSavedLocation(name))) {
             player.saveLocation(name);
@@ -67,7 +67,7 @@ public class OAPointsCommand {
     @Command(aliases = {"del"}, desc = "Delete a point", max = 1, min = 1)
     @CommandPermissions({ "openauth.location.points.delete" })
     public static void delete(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = controller.wrap((Player) sender);
+        OAPlayer player = OAPlayer.getPlayer((Player) sender);
         String name = args.getString(0);
         if (!(player.hasSavedLocation(name))) {
             player.sendMessage(ChatColor.RED + "That point doesn't exist!");
@@ -81,7 +81,7 @@ public class OAPointsCommand {
     @Command(aliases = {"tp", "teleport"}, desc = "Teleport to a point", max = 1, min = 1)
     @CommandPermissions({ "openauth.location.points.teleport" })
     public static void teleport(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = controller.wrap((Player) sender);
+        OAPlayer player = OAPlayer.getPlayer((Player) sender);
         String name = args.getString(0);
         if (!(player.hasSavedLocation(name))) {
             player.sendMessage(ChatColor.RED + String.format("Point %s doesn't exist!", name));
@@ -96,7 +96,7 @@ public class OAPointsCommand {
     @Command(aliases = {"list"}, desc = "List your points", max = 0)
     @CommandPermissions({ "openauth.location.points.list" })
     public static void list(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = controller.wrap((Player) sender);
+        OAPlayer player = OAPlayer.getPlayer((Player) sender);
         if (player.getSavedLocations().size() == 0) {
             player.sendMessage(ChatColor.RED + "You have no points to display.");
             return;

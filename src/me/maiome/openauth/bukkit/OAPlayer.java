@@ -17,6 +17,7 @@ import net.minecraft.server.Packet;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 
 // java imports
+import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +28,7 @@ import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAServer;
 import me.maiome.openauth.bukkit.events.*;
 import me.maiome.openauth.database.DBPlayer;
+import me.maiome.openauth.database.DBPoint;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LocationSerialisable;
@@ -41,6 +43,78 @@ public class OAPlayer {
     protected transient final int factor = (17 * 5);
     protected transient final int serial = 101;
 
+    // static player getter/storage and implementation
+    public static final Map<String, OAPlayer> players = new HashMap<String, OAPlayer>();
+
+    private static OAPlayer createPlayer(Object obj) {
+        if (obj == null) return null;
+        if (obj instanceof Player) {
+            Player bplayer = (Player) obj;
+            players.put(bplayer.getName(), new OAPlayer(bplayer));
+            return players.get(bplayer.getName());
+        } else if (obj instanceof PlayerLoginEvent) {
+            Player bplayer = ((PlayerLoginEvent) obj).getPlayer();
+            players.put(bplayer.getName(), new OAPlayer((PlayerLoginEvent) obj));
+            return players.get(bplayer.getName());
+        } else if (obj instanceof String) {
+            Player bplayer = OpenAuth.getOAServer().getServer().getPlayer((String) obj);
+            players.put(bplayer.getName(), new OAPlayer(bplayer));
+            return players.get(bplayer.getName());
+        } else {
+            return null;
+        }
+    }
+
+    public static OAPlayer getPlayer(Object obj) {
+        if (obj == null) return null;
+        OAPlayer player;
+        if (obj instanceof Player) {
+            String name = ((Player) obj).getName();
+            player = players.get(name);
+        } else if (obj instanceof PlayerLoginEvent) {
+            String name = ((PlayerLoginEvent) obj).getPlayer().getName();
+            player = players.get(name);
+        } else if (obj instanceof String) {
+            String name = (String) obj;
+            player = players.get(name);
+        } else {
+            return null;
+        }
+        if (player == null && obj != null) {
+            player = createPlayer(obj);
+            if (player == null) {
+                return null;
+            }
+            return player;
+        } else if (player != null) {
+            return player;
+        }
+        return null;
+    }
+
+    public static boolean hasPlayer(Object obj) {
+        if (obj == null) return false;
+        OAPlayer player = null;
+        if (obj instanceof Player) {
+            String name = ((Player) obj).getName();
+            player = players.get(name);
+        } else if (obj instanceof PlayerLoginEvent) {
+            String name = ((PlayerLoginEvent) obj).getPlayer().getName();
+            player = players.get(name);
+        } else if (obj instanceof String) {
+            String name = (String) obj;
+            player = players.get(name);
+        } else {
+            return false;
+        }
+        if (player == null && obj != null) {
+            return false;
+        } else if (player != null) {
+            return true;
+        }
+        return false;
+    }
+
     // normal class variables
     private final OAServer server;
     private final LogHandler log = new LogHandler();
@@ -51,7 +125,7 @@ public class OAPlayer {
     private String name = null;
     private Session session = null;
     private List<String> ip_list = new ArrayList<String>();
-    private Map<String, Location> locations = new HashMap<String, Location>();
+    private List<DBPoint> points = new ArrayList<DBPoint>();
     private PlayerState state = PlayerState.UNKNOWN;
     private boolean ip_changed = false;
     private boolean flying = false;
@@ -70,24 +144,20 @@ public class OAPlayer {
     public OAPlayer(Player player) {
         this.player = player;
         this.name = player.getName();
-        this.data = ((OpenAuth.getInstance().getDatabase().find(DBPlayer.class, this.name) == null) ? new DBPlayer(this) : OpenAuth.getInstance().getDatabase().find(DBPlayer.class, this.name));
+        synchronized (OpenAuth.databaseLock) {
+            this.data = OpenAuth.getInstance().getDatabase().find(DBPlayer.class, this.name);
+            if (this.data == null) {
+                this.data = new DBPlayer(this.name);
+            }
+        }
         this.server = OpenAuth.getOAServer();
         this.state = PlayerState.UNKNOWN;
         this.sc = OpenAuth.getSessionController();
         this.session = this.sc.get(this);
-
-        this.player_ip = player.getAddress().getAddress().getHostAddress();
     }
 
     public OAPlayer(PlayerLoginEvent event) {
-        this.player = event.getPlayer();
-        this.name = event.getPlayer().getName();
-        this.data = ((OpenAuth.getInstance().getDatabase().find(DBPlayer.class, this.name) == null) ? new DBPlayer(this) : OpenAuth.getInstance().getDatabase().find(DBPlayer.class, this.name));
-        this.server = OpenAuth.getOAServer();
-        this.state = PlayerState.UNKNOWN;
-        this.sc = OpenAuth.getSessionController();
-        this.session = this.sc.get(this);
-
+        this(event.getPlayer());
         this.player_ip = event.getAddress().getHostAddress();
     }
 
@@ -333,29 +403,41 @@ public class OAPlayer {
     }
 
     public void saveLocation(String name, Location loc) {
-        this.locations.put(name, loc);
+        DBPoint point = new DBPoint(this.data, name, loc);
+        point.save();
+        this.points.add(point);
     }
 
     public Location getSavedLocation(String name) {
-        Location loc = this.data.getPointList().get(name);
-        return loc;
+        DBPoint point = OpenAuth.getInstance().getDatabase().find(DBPoint.class, name);
+        if (point == null) {
+            return null;
+        }
+        return point.getLocation();
     }
 
     public Map<String, Location> getSavedLocations() {
-        return this.locations;
+        Map<String, Location> locations = new HashMap<String, Location>();
+        for (DBPoint point : this.points) {
+            this.sendMessage("Point: " + point.getName() + " : " + point.getLocation().toString());
+            locations.put(point.getName(), point.getLocation());
+        }
+        return locations;
     }
 
     public boolean hasSavedLocation(String name) {
-        return this.locations.containsKey(name);
+        return ((OpenAuth.getInstance().getDatabase().find(DBPoint.class, name) == null) ? false : true);
     }
 
     public void deleteLocation(String name) {
-        this.locations.remove(name);
+        DBPoint point = OpenAuth.getInstance().getDatabase().find(DBPoint.class, name);
+        point.markForDeletion(true);
+        this.points.remove(point);
     }
 
     public void loadLocations() {
         try {
-            this.locations = this.data.getPointList();
+            this.points = this.data.getPoints();
         } catch (java.lang.NullPointerException e) {
             this.sendMessage(ChatColor.RED + "Sorry, but there was a problem loading your saved locations :/");
         }
@@ -363,7 +445,8 @@ public class OAPlayer {
 
     public void saveLocations() {
         try {
-            this.data.setPointList(this.locations);
+            this.data.updatePoints(this.points);
+            this.data.update();
         } catch (java.lang.NullPointerException e) {
             e.printStackTrace(); // debug
         }

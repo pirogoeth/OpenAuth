@@ -53,6 +53,8 @@ public class OAListener implements Listener {
     public void onPlayerCommandPreprocess(PlayerCommandPreprocessEvent event) {
         if (event.isCancelled()) return;
 
+        OAPlayer player = OAPlayer.getPlayer((Player) event.getPlayer());
+
         String[] split = event.getMessage().split(" ");
 
         if (split.length > 0) {
@@ -60,6 +62,16 @@ public class OAListener implements Listener {
             final String label = split[0];
             split[0] = "/" + split[0];
         }
+
+        if (player.getSession().isFrozen() == true &&
+            ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.commands", true) == true) {
+            if (!(split[0].equals("/oa")) && !(split[0].equals("/openauth")) && !(split[0].equals("/worldedit"))) {
+                player.sendMessage(ChatColor.GREEN + "You must identify to use commands.");
+                event.setCancelled(true);
+                return;
+            }
+        }
+
 
         final String new_message = StringUtil.joinString(split, " ");
         if (!(new_message.equals(event.getMessage()))) {
@@ -83,7 +95,7 @@ public class OAListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerLogin(PlayerLoginEvent event) {
-        OAPlayer player = (this.controller.wrap(event));
+        OAPlayer player = (OAPlayer.getPlayer(event));
         this.controller.getOAServer().getWhitelistHandler().processPlayerJoin(event, player);
         if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) return;
         this.controller.getOAServer().getLoginHandler().processPlayerLogin(event, player);
@@ -97,13 +109,19 @@ public class OAListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        OAPlayer player = this.controller.wrap(event.getPlayer());
+        OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
         player.update();
+        boolean auth = ConfigInventory.MAIN.getConfig().getBoolean("auth.required", true);
         boolean greet = ConfigInventory.MAIN.getConfig().getBoolean("auth.greet-players", true);
         if (greet == true) {
-            if (!(player.getPlayer().hasPlayedBefore())) {
+            if (!(auth) && greet) {
                 player.sendMessage(ChatColor.GREEN + String.format(
-                    "Welcome to %s, %s! To player on our server, we require you to register with OpenAuth.",
+                    "Welcome to %s, %s! We hope you have a wonderful time!",
+                    player.getServer().getServer().getServerName(), player.getName()
+                ));
+            } else if (!(player.getPlayer().hasPlayedBefore())) {
+                player.sendMessage(ChatColor.GREEN + String.format(
+                    "Welcome to %s, %s! To play on our server, we require you to register with OpenAuth.",
                     player.getServer().getServer().getServerName(), player.getName()
                 ));
                 player.sendMessage(ChatColor.GREEN + "To register, use this command: /oa register <password>");
@@ -123,6 +141,10 @@ public class OAListener implements Listener {
                     player.getName()
                 ));
             }
+            player.sendMessage(ChatColor.GREEN + String.format(
+                "You are currently in %s, at %s,%s,%s. The weather in %s is looking quite %s today.",
+                player.getWorld().getName(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ(), player.getWorld().getName(), ((player.getWorld().hasStorm() == false) ? "sunny" : "stormy")
+            ));
         }
     }
 
@@ -131,7 +153,7 @@ public class OAListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerQuit(PlayerQuitEvent event) {
-        OAPlayer player = this.controller.wrap(event.getPlayer());
+        OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
         this.controller.getOAServer().getLoginHandler().processPlayerLogout(player);
         return;
     }
@@ -141,7 +163,7 @@ public class OAListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerChat(PlayerChatEvent event) {
-        OAPlayer player = this.controller.wrap(event.getPlayer());
+        OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
 
         try {
             if (player.getSession().isFrozen() == true &&
@@ -163,7 +185,7 @@ public class OAListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerMove(PlayerMoveEvent event) {
-        OAPlayer player = this.controller.wrap(event.getPlayer());
+        OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
 
         if (event.getFrom().getX() == event.getTo().getX() &&
             event.getFrom().getY() == event.getTo().getY() &&
@@ -181,7 +203,7 @@ public class OAListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockPlace(BlockPlaceEvent event) {
-        OAPlayer player = this.controller.wrap(event.getPlayer());
+        OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
 
         if (player.getSession().isFrozen() == true &&
             ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.block-place", true) == true) {
@@ -199,7 +221,7 @@ public class OAListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(BlockBreakEvent event) {
-        OAPlayer player = this.controller.wrap(event.getPlayer());
+        OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
 
         if (player.getSession().isFrozen() == true &&
             ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.block-break", true) == true) {
@@ -216,13 +238,13 @@ public class OAListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
-        OAPlayer player = this.controller.wrap(event.getPlayer());
+        OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
         Entity targ_e = event.getRightClicked();
         if (player.getSession().playerUsingWand() &&
             player.getSession().hasAction() && player.getSession().getAction().allowed() &&
             targ_e instanceof Player) {
 
-            player.getSession().runAction(this.controller.wrap((Player) targ_e));
+            player.getSession().runAction(OAPlayer.getPlayer((Player) targ_e));
         } else if (player.getSession().playerUsingWand() &&
             player.getSession().hasAction() &&
             player.getSession().getAction().allowsAnyEntityTarget() == true &&
@@ -241,7 +263,7 @@ public class OAListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerInteractEvent(PlayerInteractEvent event) {
-        OAPlayer player = this.controller.wrap(event.getPlayer());
+        OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
         Block targ_b = (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) ?
             event.getClickedBlock() : null;
         if (player.getSession().playerUsingWand() &&

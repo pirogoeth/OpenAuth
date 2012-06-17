@@ -11,17 +11,8 @@ import me.maiome.openauth.util.ConfigInventory;
 // command framework imports
 import com.sk89q.minecraft.util.commands.*;
 
-// minecraft server imports
-import net.minecraft.server.EntityPlayer;
-import net.minecraft.server.MobEffect;
-import net.minecraft.server.MobEffectList;
-import net.minecraft.server.Packet41MobEffect;
-import net.minecraft.server.Packet42RemoveMobEffect;
-import net.minecraft.server.Packet201PlayerInfo;
-
 // bukkit imports
 import org.bukkit.ChatColor;
-import org.bukkit.Effect;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -31,11 +22,12 @@ import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
-import org.bukkit.entity.Wolf;
 
 // java imports
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -56,7 +48,7 @@ public class OACommands {
 
     public static class OAParentCommand {
 
-        private final OpenAuth controller;
+        private static OpenAuth controller;
 
         public OAParentCommand (OpenAuth openauth) {
             controller = openauth;
@@ -64,8 +56,8 @@ public class OACommands {
 
         @Command(aliases = {"openauth", "oa"}, desc = "OpenAuth commands",
                  flags = "", min = 1)
-        @NestedCommand({ OACommands.class, OAActionCommands.ActionParentCommand.class, OAWhitelistCommands.WhitelistParentCommand.class,
-                        OABanCommands.BanParentCommand.class })
+        @NestedCommand({ OACommands.class, OAActionCommands.ActionParentCommand.class, OABanCommands.BanParentCommand.class,
+                         OAVisibilityCommands.VisibilityParentCommand.class, OAWhitelistCommands.WhitelistParentCommand.class })
         public static void openAuth() {}
     }
 
@@ -79,7 +71,7 @@ public class OACommands {
     @Command(aliases = {"login"}, usage = "<password>", desc = "Login to the server.",
              min = 1, max = 1)
     public static void login(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = controller.wrap((Player) sender);
+        OAPlayer player = OAPlayer.getPlayer((Player) sender);
         String password = args.getString(0);
         if (controller.getOAServer().getLoginHandler().processPlayerIdentification(player, password)) {
             player.getSession().setIdentified(true, true);
@@ -94,7 +86,7 @@ public class OACommands {
     @Command(aliases = {"logout"}, usage = "", desc = "Logout from the plugin.",
              max = 0)
     public static void logout(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = controller.wrap((Player) sender);
+        OAPlayer player = OAPlayer.getPlayer((Player) sender);
         player.getSession().setIdentified(false, true);
         player.sendMessage(ChatColor.BLUE + "You have been logged out.");
         return;
@@ -103,7 +95,7 @@ public class OACommands {
     @Command(aliases = {"changepass"}, usage = "<oldpass> <newpass>", desc = "Change your current password.",
              min = 2, max = 2)
     public static void changepass(CommandContext args, CommandContext sender) throws CommandException {
-        OAPlayer player = controller.wrap((Player) sender);
+        OAPlayer player = OAPlayer.getPlayer((Player) sender);
         String oldpass = args.getString(0), newpass = args.getString(1);
         if (!(controller.getOAServer().getLoginHandler().isRegistered(player))) {
             player.sendMessage(ChatColor.RED + "How can you change your password if you aren't even registered? -_-'");
@@ -125,7 +117,7 @@ public class OACommands {
     @Command(aliases = {"register"}, usage = "<password>", desc = "Login to the server.",
              min = 1, max = 1)
     public static void register(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = controller.wrap((Player) sender);
+        OAPlayer player = OAPlayer.getPlayer((Player) sender);
         String password = args.getString(0);
         if (!(controller.getOAServer().getLoginHandler().isRegistered(player))) {
             controller.getOAServer().getLoginHandler().processPlayerRegistration(player, password);
@@ -142,7 +134,7 @@ public class OACommands {
              max = 0)
     @CommandPermissions({ "openauth.wand" })
     public static void wand(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = controller.wrap((Player) sender);
+        OAPlayer player = OAPlayer.getPlayer((Player) sender);
         player.getSession().giveWand();
     }
 
@@ -153,57 +145,9 @@ public class OACommands {
         sender.sendMessage(ChatColor.GREEN + "OpenAuth data has been saved.");
     }
 
-    @Command(aliases = {"otest"}, flags = "s", desc = "This is always here to test some new thing.", max = 1)
-    @CommandPermissions({ "openauth.admin.visibility.toggle" })
-    public static void otest(CommandContext args, CommandSender sender) throws CommandException {
-        // parts of this code are based off of mbaxter's VanishNoPacket.
-        // https://github.com/mbax/VanishNoPacket/blob/master/src/org/kitteh/vanish/VanishManager.java
-        OAPlayer player = controller.wrap((Player) sender);
-        Field hidden = null;
-        try {
-            hidden = OAPlayer.class.getDeclaredField("hidden");
-            hidden.setAccessible(true);
-        } catch (java.lang.NoSuchFieldException e) {
-            // this should NEVER happen anyway since I KNOW it exists.
-            return;
-        }
-        int effectid = MobEffectList.INVISIBILITY.getId();
-        try {
-            if (hidden.getBoolean(player) == true) {
-                if (args.hasFlag('s')) player.getWorld().playEffect(player.getLocation(), Effect.SMOKE, new Random().nextInt(9));
-                player.sendPacket(new Packet42RemoveMobEffect(player.getEntityId(), new MobEffect(effectid, 0, 0))); // resurface on the grid
-                player.sendPacket(new Packet201PlayerInfo(player.getName(), true, player.getPing()));
-                hidden.setBoolean(player, false);
-                for (final Player target : OpenAuth.getInstance().getServer().getOnlinePlayers()) {
-                    OAPlayer otarget = controller.wrap(target);
-                    if (target.equals(player.getPlayer())) continue;
-                    if (otarget.hasPermission("openauth.admin.sight", false)) continue;
-                    if (!(target.canSee(player.getPlayer()))) target.showPlayer(player.getPlayer());
-                }
-                player.sendMessage("You are no longer hidden!");
-            } else if (hidden.getBoolean(player) == false) {
-                if (args.hasFlag('s')) player.getWorld().playEffect(player.getLocation(), Effect.SMOKE, new Random().nextInt(9));
-                player.sendPacket(new Packet41MobEffect(player.getEntityId(), new MobEffect(MobEffectList.INVISIBILITY.getId(), 0, 0))); // get DISAPPEARED.
-                player.sendPacket(new Packet201PlayerInfo(player.getName(), false, 9999)); // hide from the status list
-                hidden.setBoolean(player, true);
-                for (final Player target : OpenAuth.getInstance().getServer().getOnlinePlayers()) {
-                    OAPlayer otarget = controller.wrap(target);
-                    if (target.equals(player.getPlayer())) continue;
-                    if (otarget.hasPermission("openauth.admin.sight", false)) continue;
-                    if (target.canSee(player.getPlayer())) target.hidePlayer(player.getPlayer());
-                }
-                player.sendMessage("You are now hidden!");
-            }
-        } catch (java.lang.IllegalAccessException e) {
-            // this also should never happen since I'm setting the value accessible, per above.
-            return;
-        }
-        return;
-    }
-
     @Command(aliases = {"test"}, desc = "This is always here to test some new thing.", max = 1)
     public static void ptest(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = controller.wrap((Player) sender);
+        OAPlayer player = OAPlayer.getPlayer((Player) sender);
         int dist = ((args.argsLength() > 0) ? Integer.parseInt(args.getString(0)) : 5);
         HashSet<Byte> transparent = new HashSet<Byte>();
         transparent.add(new Integer(0).byteValue());

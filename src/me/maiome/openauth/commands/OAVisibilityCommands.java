@@ -51,15 +51,11 @@ public class OAVisibilityCommands {
     private static OpenAuth controller;
     private static final LogHandler log = new LogHandler();
 
-    public OAVisibilityCommands (OpenAuth openauth) {
-        controller = openauth;
-    }
-
-    public static class OAVisibilityParent {
+    public static class VisibilityParentCommand {
 
         private final OpenAuth controller;
 
-        public OAVisibilityParent (OpenAuth openauth) {
+        public VisibilityParentCommand (OpenAuth openauth) {
             controller = openauth;
         }
 
@@ -69,12 +65,20 @@ public class OAVisibilityCommands {
         public static void oavisibility() {}
     }
 
+    public OAVisibilityCommands (OpenAuth openauth) {
+        controller = openauth;
+    }
+
+    public static Class getParent() {
+        return VisibilityParentCommand.class;
+    }
+
     @Command(aliases = {"toggle"}, flags = "s", desc = "Toggles player visibility.", max = 1)
     @CommandPermissions({ "openauth.admin.visibility.toggle" })
     public static void togglevis(CommandContext args, CommandSender sender) throws CommandException {
         // parts of this code are based off of mbaxter's VanishNoPacket.
         // https://github.com/mbax/VanishNoPacket/blob/master/src/org/kitteh/vanish/VanishManager.java
-        OAPlayer player = controller.wrap((Player) sender);
+        OAPlayer player = OAPlayer.getPlayer((Player) sender);
         Field hidden = null;
         try {
             hidden = Session.class.getDeclaredField("hidden");
@@ -91,19 +95,19 @@ public class OAVisibilityCommands {
                 player.sendPacket(new Packet201PlayerInfo(player.getName(), true, player.getPing()));
                 hidden.setBoolean(player.getSession(), false);
                 for (final Player target : OpenAuth.getInstance().getServer().getOnlinePlayers()) {
-                    OAPlayer otarget = controller.wrap(target);
+                    OAPlayer otarget = OAPlayer.getPlayer(target);
                     if (target.equals(player.getPlayer())) continue;
                     if (otarget.hasPermission("openauth.admin.sight", false)) continue;
                     if (!(target.canSee(player.getPlayer()))) target.showPlayer(player.getPlayer());
                 }
                 player.sendMessage("You are no longer hidden!");
-            } else if (hidden.getBoolean(player) == false) {
+            } else if (hidden.getBoolean(player.getSession()) == false) {
                 if (args.hasFlag('s')) player.getWorld().playEffect(player.getLocation(), Effect.SMOKE, new Random().nextInt(9));
                 player.sendPacket(new Packet41MobEffect(player.getEntityId(), new MobEffect(effectid, 0, 0))); // get DISAPPEARED.
                 player.sendPacket(new Packet201PlayerInfo(player.getName(), false, 9999)); // hide from the status list
-                hidden.setBoolean(player, true);
+                hidden.setBoolean(player.getSession(), true);
                 for (final Player target : OpenAuth.getInstance().getServer().getOnlinePlayers()) {
-                    OAPlayer otarget = controller.wrap(target);
+                    OAPlayer otarget = OAPlayer.getPlayer(target);
                     if (target.equals(player.getPlayer())) continue;
                     if (otarget.hasPermission("openauth.admin.sight", false)) continue;
                     if (target.canSee(player.getPlayer())) target.hidePlayer(player.getPlayer());
@@ -119,49 +123,10 @@ public class OAVisibilityCommands {
         return;
     }
 
-    @Command(aliases = {"unhide"}, flags = "s", desc = "Unhides a player.", min = 1, max = 1)
-    @CommandPermissions({ "openauth.admin.visibility.unhide" })
-    public static void unhide(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = controller.wrap(args.getString(0));
-        Field hidden = null;
-        if (player == null) {
-            sender.sendMessage(ChatColor.BLUE + args.getString(0) + " is not online!");
-        }
-        try {
-            hidden = Session.class.getDeclaredField("hidden");
-            hidden.setAccessible(true);
-        } catch (java.lang.NoSuchFieldException e) {
-            // this should never happen since we know for a fact that this field exists.
-            return;
-        }
-        int effectid = MobEffectList.INVISIBILITY.getId();
-        try {
-            if (hidden.getBoolean(player.getSession()) == true) {
-                if (args.hasFlag('s')) player.getWorld().playEffect(player.getLocation, Effect.SMOKE, new Random().nextInt(9));
-                player.sendPacket(new Packet42RemoveMobEffect(player.getEntityId(), new MobEffect(effectid, 0, 0))); // resurface.
-                player.sendPacket(new Packet201PlayerInfo(player.getName(), true, player.getPing()));
-                hidden.setBoolean(player.getSession(), false);
-                for (final Player target : OpenAuth.getInstance().getServer().getOnlinePlayers()) {
-                    OAPlayer otarget = controller.wrap(target);
-                    if (target.equals(player.getPlayer())) continue;
-                    if (!(target.canSee(player.getPlayer()))) target.showPlayer(player.getPlayer());
-                }
-                player.sendMessage("You are no longer hidden!");
-            } else {
-                sender.sendMessage(ChatColor.BLUE + args.getString(0) + " was not hidden!");
-            }
-        } catch (java.lang.IllegalAccessException e) {
-            // this should also never happen since the value is being set accessible, per above.
-            return;
-        } finally {
-            hidden.setAccessible(false);
-        }
-    }
-
     @Command(aliases = {"hide"}, flags = "s", desc = "Hides a player.", min = 1, max = 1)
     @CommandPermissions({ "openauth.admin.visibility.hide" })
     public static void hide(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = controller.wrap(args.getString(0));
+        OAPlayer player = OAPlayer.getPlayer(args.getString(0));
         Field hidden = null;
         if (player == null) {
             sender.sendMessage(ChatColor.BLUE + args.getString(0) + " is not online!");
@@ -176,17 +141,18 @@ public class OAVisibilityCommands {
         int effectid = MobEffectList.INVISIBILITY.getId();
         try {
             if (hidden.getBoolean(player.getSession()) == false) {
-                if (args.hasFlag('s')) player.getWorld().playEffect(player.getLocation, Effect.SMOKE, new Random().nextInt(9));
-                player.sendPacket(new Packet42MobEffect(player.getEntityId(), new MobEffect(effectid, 0, 0))); // get DISAPPEARED.
+                if (args.hasFlag('s')) player.getWorld().playEffect(player.getLocation(), Effect.SMOKE, new Random().nextInt(9));
+                player.sendPacket(new Packet41MobEffect(player.getEntityId(), new MobEffect(effectid, 0, 0))); // get DISAPPEARED.
                 player.sendPacket(new Packet201PlayerInfo(player.getName(), false, 9999));
                 hidden.setBoolean(player.getSession(), true);
                 for (final Player target : OpenAuth.getInstance().getServer().getOnlinePlayers()) {
-                    OAPlayer otarget = controller.wrap(target);
+                    OAPlayer otarget = OAPlayer.getPlayer(target);
                     if (target.equals(player.getPlayer())) continue;
-                     if (otarget.hasPermission("openauth.admin.sight", false)) continue;
-                   if (target.canSee(player.getPlayer())) target.hidePlayer(player.getPlayer());
+                    if (otarget.hasPermission("openauth.admin.sight", false)) continue;
+                    if (target.canSee(player.getPlayer())) target.hidePlayer(player.getPlayer());
                 }
-                player.sendMessage("You are now hidden!");
+                player.sendMessage("You have been hidden!");
+                sender.sendMessage(ChatColor.BLUE + args.getString(0) + " is now hidden!");
             } else {
                 sender.sendMessage(ChatColor.BLUE + args.getString(0) + " is already hidden!");
             }
@@ -198,9 +164,49 @@ public class OAVisibilityCommands {
         }
     }
 
+    @Command(aliases = {"unhide"}, flags = "s", desc = "Unhides a player.", min = 1, max = 1)
+    @CommandPermissions({ "openauth.admin.visibility.unhide" })
+    public static void unhide(CommandContext args, CommandSender sender) throws CommandException {
+        OAPlayer player = OAPlayer.getPlayer(args.getString(0));
+        Field hidden = null;
+        if (player == null) {
+            sender.sendMessage(ChatColor.BLUE + args.getString(0) + " is not online!");
+        }
+        try {
+            hidden = Session.class.getDeclaredField("hidden");
+            hidden.setAccessible(true);
+        } catch (java.lang.NoSuchFieldException e) {
+            // this should never happen since we know for a fact that this field exists.
+            return;
+        }
+        int effectid = MobEffectList.INVISIBILITY.getId();
+        try {
+            if (hidden.getBoolean(player.getSession()) == true) {
+                if (args.hasFlag('s')) player.getWorld().playEffect(player.getLocation(), Effect.SMOKE, new Random().nextInt(9));
+                player.sendPacket(new Packet42RemoveMobEffect(player.getEntityId(), new MobEffect(effectid, 0, 0))); // resurface.
+                player.sendPacket(new Packet201PlayerInfo(player.getName(), true, player.getPing()));
+                hidden.setBoolean(player.getSession(), false);
+                for (final Player target : OpenAuth.getInstance().getServer().getOnlinePlayers()) {
+                    OAPlayer otarget = OAPlayer.getPlayer(target);
+                    if (target.equals(player.getPlayer())) continue;
+                    if (!(target.canSee(player.getPlayer()))) target.showPlayer(player.getPlayer());
+                }
+                player.sendMessage("You are no longer hidden!");
+                sender.sendMessage(ChatColor.BLUE + args.getString(0) + " no longer hidden!");
+            } else {
+                sender.sendMessage(ChatColor.BLUE + args.getString(0) + " was not hidden!");
+            }
+        } catch (java.lang.IllegalAccessException e) {
+            // this should also never happen since the value is being set accessible, per above.
+            return;
+        } finally {
+            hidden.setAccessible(false);
+        }
+    }
+
     @Command(aliases = {"hide-all"}, flags = "s", desc = "Hides all players.")
     @CommandPermissions({ "openauth.admin.visibility.hide-all" })
-    public static void hide(CommandContext args, CommandSender sender) throws CommandException {
+    public static void hideall(CommandContext args, CommandSender sender) throws CommandException {
         for (final OAPlayer player : OpenAuth.getOAServer().getLoginHandler().getActivePlayers()) {
             if (player.getSession().isHidden()) {
                 sender.sendMessage("Player '" + player.getName() + "' is already hidden.");
@@ -220,16 +226,59 @@ public class OAVisibilityCommands {
             int effectid = MobEffectList.INVISIBILITY.getId();
             try {
                 if (hidden.getBoolean(player.getSession()) == false) {
-                    player.sendPacket(new Packet42MobEffect(player.getEntityId(), new MobEffect(effectid, 0, 0))); // get DISAPPEARED.
+                    player.sendPacket(new Packet41MobEffect(player.getEntityId(), new MobEffect(effectid, 0, 0))); // get DISAPPEARED.
                     player.sendPacket(new Packet201PlayerInfo(player.getName(), false, 9999));
                     hidden.setBoolean(player.getSession(), true);
                     for (final Player target : OpenAuth.getInstance().getServer().getOnlinePlayers()) {
-                        OAPlayer otarget = controller.wrap(target);
+                        OAPlayer otarget = OAPlayer.getPlayer(target);
                         if (target.equals(player.getPlayer())) continue;
                         if (otarget.hasPermission("openauth.admin.sight", false)) continue;
                         if (target.canSee(player.getPlayer())) target.hidePlayer(player.getPlayer());
                     }
                     player.sendMessage("You are now hidden!");
+                }
+            } catch (java.lang.IllegalAccessException e) {
+                // this should also never happen since the value is being set accessible, per above.
+                return;
+            } finally {
+                hidden.setAccessible(false);
+            }
+        }
+        return;
+    }
+
+    @Command(aliases = {"unhide-all"}, flags = "s", desc = "Unhides all players.")
+    @CommandPermissions({ "openauth.admin.visibility.unhide-all" })
+    public static void unhideall(CommandContext args, CommandSender sender) throws CommandException {
+        for (final OAPlayer player : OpenAuth.getOAServer().getLoginHandler().getActivePlayers()) {
+            if (!(player.getSession().isHidden())) {
+                sender.sendMessage("Player '" + player.getName() + "' is already visible.");
+                continue;
+            }
+            Field hidden = null;
+            if (player == null) {
+                sender.sendMessage(ChatColor.BLUE + args.getString(0) + " is not online!");
+            }
+            try {
+                hidden = Session.class.getDeclaredField("hidden");
+                hidden.setAccessible(true);
+            } catch (java.lang.NoSuchFieldException e) {
+                // this should never happen since we know for a fact that this field exists.
+                return;
+            }
+            int effectid = MobEffectList.INVISIBILITY.getId();
+            try {
+                if (hidden.getBoolean(player.getSession()) == true) {
+                    player.sendPacket(new Packet42RemoveMobEffect(player.getEntityId(), new MobEffect(effectid, 0, 0))); // get DISAPPEARED.
+                    player.sendPacket(new Packet201PlayerInfo(player.getName(), true, player.getPing()));
+                    hidden.setBoolean(player.getSession(), false);
+                    for (final Player target : OpenAuth.getInstance().getServer().getOnlinePlayers()) {
+                        OAPlayer otarget = OAPlayer.getPlayer(target);
+                        if (target.equals(player.getPlayer())) continue;
+                        if (!(target.canSee(player.getPlayer()))) target.showPlayer(player.getPlayer());
+                    }
+                    player.sendMessage("You are now visible!");
+                    sender.sendMessage(ChatColor.BLUE + player.getName() + " is now visible!");
                 }
             } catch (java.lang.IllegalAccessException e) {
                 // this should also never happen since the value is being set accessible, per above.

@@ -17,6 +17,7 @@ import me.maiome.openauth.bukkit.OAPlayer;
 import me.maiome.openauth.bukkit.OAServer;
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.events.*;
+import me.maiome.openauth.database.DBPlayer;
 import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.Permission;
@@ -71,7 +72,7 @@ public class OAActiveLoginHandler implements OALoginHandler {
 
     public boolean isPlayerLoggedIn(String player) {
         if (!(this.isEnabled())) return true;
-        return this.active.contains(this.controller.wrap(this.controller.getServer().getPlayer(player)));
+        return this.active.contains(OAPlayer.getPlayer(player));
     }
 
     public boolean isRegistered(OAPlayer player) {
@@ -79,7 +80,7 @@ public class OAActiveLoginHandler implements OALoginHandler {
     }
 
     public boolean isRegistered(String player) {
-        return ConfigInventory.DATA.getConfig().isSet("credentials." + player);
+        return (OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player).getPassword() != null);
     }
 
     public LoginStatus getPlayerStatus(OAPlayer player) {
@@ -103,7 +104,7 @@ public class OAActiveLoginHandler implements OALoginHandler {
             event.disallow(PlayerLoginEvent.Result.KICK_BANNED, this.controller.getOAServer().getIPBanReason(player.getIP()));
             return;
         } else {
-            this.log.exDebug(String.format("%s (%s) matched no IP bans!", event.getAddress().toString(), player.getName()));
+            this.log.exDebug(String.format("%s (%s) matched no IP bans!", player.getIP(), player.getName()));
         }
         event.allow();
         // check ip stuff.
@@ -126,20 +127,21 @@ public class OAActiveLoginHandler implements OALoginHandler {
             player.sendMessage(ChatColor.BLUE + "Authentication is not enabled. You're in the clear.");
             return true;
         }
-        String match = ConfigInventory.DATA.getConfig().getString(String.format("credentials.%s.password", player.getName()));
+        String match = OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player.getName()).getPassword();
         return ((this.getStringHash(password)).equals(match)) ? true : false;
     }
 
     public void processPlayerRegistration(OAPlayer player, String password) {
         if (!(this.isEnabled())) return;
-        ConfigInventory.DATA.getConfig().set(String.format("credentials.%s.password", player.getName()), this.getStringHash(password));
+        OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player.getName()).setPassword(this.getStringHash(password));
+        OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player.getName()).update();
         OAPlayerRegistrationEvent event = new OAPlayerRegistrationEvent(player);
         OpenAuth.getOAServer().callEvent(event);
     }
 
     public boolean compareToCurrent(OAPlayer player, String password) {
         if (!(this.isEnabled())) return false;
-        return (ConfigInventory.DATA.getConfig().getString(String.format("credentials.%s.password"))).equals(this.getStringHash(password));
+        return (OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player.getName()).getPassword()).equals(this.getStringHash(password));
     }
 
     public List<OAPlayer> getActivePlayers() {

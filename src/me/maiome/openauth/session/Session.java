@@ -109,8 +109,8 @@ public class Session {
     }
 
     public void setIdentified(boolean identified, boolean update) {
-        if (this.frozen) {
-            // this means they're trying to bypass being frozen.
+        if (this.frozen && this.identified) {
+            // this means they're trying to bypass being frozen by the stick.
             this.player.sendMessage(ChatColor.GREEN + "Sorry, but you're currently frozen, so I can't let you reidentify.");
             return;
         }

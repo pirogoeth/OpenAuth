@@ -92,7 +92,7 @@ public class SessionController {
     public void createAll() {
         int session_count = 0;
         for (Player player : this.server.getServer().getOnlinePlayers()) {
-            this.controller.wrap(player);
+            OAPlayer.getPlayer(player);
             session_count++;
         }
         if (session_count >= 1) log.info(String.format("[SessionController] Generated %d sessions.", session_count));

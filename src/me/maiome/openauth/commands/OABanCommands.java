@@ -34,10 +34,6 @@ public class OABanCommands {
     private static OpenAuth controller;
     private static final LogHandler log = new LogHandler();
 
-    public OABanCommands (OpenAuth openauth) {
-        controller = openauth;
-    }
-
     public static class BanParentCommand {
 
         private final OpenAuth controller;
@@ -52,18 +48,26 @@ public class OABanCommands {
         public static void oabans() {}
     }
 
+    public OABanCommands (OpenAuth openauth) {
+        controller = openauth;
+    }
+
+    public static Class getParent() {
+        return BanParentCommand.class;
+    }
+
     @Console
     @Command(aliases = {"ban-ip"}, usage = "<user> [reason]", desc = "Allows banning of a user by IP.",
              min = 1, max = -1)
     @CommandPermissions({ "openauth.ban.ip" })
     public static void banIP(CommandContext args, CommandSender sender) throws CommandException {
         String reason = (args.argsLength() > 1 ? args.getJoinedStrings(1) : "No reason given.");
-        if (controller.wrap(args.getString(0)) == null) {
+        if (OAPlayer.getPlayer(args.getString(0)) == null) {
             sender.sendMessage(ChatColor.BLUE + "Please provide a valid player to ban.");
             return;
         }
-        controller.getOAServer().banPlayerByIP(controller.wrap(args.getString(0)), reason);
-        controller.getOAServer().kickPlayer(controller.wrap(args.getString(0)), reason);
+        controller.getOAServer().banPlayerByIP(OAPlayer.getPlayer(args.getString(0)), reason);
+        controller.getOAServer().kickPlayer(OAPlayer.getPlayer(args.getString(0)), reason);
         sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been banned.", args.getString(0)));
     }
 
@@ -72,7 +76,7 @@ public class OABanCommands {
              min = 1)
     @CommandPermissions({ "openauth.unban.ip" })
     public static void unbanIP(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = controller.forciblyWrapOAPlayer(args.getString(0));
+        OAPlayer player = OAPlayer.getPlayer((Player) sender);
         String reason = (args.argsLength() > 1 ? args.getJoinedStrings(1) : "No reason given.");
         if (player == null && args.getString(0).charAt(0) != '/') {
             sender.sendMessage(ChatColor.BLUE + "You need to provide the banned IP, as this user does not exist in my memory.");
@@ -98,8 +102,8 @@ public class OABanCommands {
              min = 1, max = -1)
     @CommandPermissions({ "openauth.ban.name" })
     public static void banName(CommandContext args, CommandSender sender) throws CommandException {
-        if (controller.wrappable(args.getString(0))) {
-            OAPlayer player = controller.wrap(args.getString(0));
+        if (OAPlayer.hasPlayer(args.getString(0))) {
+            OAPlayer player = OAPlayer.getPlayer(args.getString(0));
             if (args.argsLength() > 1) {
                 controller.getOAServer().kickPlayer(player, args.getJoinedStrings(1));
                 controller.getOAServer().banPlayerByName(player, args.getJoinedStrings(1));
@@ -109,7 +113,7 @@ public class OABanCommands {
             }
             sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been banned.", args.getString(0)));
             return;
-        } else if (!(controller.wrappable(args.getString(0)))) {
+        } else if (!(OAPlayer.hasPlayer(args.getString(0)))) {
             // banning a player and that is all. no kicking, just preventing a join.
             if (args.argsLength() > 1) {
                 controller.getOAServer().banPlayerByName(args.getString(0), args.getJoinedStrings(1));

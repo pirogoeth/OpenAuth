@@ -21,6 +21,7 @@ import com.avaje.ebean.EbeanServer;
 
 // java imports
 import java.io.File;
+import java.lang.reflect.Method;
 import java.util.logging.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -94,11 +95,6 @@ public class OpenAuth extends JavaPlugin {
     private ExtendedDB database;
 
     /**
-     * Holds OAPlayer instances.
-     */
-    public Map<String, OAPlayer> players = new HashMap<String, OAPlayer>();
-
-    /**
      * Session controller.
      */
     private static SessionController sc;
@@ -124,6 +120,11 @@ public class OpenAuth extends JavaPlugin {
     private CommandsManagerRegistration dynamicCommandRegistry;
 
     /**
+     * Lock for the database to prevent persistence errors.
+     */
+    public static final Object databaseLock = new Object();
+
+    /**
      * Plugin setup.
      */
     public void onEnable() {
@@ -134,6 +135,7 @@ public class OpenAuth extends JavaPlugin {
         this.configurationManager.initialise();
 
         // initialise the database
+        log.info("NOTE: Initialising database, this *MAY* take a while...");
         this.initialiseDatabase();
 
         // set logging level
@@ -203,15 +205,17 @@ public class OpenAuth extends JavaPlugin {
 
         // setup PluginMetrics
         if (ConfigInventory.MAIN.getConfig().getBoolean("metrics-enabled", true) == true) {
-            String[] metrics_warning = {
-                "NOTICE: You have chosen to OPT-IN to PluginMetrics for this plugin!",
-                "PluginMetrics will anonymously collect statistical data about the server and this plugin to send back to the plugin author.",
-                "The data collected will only be used for statistic gathering to keep track of certain aspects of the plugin and its development.",
-                "If you'd prefer to disable PluginMetrics and keep it from loading in this plugin, open the config.yml for this plugin and change metrics-enabled to false and reload your server.",
-                "Or, while the server is running, you can run /oa settings metrics-enabled false while logged in or on the console to disable statistics collection."
-            };
-            for (String line : metrics_warning) {
-                log.info(line);
+            if (ConfigInventory.MAIN.getConfig().getBoolean("show-metrics-notice", true) == true) {
+                String[] metrics_warning = {
+                    "NOTICE: You have chosen to OPT-IN to PluginMetrics for this plugin!",
+                    "PluginMetrics will anonymously collect statistical data about the server and this plugin to send back to the plugin author.",
+                    "The data collected will only be used for statistic gathering to keep track of certain aspects of the plugin and its development.",
+                    "If you'd prefer to disable PluginMetrics and keep it from loading in this plugin, open the config.yml for this plugin and change metrics-enabled to false and reload your server.",
+                    "Or, while the server is running, you can run /oa settings metrics-enabled false while logged in or on the console to disable statistics collection."
+                };
+                for (String line : metrics_warning) {
+                    log.info(line);
+                }
             }
             try {
                 this.metrics = new Metrics(this);
@@ -234,7 +238,7 @@ public class OpenAuth extends JavaPlugin {
     @Override
     public void onDisable() {
         // set each player offline before shutting down
-        for (Map.Entry<String, OAPlayer> entry : this.players.entrySet()) {
+        for (Map.Entry<String, OAPlayer> entry : OAPlayer.players.entrySet()) {
             ((OAPlayer) entry.getValue()).setOffline();
         }
         // save ALL the bans!
@@ -286,7 +290,7 @@ public class OpenAuth extends JavaPlugin {
         List<Class<?>> list = new ArrayList<Class<?>>();
         list.add(DBPlayer.class);
         list.add(DBPoint.class);
-        // list.add(DBWhitelist.class);
+        list.add(DBWhitelist.class);
         // list.add(DBBanlist.class);
         return list;
     };
@@ -294,17 +298,19 @@ public class OpenAuth extends JavaPlugin {
     private void initialiseDatabase() {
         Configuration config = ConfigInventory.MAIN.getConfig();
 
-        database = new ExtendedDB(OpenAuth.getInstance());
+        this.database = new ExtendedDB(OpenAuth.getInstance());
 
-        database.initializeDatabase(
+        this.database.initializeDatabase(
             config.getString("database.driver", "org.sqlite.JDBC"),
-            config.getString("database.url", "jdbc:sqlite:{DIR}{NAME}.db"),
+            config.getString("database.url", "jdbc:sqlite:{DIR}/{NAME}.db"),
             config.getString("database.username", "captain"),
             config.getString("database.password", "narwhal"),
             config.getString("database.isolation", "SERIALIZABLE"),
             config.getBoolean("database.logging", false),
             config.getBoolean("database.rebuild", true)
         );
+
+        this.getDatabase().createSqlQuery("PRAGMA journal_mode=WAL;");
     }
 
     // various support methods
@@ -446,6 +452,13 @@ public class OpenAuth extends JavaPlugin {
     }
 
     /**
+     * Returns the CommandsManagerRegistration instance used by OpenAuth.
+     */
+    public CommandsManagerRegistration getCommandsManagerRegistration() {
+        return this.dynamicCommandRegistry;
+    }
+
+    /**
      * Shorthand to register an event listener.
      */
     private void registerEvents(Listener listener) {
@@ -456,7 +469,7 @@ public class OpenAuth extends JavaPlugin {
     }
 
     /**
-     * Register commands with OpenAuth's instance of the WorldEdit command framework.
+     * Register parent commands with OpenAuth's instance of the WorldEdit command framework.
      */
     public void registerCommandClass(Class<?> clazz) {
         this.dynamicCommandRegistry.register(clazz);
@@ -465,50 +478,16 @@ public class OpenAuth extends JavaPlugin {
     /**
      * Whether or not a player can be easily wrapped.
      */
-    public boolean wrappable(String name) {
-        return (players.containsKey(name) && (this.getServer().getPlayer(name) != null));
-    }
-
-    public boolean wrappable(Player player) {
-        return this.wrappable(player.getName());
+    public boolean wrappable(Object obj) {
+        log.warning("DEPRECIATED: SOMETHING USED OpenAuth.wrappable()!");
+        return OAPlayer.hasPlayer(obj);
     }
 
     /**
      * Wraps a player into an OAPlayer instance.
      */
-    public OAPlayer wrap(Player player) {
-        if (!(player instanceof org.bukkit.entity.LivingEntity) && (player instanceof org.bukkit.entity.Player)) return null;
-        if (!(players.containsKey(player.getName()))) {
-            OAPlayer _player = new OAPlayer(player);
-            players.put(player.getName(), _player);
-            return _player;
-        } else if (players.containsKey(player.getName())) {
-            return players.get(player.getName());
-        }
-        return null;
-    }
-
-    public OAPlayer wrap(PlayerLoginEvent event) {
-        if (!(players.containsKey(event.getPlayer().getName()))) {
-            OAPlayer _player = new OAPlayer(event);
-            players.put(event.getPlayer().getName(), _player);
-            return _player;
-        } else if (players.containsKey(event.getPlayer().getName())) {
-            return players.get(event.getPlayer().getName());
-        }
-        return null;
-    }
-
-    public OAPlayer wrap(String _player) {
-        Player player = this.getServer().getPlayer(_player);
-        return this.wrap(player);
-    }
-
-    public OAPlayer forciblyWrapOAPlayer(String _player) {
-        if (!(players.containsKey(_player))) {
-            return null;
-        } else {
-            return players.get(_player);
-        }
+    public OAPlayer wrap(Object obj) {
+        log.warning("DEPRECIATED: SOMETHING USED OpenAuth.wrap()!");
+        return OAPlayer.getPlayer(obj);
     }
 }

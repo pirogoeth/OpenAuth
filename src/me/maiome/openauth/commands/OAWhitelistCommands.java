@@ -34,10 +34,6 @@ public class OAWhitelistCommands {
     private static OpenAuth controller;
     private static final LogHandler log = new LogHandler();
 
-    public OAWhitelistCommands (OpenAuth openauth) {
-        controller = openauth;
-    }
-
     public static class WhitelistParentCommand {
 
         private final OpenAuth controller;
@@ -50,6 +46,14 @@ public class OAWhitelistCommands {
                  flags = "", min = 1)
         @NestedCommand({OAWhitelistCommands.class})
         public static void openAuth() {}
+    }
+
+    public OAWhitelistCommands (OpenAuth openauth) {
+        controller = openauth;
+    }
+
+    public static Class getParent() {
+        return WhitelistParentCommand.class;
     }
 
     @Console

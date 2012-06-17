@@ -37,6 +37,11 @@ public class DBPlayer {
     private String name;
 
     /**
+     * User's logon password, hashed.
+     */
+    private String password = null;
+
+    /**
      * List of points this player owns.
      */
     @OneToMany(targetEntity=DBPoint.class,
@@ -47,13 +52,6 @@ public class DBPlayer {
                }
     )
     private List<DBPoint> points = new ArrayList<DBPoint>();
-
-    /**
-     * List of IP addresses this user has ever connected from.
-     */
-    // @NotEmpty
-    // @NotNull
-    // private List<String> addresses = new ArrayList<String>(); // will implement later
 
     /**
      * OAPlayer transient for use later.
@@ -67,14 +65,45 @@ public class DBPlayer {
     public DBPlayer() { }
 
     /**
-     * Main constructor to set up the point values.
+     * Main constructor.
      */
     public DBPlayer(final OAPlayer player) {
         this.player = player;
         this.setName(player.getName());
-        // this.setIPList(player.getIPList());
-        // this.setIP(player.getIP());
-        OpenAuth.getInstance().getDatabase().save(this);
+        this.save();
+    }
+
+    /**
+     * Alternate constructor.
+     */
+    public DBPlayer(final String player) {
+        this.setName(player);
+        this.save();
+    }
+
+    public void save() {
+        synchronized (OpenAuth.databaseLock) {
+            OpenAuth.getInstance().getDatabase().save(this);
+        }
+    }
+
+    public void update() {
+        List<DBPoint> points = OpenAuth.getInstance().getDatabase().find(DBPlayer.class, this.name).getPoints();
+        String password = OpenAuth.getInstance().getDatabase().find(DBPlayer.class, this.name).getPassword();
+        try {
+            if (points.equals(this.points) && password.equals(this.password)) return; // the only main elements are equal,no update is needed.
+        } catch (java.lang.NullPointerException e) {
+            return; // one of these two are null...lets just not update...
+        }
+        synchronized (OpenAuth.databaseLock) {
+            try {
+                OpenAuth.getInstance().getDatabase().update(this);
+            } catch (java.lang.Exception e) {
+                LogHandler.exDebug("Error updating DBPlayer [" + this.name + "]: " + e.getMessage());
+                return;
+            }
+            LogHandler.exDebug("Successfully updated DBPlayer [" + this.name + "].");
+        }
     }
 
     public String getName() {
@@ -85,25 +114,24 @@ public class DBPlayer {
         this.name = name;
     }
 
-    /*
-     * public String getIP() {
-     *   return this.addresses.get(0);
-     * }
-     *
-     * public void setIP(final String ip) {
-     *    this.addresses.add(0, ip);
-     * }
-     *
-     * public List<String> getIPList() {
-     *    return this.addresses;
-     * }
-     *
-     * public void setIPList(final List<String> iplist) {
-     *    this.points.addAll((Collection) iplist);
-     * }
-     *
-     * WILL FULLY IMPLEMENT THIS LATER.
-     */
+    public void setName(final String name, final boolean update) {
+        this.name = name;
+        if (update == true) this.update();
+    }
+
+    public void setPassword(final String password) {
+        this.password = password;
+    }
+
+    @Transient
+    public void setPassword(final String password, final boolean update) {
+        this.password = password;
+        if (update == true) this.update();
+    }
+
+    public String getPassword() {
+        return this.password;
+    }
 
     public List<DBPoint> getPoints() {
         return this.points;
@@ -113,39 +141,11 @@ public class DBPlayer {
         this.points = points;
     }
 
-    public Map<String, Location> getPointList() {
-        Map<String, Location> pointmap = new HashMap<String, Location>();
-        for (DBPoint point : this.getPoints()) {
-            pointmap.put(point.getName(), point.getLocation());
+    @Transient
+    public void updatePoints(final List<DBPoint> points) {
+        for (DBPoint point : points) {
+            point.update();
         }
-        return pointmap;
-    }
-
-    public void setPointList(final Map<String, Location> pointmap) {
-        List<DBPoint> updated = new ArrayList<DBPoint>();
-        for (Map.Entry<String, Location> es : pointmap.entrySet()) {
-            DBPoint point = OpenAuth.getInstance().getDatabase().find(DBPoint.class, es.getKey());
-            if (point == null) {
-                // this point has never existed
-                point = new DBPoint(this, es.getKey(), (Location) es.getValue());
-            }
-            updated.add(point);
-        }
-        if (this.points.equals(updated)) {
-            return;
-        }
-        for (DBPoint point : this.points) {
-            if (!(updated.contains(point))) {
-                point.delete();
-            }
-        }
-        for (DBPoint point : updated) {
-            if (!(this.points.contains(point))) {
-                point.save();
-            } else {
-                point.update();
-            }
-        }
-        this.setPoints(updated);
+        this.setPoints(points);
     }
 }

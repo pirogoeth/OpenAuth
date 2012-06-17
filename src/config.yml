@@ -6,6 +6,8 @@
 #   this tells openauth whether or not to print extra debug messages [default: false]
 # metrics-enabled:
 #   this tells the plugin whether or not to enable PluginMetrics [default: true]
+# show-metrics-notice:
+#   tells the controller whether or not to print the metrics usage notice on start of the plugin. [default: true]
 # save-ban: (ban saving)
 #   delay - how long to wait before starting to save bans [default: 6000 == 5 minutes]
 #   period - how long to go in between running the ban saving task [default: 36000 == 30 minutes]
@@ -33,6 +35,7 @@
 #   freeze-actions - actions that the player takes that will be
 #                    frozen.
 #     chat - freeze chat? [default: true]
+#     commands - freeze all commands besides OA commands? [default: true]
 #     interact - freeze all player interactions? [default: true]
 #     block-interact - freeze all block interactions? [default: true]
 #     block-place - freeze all block placements? [default: true]
@@ -40,6 +43,7 @@
 #     movement - freeze all player movement? [default: false]
 #     teleport - freeze player teleportation? [default: true]
 # actions:
+#   verbose-list - shows extra in /oa action list [default: false]
 #   ban - settings for the ban action
 #     kick - whether or not to kick the user when the ban action is used [default: true]
 #   boom - settings for the boom action
@@ -56,6 +60,7 @@ version: 1.0
 override: true
 debug: false
 metrics-enabled: true
+show-metrics-notice: true
 save-ban-delay: 6000
 save-ban-period: 36000
 save-whitelist-delay: 18000
@@ -82,6 +87,7 @@ auth:
     greet-players: true
     freeze-actions:
         chat: true
+        commands: true
         interact: true
         block-interact: true
         block-place: true
@@ -89,6 +95,7 @@ auth:
         movement: false
         teleport: true
 actions:
+    verbose-list: false
     ban:
         kick: true
     boom:

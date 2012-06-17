@@ -44,6 +44,11 @@ public class DBPoint {
     @NotNull private float pitch, yaw;
 
     /**
+     * Boolean to mark for deletion.
+     */
+    @Transient private boolean delete = false;
+
+    /**
      * Mandatory constructor for ebean use.
      */
     public DBPoint() { }
@@ -76,22 +81,45 @@ public class DBPoint {
         return ((this.name.equals(point.getName())) && (this.getLocation().equals(point.getLocation())));
     }
 
+    @Transient
     public void save() {
-        OpenAuth.getInstance().getDatabase().save(this);
+        synchronized (OpenAuth.databaseLock) {
+            OpenAuth.getInstance().getDatabase().save(this);
+        }
     }
 
-    public void delete() {
-        OpenAuth.getInstance().getDatabase().delete(this);
+    @Transient
+    private void delete() {
+        synchronized (OpenAuth.databaseLock) {
+            OpenAuth.getInstance().getDatabase().delete(this);
+        }
     }
 
+    @Transient
     public void update() {
-        OpenAuth.getInstance().getDatabase().update(this);
+        if (this.markedForDeletion()) {
+            this.delete();
+            return;
+        }
+        synchronized (OpenAuth.databaseLock) {
+            OpenAuth.getInstance().getDatabase().update(this);
+        }
     }
 
+    @Transient
     public void rename(final String name) {
-        this.delete();
         this.setName(name);
-        this.save();
+        this.update();
+    }
+
+    @Transient
+    public void markForDeletion(final boolean b) {
+        this.delete = b;
+    }
+
+    @Transient
+    public boolean markedForDeletion() {
+        return this.delete;
     }
 
     public String getName() {

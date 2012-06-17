@@ -2,6 +2,7 @@ package me.maiome.openauth.handlers;
 
 // internal
 import me.maiome.openauth.bukkit.*;
+import me.maiome.openauth.database.DBWhitelist;
 import me.maiome.openauth.util.*;
 
 // bukkit
@@ -18,8 +19,8 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
     protected final int factor = (17 * 8);
     protected final int serial = 401;
 
-    private List<String> whitelist = new ArrayList<String>();
     private OpenAuth controller;
+    private List<String> whitelist = new ArrayList<String>();
     private final LogHandler log = new LogHandler();
     protected boolean enabled = false;
 
@@ -80,13 +81,23 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
         event.allow();
     }
 
-    public void saveWhitelist() {
-        ConfigInventory.DATA.getConfig().set("whitelist", this.whitelist);
+    public void loadWhitelist() {
+        synchronized (OpenAuth.databaseLock) {
+            try {
+                List<DBWhitelist> whitelist = OpenAuth.getInstance().getDatabase().find(DBWhitelist.class).where("whitelisted == true").findList();
+                for (DBWhitelist entry : whitelist) {
+                    if (entry.getWhitelisted()) {
+                        this.whitelist.add(entry.getName());
+                    }
+                }
+            } catch (java.lang.RuntimeException e) {
+                // most likely, this is because the whitelist is EMPTY.
+                log.info("Whitelist is most likely empty!");
+            }
+        }
     }
 
-    public void loadWhitelist() {
-        this.whitelist.addAll(ConfigInventory.DATA.getConfig().getStringList("whitelist"));
-    }
+    public void saveWhitelist() { }; // stub to complete implementation
 
     public void whitelistPlayer(OAPlayer player) {
         this.whitelistPlayer(player.getName());
@@ -100,6 +111,11 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
         if (!(this.isEnabled())) return;
         if (!(this.whitelist.contains(name))) {
             this.whitelist.add(name);
+            DBWhitelist entry = OpenAuth.getInstance().getDatabase().find(DBWhitelist.class, name);
+            if (entry == null) {
+                entry = new DBWhitelist(name);
+            }
+            entry.setWhitelisted(true, true); // allow and force an update
         } else {
             return;
         }
@@ -118,6 +134,11 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
         if (!(this.isEnabled())) return;
         if (this.whitelist.contains(name)) {
             this.whitelist.remove(name);
+            DBWhitelist entry = OpenAuth.getInstance().getDatabase().find(DBWhitelist.class, name);
+            if (entry == null) {
+                entry = new DBWhitelist(name);
+            }
+            entry.setWhitelisted(false, true); // deny and force an update
         } else {
             return;
         }
