@@ -190,7 +190,6 @@ public class OpenAuth extends JavaPlugin {
 
         // register command classes.
         this.dynamicCommandRegistry.register(OACommands.OAParentCommand.class);
-        this.dynamicCommandRegistry.register(OAPointsCommand.OAPointsParentCommand.class);
 
         // generate sessions for all users
         sc.createAll();
@@ -289,7 +288,6 @@ public class OpenAuth extends JavaPlugin {
     public List<Class<?>> getDatabaseClasses() {
         List<Class<?>> list = new ArrayList<Class<?>>();
         list.add(DBPlayer.class);
-        list.add(DBPoint.class);
         list.add(DBWhitelist.class);
         // list.add(DBBanlist.class);
         return list;

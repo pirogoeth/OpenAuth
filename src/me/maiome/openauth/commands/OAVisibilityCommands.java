@@ -101,6 +101,7 @@ public class OAVisibilityCommands {
                     if (!(target.canSee(player.getPlayer()))) target.showPlayer(player.getPlayer());
                 }
                 player.sendMessage("You are no longer hidden!");
+                OpenAuth.getOAServer().getServer().broadcastMessage("\u00A7e" + player.getName() + " joined the game.");
             } else if (hidden.getBoolean(player.getSession()) == false) {
                 if (args.hasFlag('s')) player.getWorld().playEffect(player.getLocation(), Effect.SMOKE, new Random().nextInt(9));
                 player.sendPacket(new Packet41MobEffect(player.getEntityId(), new MobEffect(effectid, 0, 0))); // get DISAPPEARED.
@@ -113,6 +114,7 @@ public class OAVisibilityCommands {
                     if (target.canSee(player.getPlayer())) target.hidePlayer(player.getPlayer());
                 }
                 player.sendMessage("You are now hidden!");
+                OpenAuth.getOAServer().getServer().broadcastMessage("\u00A7e" + player.getName() + " left the game.");
             }
         } catch (java.lang.IllegalAccessException e) {
             // this also should never happen since I'm setting the value accessible, per above.
@@ -126,10 +128,13 @@ public class OAVisibilityCommands {
     @Command(aliases = {"hide"}, flags = "s", desc = "Hides a player.", min = 1, max = 1)
     @CommandPermissions({ "openauth.admin.visibility.hide" })
     public static void hide(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = OAPlayer.getPlayer(args.getString(0));
         Field hidden = null;
-        if (player == null) {
-            sender.sendMessage(ChatColor.BLUE + args.getString(0) + " is not online!");
+        OAPlayer player = null;
+        try {
+            player = OAPlayer.getPlayer(args.getString(0));
+        } catch (java.lang.NullPointerException e) {
+            sender.sendMessage(ChatColor.RED + "Player '" + args.getString(0) + "' is not online!");
+            return;
         }
         try {
             hidden = Session.class.getDeclaredField("hidden");
@@ -152,6 +157,7 @@ public class OAVisibilityCommands {
                     if (target.canSee(player.getPlayer())) target.hidePlayer(player.getPlayer());
                 }
                 player.sendMessage("You have been hidden!");
+                OpenAuth.getOAServer().getServer().broadcastMessage("\u00A7e" + player.getName() + " left the game.");
                 sender.sendMessage(ChatColor.BLUE + args.getString(0) + " is now hidden!");
             } else {
                 sender.sendMessage(ChatColor.BLUE + args.getString(0) + " is already hidden!");
@@ -167,10 +173,13 @@ public class OAVisibilityCommands {
     @Command(aliases = {"unhide"}, flags = "s", desc = "Unhides a player.", min = 1, max = 1)
     @CommandPermissions({ "openauth.admin.visibility.unhide" })
     public static void unhide(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = OAPlayer.getPlayer(args.getString(0));
         Field hidden = null;
-        if (player == null) {
-            sender.sendMessage(ChatColor.BLUE + args.getString(0) + " is not online!");
+        OAPlayer player = null;
+        try {
+            player = OAPlayer.getPlayer(args.getString(0));
+        } catch (java.lang.NullPointerException e) {
+            sender.sendMessage(ChatColor.RED + "Player '" + args.getString(0) + "' is not online!");
+            return;
         }
         try {
             hidden = Session.class.getDeclaredField("hidden");
@@ -192,6 +201,7 @@ public class OAVisibilityCommands {
                     if (!(target.canSee(player.getPlayer()))) target.showPlayer(player.getPlayer());
                 }
                 player.sendMessage("You are no longer hidden!");
+                OpenAuth.getOAServer().getServer().broadcastMessage("\u00A7e" + player.getName() + " joined the game.");
                 sender.sendMessage(ChatColor.BLUE + args.getString(0) + " no longer hidden!");
             } else {
                 sender.sendMessage(ChatColor.BLUE + args.getString(0) + " was not hidden!");
@@ -236,6 +246,7 @@ public class OAVisibilityCommands {
                         if (target.canSee(player.getPlayer())) target.hidePlayer(player.getPlayer());
                     }
                     player.sendMessage("You are now hidden!");
+                    OpenAuth.getOAServer().getServer().broadcastMessage("\u00A7e" + player.getName() + " left the game.");
                 }
             } catch (java.lang.IllegalAccessException e) {
                 // this should also never happen since the value is being set accessible, per above.
@@ -278,6 +289,7 @@ public class OAVisibilityCommands {
                         if (!(target.canSee(player.getPlayer()))) target.showPlayer(player.getPlayer());
                     }
                     player.sendMessage("You are now visible!");
+                    OpenAuth.getOAServer().getServer().broadcastMessage("\u00A7e" + player.getName() + " joined the game.");
                     sender.sendMessage(ChatColor.BLUE + player.getName() + " is now visible!");
                 }
             } catch (java.lang.IllegalAccessException e) {

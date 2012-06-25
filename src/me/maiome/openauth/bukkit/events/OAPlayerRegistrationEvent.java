@@ -9,9 +9,9 @@ import me.maiome.openauth.session.*;
 public class OAPlayerRegistrationEvent extends Event {
 
     private static final HandlerList handlers = new HandlerList();
-    private OAPlayer player;
+    private Object player;
 
-    public OAPlayerRegistrationEvent(OAPlayer player) {
+    public OAPlayerRegistrationEvent(Object player) {
         this.player = player;
     }
 
@@ -24,7 +24,13 @@ public class OAPlayerRegistrationEvent extends Event {
         return handlers;
     }
 
-    public OAPlayer getPlayer() {
-        return this.player;
+    public Object getPlayer() {
+        if (this.player instanceof OAPlayer) {
+            return (OAPlayer) this.player;
+        } else if (this.player instanceof String) {
+            return (String) this.player;
+        } else {
+            return null;
+        }
     }
 }

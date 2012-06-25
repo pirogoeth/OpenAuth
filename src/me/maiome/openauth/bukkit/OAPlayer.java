@@ -17,18 +17,19 @@ import net.minecraft.server.Packet;
 import org.bukkit.craftbukkit.entity.CraftPlayer;
 
 // java imports
+import java.lang.Math;
 import java.net.InetAddress;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 // internal imports
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAServer;
 import me.maiome.openauth.bukkit.events.*;
 import me.maiome.openauth.database.DBPlayer;
-import me.maiome.openauth.database.DBPoint;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LocationSerialisable;
@@ -125,7 +126,6 @@ public class OAPlayer {
     private String name = null;
     private Session session = null;
     private List<String> ip_list = new ArrayList<String>();
-    private List<DBPoint> points = new ArrayList<DBPoint>();
     private PlayerState state = PlayerState.UNKNOWN;
     private boolean ip_changed = false;
     private boolean flying = false;
@@ -267,6 +267,12 @@ public class OAPlayer {
         this.player.sendMessage(message);
     }
 
+    public void setDisplayName(String name) {
+        Pattern pattern = Pattern.compile("(?i)&([0-9A-FKLMNOR])");
+        String _name = pattern.matcher(name).replaceAll("\u00A7$1");
+        this.player.setDisplayName(_name);
+    }
+
     public void kickPlayer(String reason) {
         this.player.kickPlayer(reason);
         this.setOffline();
@@ -353,6 +359,14 @@ public class OAPlayer {
         return this.player.getWorld();
     }
 
+    public boolean inCuboid(Location l1, Location l2) {
+        Location loc = this.getLocation();
+        double x1 = Math.min(l1.getX(), l2.getX()), y1 = Math.min(l1.getY(), l2.getY()), z1 = Math.min(l1.getZ(), l2.getZ());
+        double x2 = Math.min(l1.getX(), l2.getX()), y2 = Math.min(l1.getY(), l2.getY()), z2 = Math.min(l1.getZ(), l2.getZ());
+
+        return ((loc.getX() > x1) && (loc.getX() < x2) && (loc.getY() > y1) && (loc.getY() < y2) && (loc.getZ() > z1) && (loc.getZ() < z2));
+    }
+
     public void setLocation(Location location) {
         this.player.teleport(location);
     }
@@ -394,62 +408,6 @@ public class OAPlayer {
         location.setPitch(pitch);
         location.setYaw(yaw);
         this.setLocation(location);
-    }
-
-    // location serialisation
-
-    public void saveLocation(String name) {
-        this.saveLocation(name, this.getLocation());
-    }
-
-    public void saveLocation(String name, Location loc) {
-        DBPoint point = new DBPoint(this.data, name, loc);
-        point.save();
-        this.points.add(point);
-    }
-
-    public Location getSavedLocation(String name) {
-        DBPoint point = OpenAuth.getInstance().getDatabase().find(DBPoint.class, name);
-        if (point == null) {
-            return null;
-        }
-        return point.getLocation();
-    }
-
-    public Map<String, Location> getSavedLocations() {
-        Map<String, Location> locations = new HashMap<String, Location>();
-        for (DBPoint point : this.points) {
-            this.sendMessage("Point: " + point.getName() + " : " + point.getLocation().toString());
-            locations.put(point.getName(), point.getLocation());
-        }
-        return locations;
-    }
-
-    public boolean hasSavedLocation(String name) {
-        return ((OpenAuth.getInstance().getDatabase().find(DBPoint.class, name) == null) ? false : true);
-    }
-
-    public void deleteLocation(String name) {
-        DBPoint point = OpenAuth.getInstance().getDatabase().find(DBPoint.class, name);
-        point.markForDeletion(true);
-        this.points.remove(point);
-    }
-
-    public void loadLocations() {
-        try {
-            this.points = this.data.getPoints();
-        } catch (java.lang.NullPointerException e) {
-            this.sendMessage(ChatColor.RED + "Sorry, but there was a problem loading your saved locations :/");
-        }
-    }
-
-    public void saveLocations() {
-        try {
-            this.data.updatePoints(this.points);
-            this.data.update();
-        } catch (java.lang.NullPointerException e) {
-            e.printStackTrace(); // debug
-        }
     }
 
     /**
@@ -512,7 +470,6 @@ public class OAPlayer {
         if (this.session != null) this.updateIP();
         if (this.flying) this.fly(true);
         this.state = PlayerState.ONLINE;
-        this.loadLocations();
         this.getServer().scheduleSyncDelayedTask(100L, this.updateip);
         this.getServer().callEvent(new OAPlayerOnlineEvent(this));
     }
@@ -525,7 +482,6 @@ public class OAPlayer {
         try {
             this.session.clearAction();
         } catch (java.lang.NullPointerException e) {}
-        this.saveLocations();
         this.setState(PlayerState.OFFLINE);
         this.getServer().callEvent(new OAPlayerOfflineEvent(this));
     }

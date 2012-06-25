@@ -65,6 +65,7 @@ public interface OALoginHandler {
      * Processes player registration.
      */
     void processPlayerRegistration(OAPlayer player, String password);
+    void processPlayerRegistration(String player, String password);
 
     boolean compareToCurrent(OAPlayer player, String password);
 

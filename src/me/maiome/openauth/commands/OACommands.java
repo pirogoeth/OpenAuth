@@ -94,7 +94,7 @@ public class OACommands {
 
     @Command(aliases = {"changepass"}, usage = "<oldpass> <newpass>", desc = "Change your current password.",
              min = 2, max = 2)
-    public static void changepass(CommandContext args, CommandContext sender) throws CommandException {
+    public static void changepass(CommandContext args, CommandSender sender) throws CommandException {
         OAPlayer player = OAPlayer.getPlayer((Player) sender);
         String oldpass = args.getString(0), newpass = args.getString(1);
         if (!(controller.getOAServer().getLoginHandler().isRegistered(player))) {
@@ -112,6 +112,19 @@ public class OACommands {
             player.sendMessage(ChatColor.BLUE + "Your current password was invalid, try again.");
             return;
         }
+    }
+
+    @Command(aliases = {"resetpass"}, usage = "<user>", desc = "Resets a user's password..",
+             min = 1, max = 1)
+    public static void resetpass(CommandContext args, CommandSender sender) throws CommandException {
+        String nullstring = null;
+        if (!(controller.getOAServer().getLoginHandler().isRegistered(args.getString(0)))) {
+            sender.sendMessage(ChatColor.RED + "This account isn't even registered.. -_-'");
+            return;
+        }
+        controller.getOAServer().getLoginHandler().processPlayerRegistration(args.getString(0), nullstring);
+        sender.sendMessage(ChatColor.BLUE + "[" + args.getString(0) + "] has been reset!");
+        return;
     }
 
     @Command(aliases = {"register"}, usage = "<password>", desc = "Login to the server.",

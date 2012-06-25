@@ -42,18 +42,6 @@ public class DBPlayer {
     private String password = null;
 
     /**
-     * List of points this player owns.
-     */
-    @OneToMany(targetEntity=DBPoint.class,
-               mappedBy = "player",
-               cascade = {
-                   CascadeType.PERSIST,
-                   CascadeType.REMOVE
-               }
-    )
-    private List<DBPoint> points = new ArrayList<DBPoint>();
-
-    /**
      * OAPlayer transient for use later.
      */
     @Transient
@@ -88,13 +76,6 @@ public class DBPlayer {
     }
 
     public void update() {
-        List<DBPoint> points = OpenAuth.getInstance().getDatabase().find(DBPlayer.class, this.name).getPoints();
-        String password = OpenAuth.getInstance().getDatabase().find(DBPlayer.class, this.name).getPassword();
-        try {
-            if (points.equals(this.points) && password.equals(this.password)) return; // the only main elements are equal,no update is needed.
-        } catch (java.lang.NullPointerException e) {
-            return; // one of these two are null...lets just not update...
-        }
         synchronized (OpenAuth.databaseLock) {
             try {
                 OpenAuth.getInstance().getDatabase().update(this);
@@ -115,7 +96,7 @@ public class DBPlayer {
     }
 
     public void setName(final String name, final boolean update) {
-        this.name = name;
+        this.setName(name);
         if (update == true) this.update();
     }
 
@@ -125,27 +106,11 @@ public class DBPlayer {
 
     @Transient
     public void setPassword(final String password, final boolean update) {
-        this.password = password;
+        this.setPassword(password);
         if (update == true) this.update();
     }
 
     public String getPassword() {
         return this.password;
-    }
-
-    public List<DBPoint> getPoints() {
-        return this.points;
-    }
-
-    public void setPoints(final List<DBPoint> points) {
-        this.points = points;
-    }
-
-    @Transient
-    public void updatePoints(final List<DBPoint> points) {
-        for (DBPoint point : points) {
-            point.update();
-        }
-        this.setPoints(points);
     }
 }

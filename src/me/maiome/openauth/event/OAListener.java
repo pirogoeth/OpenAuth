@@ -27,6 +27,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerTeleportEvent;
 
 // internal
 import me.maiome.openauth.bukkit.OpenAuth;
@@ -119,13 +120,13 @@ public class OAListener implements Listener {
                     "Welcome to %s, %s! We hope you have a wonderful time!",
                     player.getServer().getServer().getServerName(), player.getName()
                 ));
-            } else if (!(player.getPlayer().hasPlayedBefore())) {
+            } else if (!(player.getPlayer().hasPlayedBefore()) || !(OpenAuth.getOAServer().getLoginHandler().isRegistered(player))) {
                 player.sendMessage(ChatColor.GREEN + String.format(
                     "Welcome to %s, %s! To play on our server, we require you to register with OpenAuth.",
                     player.getServer().getServer().getServerName(), player.getName()
                 ));
                 player.sendMessage(ChatColor.GREEN + "To register, use this command: /oa register <password>");
-            } else if (!(player.getSession().isIdentified())) {
+            } else if (player.getPlayer().hasPlayedBefore() && OpenAuth.getOAServer().getLoginHandler().isRegistered(player)) {
                 player.sendMessage(ChatColor.GREEN + String.format(
                     "Welcome back to %s, %s! Please login to play! To login, use: /oa login <password>",
                     player.getServer().getServer().getServerName(), player.getName()
@@ -165,8 +166,13 @@ public class OAListener implements Listener {
     public void onPlayerChat(PlayerChatEvent event) {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
 
+        if (player.getSession().isFrozen() == true) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You are frozen.");
+        }
+
         try {
-            if (player.getSession().isFrozen() == true &&
+            if (player.getSession().isIdentified() == false &&
                ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.chat", true) == true) {
 
                 event.setCancelled(true);
@@ -199,13 +205,41 @@ public class OAListener implements Listener {
     }
 
     /**
+     * Called when a player tries to teleport.
+     */
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerTeleport(PlayerTeleportEvent event) {
+        OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
+
+        if (player.getSession().isFrozen() == true) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You are frozen.");
+        }
+
+        if (player.getSession().isIdentified() == false &&
+            ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.teleport", true) == true) {
+
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You must identify first to teleport.");
+            return;
+        }
+        return;
+    }
+
+
+    /**
      * Called when a player tries to place blocks.
      */
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockPlace(BlockPlaceEvent event) {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
 
-        if (player.getSession().isFrozen() == true &&
+        if (player.getSession().isFrozen() == true) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You are frozen.");
+        }
+
+        if (player.getSession().isIdentified() == false &&
             ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.block-place", true) == true) {
 
             event.setCancelled(true);
@@ -215,7 +249,6 @@ public class OAListener implements Listener {
         return;
     }
 
-
     /**
      * Called when a player tries to build blocks.
      */
@@ -223,7 +256,12 @@ public class OAListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
 
-        if (player.getSession().isFrozen() == true &&
+        if (player.getSession().isFrozen() == true) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You are frozen.");
+        }
+
+        if (player.getSession().isIdentified() == false &&
             ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.block-break", true) == true) {
 
             event.setCancelled(true);
@@ -240,6 +278,16 @@ public class OAListener implements Listener {
     public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
         Entity targ_e = event.getRightClicked();
+        if (player.getSession().isFrozen() == true) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You are frozen.");
+        }
+
+        if (player.getSession().isIdentified() == false) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You are not identified.");
+        }
+
         if (player.getSession().playerUsingWand() &&
             player.getSession().hasAction() && player.getSession().getAction().allowed() &&
             targ_e instanceof Player) {
@@ -266,6 +314,16 @@ public class OAListener implements Listener {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
         Block targ_b = (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) ?
             event.getClickedBlock() : null;
+        if (player.getSession().isFrozen() == true) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You are frozen.");
+        }
+
+        if (player.getSession().isIdentified() == false) {
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You are not identified.");
+        }
+
         if (player.getSession().playerUsingWand() &&
             player.getSession().hasAction() && player.getSession().getAction().allowed() &&
             player.getSession().getAction().requiresEntityTarget() == false &&

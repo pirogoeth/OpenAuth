@@ -84,20 +84,33 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
     public void loadWhitelist() {
         synchronized (OpenAuth.databaseLock) {
             try {
-                List<DBWhitelist> whitelist = OpenAuth.getInstance().getDatabase().find(DBWhitelist.class).where("whitelisted == true").findList();
+                List<DBWhitelist> whitelist = OpenAuth.getInstance().getDatabase().find(DBWhitelist.class).findList();
                 for (DBWhitelist entry : whitelist) {
                     if (entry.getWhitelisted()) {
                         this.whitelist.add(entry.getName());
                     }
                 }
-            } catch (java.lang.RuntimeException e) {
+            } catch (java.lang.Exception e) {
+                e.printStackTrace();
                 // most likely, this is because the whitelist is EMPTY.
                 log.info("Whitelist is most likely empty!");
             }
         }
     }
 
-    public void saveWhitelist() { }; // stub to complete implementation
+    public void saveWhitelist() {
+        synchronized (OpenAuth.databaseLock) {
+            try {
+                for (String entry : this.whitelist) {
+                    DBWhitelist wl = OpenAuth.getInstance().getDatabase().find(DBWhitelist.class, entry);
+                    wl.setWhitelisted(true, true);
+                }
+            } catch (java.lang.Exception e) {
+                e.printStackTrace(); // debug
+                // just say nothing -_-
+            }
+        }
+    }
 
     public void whitelistPlayer(OAPlayer player) {
         this.whitelistPlayer(player.getName());
@@ -114,6 +127,7 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
             DBWhitelist entry = OpenAuth.getInstance().getDatabase().find(DBWhitelist.class, name);
             if (entry == null) {
                 entry = new DBWhitelist(name);
+                entry.save();
             }
             entry.setWhitelisted(true, true); // allow and force an update
         } else {
@@ -137,6 +151,7 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
             DBWhitelist entry = OpenAuth.getInstance().getDatabase().find(DBWhitelist.class, name);
             if (entry == null) {
                 entry = new DBWhitelist(name);
+                entry.save();
             }
             entry.setWhitelisted(false, true); // deny and force an update
         } else {

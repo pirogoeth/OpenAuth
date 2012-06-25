@@ -132,9 +132,19 @@ public class OAActiveLoginHandler implements OALoginHandler {
     }
 
     public void processPlayerRegistration(OAPlayer player, String password) {
+        this.processPlayerRegistration(player.getName(), password);
+    }
+
+    public void processPlayerRegistration(String player, String password) {
         if (!(this.isEnabled())) return;
-        OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player.getName()).setPassword(this.getStringHash(password));
-        OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player.getName()).update();
+        DBPlayer data = OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player);
+        if (password == null) { // this is a password reset
+            data.setPassword(null);
+            data.update();
+            return;
+        }
+        data.setPassword(this.getStringHash(password));
+        data.update();
         OAPlayerRegistrationEvent event = new OAPlayerRegistrationEvent(player);
         OpenAuth.getOAServer().callEvent(event);
     }
