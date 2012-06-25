@@ -121,18 +121,7 @@ public class BoomStick implements IAction {
     }
 
     public void run(final OAPlayer player) {
-        this.target = player;
-        this.t_location = player.getLocation();
-        tracker.increment();
-        OAExplosionListener.addOAOrigin(this.t_location);
-        player.getLocation().getWorld().createExplosion(
-            this.t_location, this.power, this.fire);
-        try {
-            this.sender.sendMessage(ChatColor.BLUE + String.format("%d blocks have been changed.", OAExplosionListener.getExplosion(this.t_location).size()));
-        } catch (java.lang.NullPointerException e) {
-            this.sender.sendMessage(ChatColor.BLUE + "Sorry, I couldn't keep track of how many blocks were destroyed!");
-        }
-        this.used = true;
+        this.run(player.getWorld().getBlockAt(player.getLocation()));
     }
 
     public void run(final Block block) {
@@ -147,11 +136,9 @@ public class BoomStick implements IAction {
     }
 
     public void run(final Entity entity) {
-        this.target = entity;
-        tracker.increment();
         if (entity instanceof Tameable) {
             if (((Tameable) entity).isTamed()) {
-                this.sender.sendMessage(ChatColor.RED + "You can't blow up a tamed animal..that's cruelty :/");
+                this.sender.sendMessage(ChatColor.RED + "You can't blow up a tamed animal..that's horrible! :/");
                 this.used = true;
                 return;
             }
@@ -165,16 +152,11 @@ public class BoomStick implements IAction {
            this.used = true;
            return;
         } else if (entity instanceof Golem && this.gcruelty == false) {
-            this.sender.sendMessage(ChatColor.RED + "Why exactly do you want to kill a golem? -_-'");
+            this.sender.sendMessage(ChatColor.RED + "Why exactly do you want to kill a golem? (they help you, dummy) -_-'");
             this.used = true;
             return;
         }
-        this.t_location = entity.getLocation();
-        OAExplosionListener.addOAOrigin(this.t_location);
-        entity.getLocation().getWorld().createExplosion(
-            this.t_location, this.power, this.fire);
-        this.sender.sendMessage(ChatColor.BLUE + String.format("%d blocks have been changed.", OAExplosionListener.getExplosion(this.t_location).size()));
-        this.used = true;
+        this.run(entity.getLocation().getWorld().getBlockAt(entity.getLocation()));
     }
 
     public void undo() {
