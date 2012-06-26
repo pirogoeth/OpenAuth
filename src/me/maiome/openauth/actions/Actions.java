@@ -142,8 +142,9 @@ public enum Actions {
         for (Actions a : Actions.values()) {
             try {
                 Class action = a.getAction();
-                OpenAuth.getMetrics().addCustomData((Tracker) action.getField("tracker").get(action));
-                log.exDebug(String.format("Registered Metrics data tracker from %s.", action.getCanonicalName()));
+                Tracker metric = action.getField("tracker").get(action);
+                OpenAuth.getMetrics().addCustomData(metric);
+                log.exDebug(String.format("Registered Metrics data tracker [%s] from %s.", metric.getColumnName(), action.getCanonicalName()));
             } catch (java.lang.Exception e) {
                 log.info("Exception occurred while registering Action data trackers.");
                 e.printStackTrace();

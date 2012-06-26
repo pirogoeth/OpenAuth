@@ -64,6 +64,14 @@ public class OAListener implements Listener {
             split[0] = "/" + split[0];
         }
 
+        if (player.getSession().isFrozen() == true && player.getSession().isIdentified() == true) {
+            if (!(split[0].equals("/oa")) && !(split[0].equals("/openauth")) && !(split[0].equals("/worldedit"))) {
+                player.sendMessage(ChatColor.GREEN + "You are frozen.");
+                event.setCancelled(true);
+                return;
+            }
+        }
+
         if (player.getSession().isFrozen() == true &&
             ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.commands", true) == true) {
             if (!(split[0].equals("/oa")) && !(split[0].equals("/openauth")) && !(split[0].equals("/worldedit"))) {
@@ -166,9 +174,10 @@ public class OAListener implements Listener {
     public void onPlayerChat(PlayerChatEvent event) {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
 
-        if (player.getSession().isFrozen() == true) {
+        if (player.getSession().isFrozen() == true && player.getSession().isIdentified() == true) {
             event.setCancelled(true);
             player.sendMessage(ChatColor.RED + "You are frozen.");
+            return;
         }
 
         try {
@@ -211,9 +220,10 @@ public class OAListener implements Listener {
     public void onPlayerTeleport(PlayerTeleportEvent event) {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
 
-        if (player.getSession().isFrozen() == true) {
+        if (player.getSession().isFrozen() == true && player.getSession().isIdentified() == true) {
             event.setCancelled(true);
             player.sendMessage(ChatColor.RED + "You are frozen.");
+            return;
         }
 
         if (player.getSession().isIdentified() == false &&
@@ -234,9 +244,10 @@ public class OAListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
 
-        if (player.getSession().isFrozen() == true) {
+        if (player.getSession().isFrozen() == true && player.getSession().isIdentified() == true) {
             event.setCancelled(true);
             player.sendMessage(ChatColor.RED + "You are frozen.");
+            return;
         }
 
         if (player.getSession().isIdentified() == false &&
@@ -256,9 +267,10 @@ public class OAListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
 
-        if (player.getSession().isFrozen() == true) {
+        if (player.getSession().isFrozen() == true && player.getSession().isIdentified() == true) {
             event.setCancelled(true);
             player.sendMessage(ChatColor.RED + "You are frozen.");
+            return;
         }
 
         if (player.getSession().isIdentified() == false &&
@@ -278,9 +290,10 @@ public class OAListener implements Listener {
     public void onPlayerInteractEntityEvent(PlayerInteractEntityEvent event) {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
         Entity targ_e = event.getRightClicked();
-        if (player.getSession().isFrozen() == true) {
+        if (player.getSession().isFrozen() == true && player.getSession().isIdentified() == true) {
             event.setCancelled(true);
             player.sendMessage(ChatColor.RED + "You are frozen.");
+            return;
         }
 
         if (player.getSession().isIdentified() == false) {
@@ -314,9 +327,10 @@ public class OAListener implements Listener {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
         Block targ_b = (event.getAction() == org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK) ?
             event.getClickedBlock() : null;
-        if (player.getSession().isFrozen() == true) {
+        if (player.getSession().isFrozen() == true && player.getSession().isIdentified() == true) {
             event.setCancelled(true);
             player.sendMessage(ChatColor.RED + "You are frozen.");
+            return;
         }
 
         if (player.getSession().isIdentified() == false) {

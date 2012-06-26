@@ -92,8 +92,6 @@ public class OAActiveLoginHandler implements OALoginHandler {
         OAPlayerLoginEvent _event = new OAPlayerLoginEvent(player);
         this.controller.getOAServer().callEvent(_event);
         player.setOnline();
-        // fix the players location.
-        player.fixLocation();
         if (this.controller.getOAServer().hasNameBan(player.getName())) {
             event.disallow(PlayerLoginEvent.Result.KICK_BANNED, this.controller.getOAServer().getNameBanReason(player.getName()));
             return;

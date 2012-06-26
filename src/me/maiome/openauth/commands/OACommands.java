@@ -76,6 +76,8 @@ public class OACommands {
         if (controller.getOAServer().getLoginHandler().processPlayerIdentification(player, password)) {
             player.getSession().setIdentified(true, true);
             player.sendMessage(ChatColor.GREEN + "You have been logged in as '" + player.getName() + "'.");
+            // do my crappy location fixing algorithm
+            player.fixLocation();
             return;
         } else {
             player.sendMessage(ChatColor.RED + "Invalid username/password.");
