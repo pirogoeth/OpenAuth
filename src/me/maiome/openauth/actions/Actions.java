@@ -142,7 +142,7 @@ public enum Actions {
         for (Actions a : Actions.values()) {
             try {
                 Class action = a.getAction();
-                Tracker metric = action.getField("tracker").get(action);
+                Tracker metric = (Tracker) action.getField("tracker").get(action);
                 OpenAuth.getMetrics().addCustomData(metric);
                 log.exDebug(String.format("Registered Metrics data tracker [%s] from %s.", metric.getColumnName(), action.getCanonicalName()));
             } catch (java.lang.Exception e) {

@@ -1,8 +1,6 @@
 # this file is not meant for configuration by the end user, this is meant for storage and usage by the plugin itself
+# this file will be gone VERY SOON once I get bans serialised in the database.
 
 ban_storage:
     ip: {}
     name: {}
-whitelist: []
-credentials: {}
-locations: {}

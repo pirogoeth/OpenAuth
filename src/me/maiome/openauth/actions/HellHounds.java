@@ -79,7 +79,7 @@ public class HellHounds implements IAction {
                 world.strikeLightningEffect(block.getLocation());
                 Wolf w = world.spawn(block.getLocation(), Wolf.class);
                 spawned.add(w);
-                w.damage(0, (Entity) target);
+                w.damage(0, (Entity) target.getPlayer());
                 w.setNoDamageTicks((int) removal_delay);
                 w.setFireTicks((int) removal_delay);
                 w.setAngry(true);
@@ -184,12 +184,12 @@ public class HellHounds implements IAction {
 
     // player attack method
     public void run(OAPlayer player) {
-        tracker.increment();
         if (attacking.contains(player)) {
             this.sender.sendMessage(ChatColor.BLUE + String.format("Player %s is already being attacked.", player.getName()));
             this.used = false;
             return;
         }
+        tracker.increment();
         this.target = player;
         attacking.add(player);
         this.storming = player.getLocation().getWorld().hasStorm();
