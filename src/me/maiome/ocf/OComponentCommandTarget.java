@@ -15,7 +15,18 @@ import java.lang.annotation.*;
  *   @OComponentCommandTarget(ExampleComponent.ExampleCommands.class)
  *   public class ExampleComponent {
  *       ...
- *       public class ExampleCommands implements OComponentCommandModel { ... }
+ *       public class ExampleCommands implements OComponentCommandModel {
+ *           public class ExampleNestedCommands {
+ *               @Command( ... )
+ *               @CommandPermissions( ... )
+ *               public static void version(CommandContext args, CommandSender sender) { ... };
+ *           }
+ *
+ *           @Command(aliases = {"example"}, desc = "Example command", flags = "x",
+ *                    usage = "<name>", min = 1, max = 1)
+ *           @NestedCommands({ ExampleNestedCommands.class })
+ *           public static void example(CommandContext args, CommandSender sender) {};
+ *       }
  *   }
  *
  */

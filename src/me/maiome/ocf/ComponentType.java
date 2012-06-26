@@ -7,6 +7,8 @@ package me.maiome.ocf;
  *   event framework.
  * COMMAND defines that the component contains a command class or command definitions to be
  *   registered in sk89q's command framework system.
+ * BEAN defines thats the component is a bean class to be used with ebean.
+ *   (these don't do much on their own, they'll most likely be used by other components for data storage.)
  * SUPPORT defines that the component is simply a class that provides functionality that is used by other
  *   components.
  *
@@ -17,6 +19,7 @@ public enum ComponentType {
 
     EVENT,
     COMMAND,
+    BEAN,
     SUPPORT;
 
 }

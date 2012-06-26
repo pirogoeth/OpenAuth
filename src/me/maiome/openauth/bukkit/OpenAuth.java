@@ -194,14 +194,6 @@ public class OpenAuth extends JavaPlugin {
         // generate sessions for all users
         sc.createAll();
 
-        // initialise the JSONAPI call handler
-        try {
-            new OAJSONAPICallHandler(this);
-            OAJSONAPINativeMethods.load();
-        } catch (java.lang.NoClassDefFoundError e) {
-            log.warning("JSONAPI call handler could not be loaded -- is JSONAPI loaded?");
-        }
-
         // setup PluginMetrics
         if (ConfigInventory.MAIN.getConfig().getBoolean("metrics-enabled", true) == true) {
             if (ConfigInventory.MAIN.getConfig().getBoolean("show-metrics-notice", true) == true) {
@@ -219,12 +211,27 @@ public class OpenAuth extends JavaPlugin {
             try {
                 this.metrics = new Metrics(this);
                 Actions.loadMetricsData();
-                this.metrics.addCustomData(OpenAuth.getJSONAPICallHandler().tracker);
-                this.metrics.enable();
             } catch (java.lang.Exception e) {
                 log.warning("Could not load PluginMetrics!");
                 e.printStackTrace();
             }
+        }
+
+        // initialise the JSONAPI call handler
+        try {
+            new OAJSONAPICallHandler(this);
+            OAJSONAPINativeMethods.load();
+            this.metrics.addCustomData(OpenAuth.getJSONAPICallHandler().tracker); // add metrics data tracker
+        } catch (java.lang.NoClassDefFoundError e) {
+            log.warning("JSONAPI call handler could not be loaded -- is JSONAPI loaded?");
+        }
+
+        // enable metrics.
+        try {
+            this.metrics.enable();
+        } catch (java.lang.Exception e) {
+            log.warning("Could not load PluginMetrics!");
+            e.printStackTrace();
         }
 
         // loaded.
