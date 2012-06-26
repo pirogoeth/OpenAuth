@@ -5,5 +5,3 @@ authors: ['pirogoeth', 'TakSayu']
 depend: ['WorldEdit']
 softdepend: ['PermissionsEx', 'bPermissions', 'PermissionsBukkit', 'Permissions', 'JSONAPI']
 load: startup
-hashtag: aa6e134
-hashtag: aa804c2
