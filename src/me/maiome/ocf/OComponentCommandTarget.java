@@ -1,0 +1,32 @@
+package me.maiome.ocf;
+
+import java.lang.annotation.*;
+
+/**
+ * This annotation allows declaration of a target other than the main component class as a COMMAND target.
+ *
+ * This annotation is optional, but if not used, the main component class will be registered with the command handling
+ * system as-is.
+ *
+ * Example of usage:
+ *
+ *   @OComponent(name = "Example Component")
+ *   @OComponentType({ ComponentType.COMMAND })
+ *   @OComponentCommandTarget(ExampleComponent.ExampleCommands.class)
+ *   public class ExampleComponent {
+ *       ...
+ *       public class ExampleCommands implements OComponentCommandModel { ... }
+ *   }
+ *
+ */
+
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.CLASS)
+public @interface OComponentCommandTarget {
+
+    /**
+     * This value defines the target command class for the component.
+     */
+    Class value() default null;
+
+}

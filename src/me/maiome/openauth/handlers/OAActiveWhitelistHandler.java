@@ -127,7 +127,6 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
             DBWhitelist entry = OpenAuth.getInstance().getDatabase().find(DBWhitelist.class, name);
             if (entry == null) {
                 entry = new DBWhitelist(name);
-                entry.save();
             }
             entry.setWhitelisted(true, true); // allow and force an update
         } else {
@@ -151,7 +150,6 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
             DBWhitelist entry = OpenAuth.getInstance().getDatabase().find(DBWhitelist.class, name);
             if (entry == null) {
                 entry = new DBWhitelist(name);
-                entry.save();
             }
             entry.setWhitelisted(false, true); // deny and force an update
         } else {
