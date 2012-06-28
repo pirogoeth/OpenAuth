@@ -57,7 +57,8 @@ public class OACommands {
         @Command(aliases = {"openauth", "oa"}, desc = "OpenAuth commands",
                  flags = "", min = 1)
         @NestedCommand({ OACommands.class, OAActionCommands.ActionParentCommand.class, OABanCommands.BanParentCommand.class,
-                         OAVisibilityCommands.VisibilityParentCommand.class, OAWhitelistCommands.WhitelistParentCommand.class })
+                         OAVisibilityCommands.VisibilityParentCommand.class, OAUserCommands.UserParentCommand.class,
+                         OAWhitelistCommands.WhitelistParentCommand.class })
         public static void openAuth() {}
     }
 
@@ -74,8 +75,12 @@ public class OACommands {
         OAPlayer player = OAPlayer.getPlayer((Player) sender);
         String password = args.getString(0);
         if (controller.getOAServer().getLoginHandler().processPlayerIdentification(player, password)) {
-            player.getSession().setIdentified(true, true);
-            player.sendMessage(ChatColor.GREEN + "You have been logged in as '" + player.getName() + "'.");
+            if (player.getSession().setIdentified(true, true)) {
+                player.sendMessage(ChatColor.GREEN + "You have been logged in as '" + player.getName() + "'.");
+                // do my crappy location fixing algorithm
+                player.fixLocation();
+                return;
+            }
             return;
         } else {
             player.sendMessage(ChatColor.RED + "Invalid username/password.");
@@ -83,12 +88,13 @@ public class OACommands {
         }
     }
 
-    @Command(aliases = {"logout"}, usage = "", desc = "Logout from the plugin.",
+    @Command(aliases = {"logout"}, usage = "", desc = "Logout from the server.",
              max = 0)
     public static void logout(CommandContext args, CommandSender sender) throws CommandException {
         OAPlayer player = OAPlayer.getPlayer((Player) sender);
-        player.getSession().setIdentified(false, true);
-        player.sendMessage(ChatColor.BLUE + "You have been logged out.");
+        if (player.getSession().setIdentified(false, true)) {
+            player.sendMessage(ChatColor.BLUE + "You have been logged out.");
+        }
         return;
     }
 
@@ -112,19 +118,6 @@ public class OACommands {
             player.sendMessage(ChatColor.BLUE + "Your current password was invalid, try again.");
             return;
         }
-    }
-
-    @Command(aliases = {"resetpass"}, usage = "<user>", desc = "Resets a user's password..",
-             min = 1, max = 1)
-    public static void resetpass(CommandContext args, CommandSender sender) throws CommandException {
-        String nullstring = null;
-        if (!(controller.getOAServer().getLoginHandler().isRegistered(args.getString(0)))) {
-            sender.sendMessage(ChatColor.RED + "This account isn't even registered.. -_-'");
-            return;
-        }
-        controller.getOAServer().getLoginHandler().processPlayerRegistration(args.getString(0), nullstring);
-        sender.sendMessage(ChatColor.BLUE + "[" + args.getString(0) + "] has been reset!");
-        return;
     }
 
     @Command(aliases = {"register"}, usage = "<password>", desc = "Login to the server.",
