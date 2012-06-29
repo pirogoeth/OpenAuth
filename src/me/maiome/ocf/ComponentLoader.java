@@ -23,7 +23,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.ajave.ebean.EbeanServer;
+import com.avaje.ebean.EbeanServer;
 
 import me.maiome.openauth.database.ExtendedDB;
 import me.maiome.openauth.util.Permission;
@@ -35,40 +35,37 @@ import me.maiome.openauth.util.Permission;
 
 public class ComponentLoader {
 
-    private final static String resourcedir = "plugins" + File.separator + "OComponentFramework";
-    protected final static Map<JavaPlugin, ComponentLoader> instances = new HashMap<JavaPlugin, ComponentLoader>();
-    private CommandsManager<CommandSender> cmgr;
-    private CommandsManagerRegistration cmgreg;
-    private Map<String, Class<?>> components = new HashMap<String, Class<?>>(); // map of ALL components
-    private List<Class> events = new ArrayList<Class>(), beans = new ArrayList<Class>(), commands = new ArrayList<Class>(); // components
-    private Map<Class<?>, List<? extends OComponentBeanModel>> entities = new HashMap<Class<?>, List<? extends OComponentBeanModel>>();
-    private Map<Class, EbeanServer> databases = new HashMap<Class, EbeanServer>();
-    private JavaPlugin plugin;
-    private Object log = new Object() {
+    private class LogManager {
         private final Logger logger = Logger.getLogger("Minecraft");
         private final String prefix = "OComponentLoader";
-        @Override
+
         public void info(String...messages) {
             for (String str : messages) {
                 logger.info(String.format("[%s] %s", prefix, str));
             }
         }
-        @Override
+
         public void warning(String...messages) {
             for (String str : messages) {
                 logger.warning(String.format("[%s] %s", prefix, str));
             }
         }
-        @Override
+
         public void severe(String...messages) {
             for (String str : messages) {
                 logger.severe(String.format("[%s] %s", prefix, str));
             }
         }
-    };
-    private Object cfmgr = new Object() {
+    }
+
+    private class ConfigurationManager {
         private YamlConfiguration config = new YamlConfiguration();
-        private static String extension = ".yml";
+        private String extension = ".yml";
+
+        public ConfigurationManager() {
+            this.load();
+        }
+
         public void load() {
             new File(ComponentLoader.resourcedir).mkdir();
             if (new File(ComponentLoader.resourcedir + File.separator + ".usetxt").exists() == true) {
@@ -77,6 +74,7 @@ public class ComponentLoader {
             }
             this.init();
         }
+
         private void init() {
             log.info("Loading configuration..");
             try {
@@ -89,6 +87,7 @@ public class ComponentLoader {
             }
             return;
         }
+
         public void save() {
             try {
                 this.config.save(new File(ComponentLoader.resourcedir + File.separator + "config" + extension));
@@ -97,10 +96,23 @@ public class ComponentLoader {
             }
             log.info("Saved config.");
         }
+
         public YamlConfiguration getConfig() {
             return this.config;
         }
-    };
+    }
+
+    private final static String resourcedir = "plugins" + File.separator + "OComponentFramework";
+    protected final static Map<JavaPlugin, ComponentLoader> instances = new HashMap<JavaPlugin, ComponentLoader>();
+    private CommandsManager<CommandSender> cmgr;
+    private CommandsManagerRegistration cmgreg;
+    private Map<String, Class<?>> components = new HashMap<String, Class<?>>(); // map of ALL components
+    private List<Class> events = new ArrayList<Class>(), beans = new ArrayList<Class>(), commands = new ArrayList<Class>(); // components
+    private Map<Class<?>, List<?>> entities = new HashMap<Class<?>, List<?>>();
+    private Map<Class, EbeanServer> databases = new HashMap<Class, EbeanServer>();
+    private JavaPlugin plugin;
+    private LogManager log = new LogManager();
+    private ConfigurationManager config = new ConfigurationManager();
 
     public ComponentLoader(JavaPlugin plugin) {
         // declare the javaplugin we're running for.
@@ -124,14 +136,14 @@ public class ComponentLoader {
         setInstance(plugin, this);
     }
 
-    public void setInstance(JavaPlugin plugin, ComponentLoader cl) {
+    public static void setInstance(JavaPlugin plugin, ComponentLoader cl) {
         if (instances.containsKey(plugin)) {
             throw new UnsupportedOperationException("Can't overwrite an existing ComponentLoader instance.");
         }
         instances.put(plugin, cl);
     }
 
-    public ComponentLoader getInstance(JavaPlugin plugin) {
+    public static ComponentLoader getInstance(JavaPlugin plugin) {
         return instances.get(plugin);
     }
 
@@ -143,16 +155,16 @@ public class ComponentLoader {
         return (List<Class<?>>) this.entities.get(component);
     }
 
-    public ExtendedDB initDatabase(Class component, OComponentBeanConfiguration config) {
+    public ExtendedDB initDatabase(final Class component, OComponentBeanConfiguration config) {
         ExtendedDB database = new ExtendedDB(this.plugin) {
             @Override
             protected List<Class<?>> getDatabaseClasses() {
-                return ComponentLoader.getInstance().getDBEntities(component);
+                return ComponentLoader.getInstance(plugin).getDBEntities(component);
             }
         };
         database.initializeDatabase(
             config.driver(),
-            config.url().replaceAll("\\{OCROOT\\}", ComponentLoader.resourcedir).replaceAll("\\{COMPONENTNAME\\}", component.getAnnotation(OComponent.class).value()),
+            config.url().replaceAll("\\{OCROOT\\}", ComponentLoader.resourcedir).replaceAll("\\{COMPONENTNAME\\}", ((OComponent) component.getAnnotation(OComponent.class)).value()),
             config.username(),
             config.password(),
             config.isolation(),
@@ -161,15 +173,15 @@ public class ComponentLoader {
         );
 
         if (config.wal_mode() == true) {
-            database.createSqlQuery("PRAGMA journal_mode=WAL");
+            database.getDatabase().createSqlQuery("PRAGMA journal_mode=WAL");
         }
 
         this.databases.put(component, database.getDatabase());
         return database;
     }
 
-    public void registerEventHandler(Class<? extends Listener, OComponentEventModel>...events) {
-        for (Class<? extends Listener, OComponentEventModel> event : events) {
+    public void registerEventHandler(Class<Listener>...events) {
+        for (Class<Listener> event : events) {
             this.plugin.getServer().getPluginManager().registerEvents(event, this.plugin);
         }
     }
@@ -219,7 +231,7 @@ public class ComponentLoader {
                     try {
                         if (ocbt != null && ocbt != null) {
                             bt = ocbt.value();
-                        } else if (obct == null) {
+                        } else if (ocbt == null) {
                             bt = clazz;
                         }
                     } catch (java.lang.Exception e) {
@@ -227,13 +239,13 @@ public class ComponentLoader {
                         e.printStackTrace();
                         break;
                     }
-                    if (OComponentBeanModel.class.isAssignableFrom(bt) && bt.getAnnotatation(Entity.class) != null) { // this proves its a bean class.
+                    if (OComponentBeanModel.class.isAssignableFrom(bt) && bt.getAnnotatation(javax.persistence.Entity.class) != null) { // this proves its a bean class.
                         OComponentBeanEntities ocbe = clazz.getAnnotation(OComponentBeanEntities.class);
-                        List<Class<? extends OComponentBeanModel>> beans = new ArrayList<Class<? extends OComponentBeanModel>>();
+                        List<?> beans = new ArrayList<?>();
                         beans.add(bt);
                         if (ocbe != null) {
-                            for (Class<? extends OComponentBeanModel> bean : ocbe.value()) {
-                                if (bean.getAnnotation(Entity.class) != null) beans.add(bean);
+                            for (Class<?> bean : ocbe.value()) {
+                                if (bean.getAnnotation(javax.persistence.Entity.class) != null) beans.add(bean);
                             }
                         }
                         this.entities.put(clazz, beans); // puts the entities in a List<> for getDatabaseClasses()

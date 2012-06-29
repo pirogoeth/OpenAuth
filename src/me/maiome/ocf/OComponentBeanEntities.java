@@ -29,6 +29,6 @@ public @interface OComponentBeanEntities {
     /**
      * This declares all the component bean entities to list (may exist in other components as well.)
      */
-    Class<? extends OComponentBeanModel> value();
+    Class<?>[] value();
 
 }
