@@ -47,6 +47,7 @@ public class Session {
     private Location lloc;
     private long spawn_time;
     private boolean hidden = false;
+    public final String ip;
 
     protected final int wand_id = ConfigInventory.MAIN.getConfig().getInt("wand-id");
 
@@ -60,6 +61,7 @@ public class Session {
             this.setFrozen(true);
             this.player.sendMessage(ChatColor.RED + "You must identify to continue.");
         }
+        this.ip = player.getIP();
         OpenAuth.getOAServer().callEvent(new OASessionCreateEvent(this));
     }
 

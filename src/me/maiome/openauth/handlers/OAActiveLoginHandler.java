@@ -92,8 +92,6 @@ public class OAActiveLoginHandler implements OALoginHandler {
         OAPlayerLoginEvent _event = new OAPlayerLoginEvent(player);
         this.controller.getOAServer().callEvent(_event);
         player.setOnline();
-        // fix the players location.
-        player.fixLocation();
         if (this.controller.getOAServer().hasNameBan(player.getName())) {
             event.disallow(PlayerLoginEvent.Result.KICK_BANNED, this.controller.getOAServer().getNameBanReason(player.getName()));
             return;
@@ -107,11 +105,6 @@ public class OAActiveLoginHandler implements OALoginHandler {
             this.log.exDebug(String.format("%s (%s) matched no IP bans!", player.getIP(), player.getName()));
         }
         event.allow();
-        // check ip stuff.
-        if (player.hasIPChanged()) {
-            // this user may not be trusted
-            player.getSession().setIdentified(false, true);
-        }
         this.active.add(player);
         return;
     }

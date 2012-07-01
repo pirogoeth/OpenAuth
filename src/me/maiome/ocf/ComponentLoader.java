@@ -81,7 +81,13 @@ public class ComponentLoader {
                 this.config.load(new File(ComponentLoader.resourcedir + File.separator + "config" + extension));
             } catch (java.io.FileNotFoundException e) {
                 InputStream defaults = this.getClass().getResourceAsStream("config.yml");
-                this.config.load(defaults);
+                try {
+                    this.config.load(defaults);
+                } catch (java.lang.Exception ex) {
+                    ex.printStackTrace();
+                    log.severe("Could not load loader config!");
+                    return;
+                }
             } catch (java.lang.Exception e) {
                 e.printStackTrace();
             }
@@ -182,7 +188,7 @@ public class ComponentLoader {
 
     public void registerEventHandler(Class<Listener>...events) {
         for (Class<Listener> event : events) {
-            this.plugin.getServer().getPluginManager().registerEvents(event, this.plugin);
+            this.plugin.getServer().getPluginManager().registerEvents(Listener.class.cast(event), this.plugin);
         }
     }
 
@@ -199,7 +205,12 @@ public class ComponentLoader {
     }
 
     private void loadComponent(String clazz) {
-        this.loadComponent(Class.forName(clazz));
+        try {
+            this.loadComponent(Class.forName(clazz));
+        } catch (java.lang.Exception e) {
+            this.log.warning("An exception occurred while loading component [" + clazz + "]!");
+            e.printStackTrace();
+        }
     }
 
     private void loadComponent(final Class<?> clazz) {
@@ -227,7 +238,7 @@ public class ComponentLoader {
                         this.log.severe("Missing OComponentBeanConfiguration in class [" + clazz.getCanonicalName() + "]!");
                         break;
                     }
-                    Class bt;
+                    Class bt = null;
                     try {
                         if (ocbt != null && ocbt != null) {
                             bt = ocbt.value();
@@ -239,13 +250,13 @@ public class ComponentLoader {
                         e.printStackTrace();
                         break;
                     }
-                    if (OComponentBeanModel.class.isAssignableFrom(bt) && bt.getAnnotatation(javax.persistence.Entity.class) != null) { // this proves its a bean class.
+                    if (OComponentBeanModel.class.isAssignableFrom(bt) && bt.getAnnotation(Entity.class) != null && bt != null) { // this proves its a bean class.
                         OComponentBeanEntities ocbe = clazz.getAnnotation(OComponentBeanEntities.class);
-                        List<?> beans = new ArrayList<?>();
+                        List<Class<OComponentBeanModel>> beans = new ArrayList<Class<OComponentBeanModel>>();
                         beans.add(bt);
                         if (ocbe != null) {
-                            for (Class<?> bean : ocbe.value()) {
-                                if (bean.getAnnotation(javax.persistence.Entity.class) != null) beans.add(bean);
+                            for (Class<OComponentBeanModel> bean : ocbe.value()) {
+                                if (bean.getAnnotation(Entity.class) != null) beans.add(bean);
                             }
                         }
                         this.entities.put(clazz, beans); // puts the entities in a List<> for getDatabaseClasses()
@@ -262,7 +273,7 @@ public class ComponentLoader {
                     if (occt == null || occt.value() == null) {
                         this.log.warning("Missing or malformed OComponentCommandTarget in class [" + clazz.getCanonicalName() + "]!", "Non-fatal error, using main component as target instead.");
                     }
-                    Class ct;
+                    Class ct = null;
                     try {
                         if (occt != null || occt.value() != null) {
                             ct = occt.value();
@@ -274,7 +285,7 @@ public class ComponentLoader {
                         e.printStackTrace();
                         break;
                     }
-                    if (OComponentCommandModel.class.isAssignableFrom(ct)) {
+                    if (OComponentCommandModel.class.isAssignableFrom(ct) && ct != null) {
                         boolean valid = false;
                         for (Method m : ct.getMethods()) {
                             if (m.getAnnotation(Command.class) != null) { // yay, found an @Command annotation!
@@ -300,7 +311,7 @@ public class ComponentLoader {
                     if (ocet == null || ocet.value() == null) {
                         this.log.warning("Missing or malformed OComponentEventTarget in class [" + clazz.getCanonicalName() + "]!", "Non-fatal error, using main component as target instead.");
                     }
-                    Class et;
+                    Class et = null;
                     try {
                         if (ocet != null || ocet.value() != null) {
                             et = ocet.value();
@@ -312,7 +323,7 @@ public class ComponentLoader {
                         e.printStackTrace();
                         break;
                     }
-                    if (OComponentEventModel.class.isAssignableFrom(et) && Listener.class.isAssignableFrom(et)) {
+                    if (OComponentEventModel.class.isAssignableFrom(et) && Listener.class.isAssignableFrom(et) && et != null) {
                         boolean valid = false;
                         for (Method m : et.getMethods()) {
                             if (m.getAnnotation(EventHandler.class) != null) { // yay, found an @EventHandler annotation!
@@ -321,9 +332,9 @@ public class ComponentLoader {
                             }
                         }
                         if (valid) { // register
-                            this.commands.add(ct);
+                            this.events.add(et);
                             this.log.info("Registering OComponent [" + clazz.getCanonicalName() + "] with event handler!");
-                            this.registerEventHandler(ct);
+                            this.registerEventHandler(et);
                         } else {
                             this.log.severe("Could not find an @EventHandler annotation in component [" + clazz.getCanonicalName() + "].");
                             break;

@@ -201,7 +201,7 @@ public class OAListener implements Listener {
             return;
         }
 
-        player.moved();
+        player.moved(event);
         return;
     }
 
