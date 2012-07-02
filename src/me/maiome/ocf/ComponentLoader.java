@@ -25,6 +25,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import com.avaje.ebean.EbeanServer;
 
+import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.database.ExtendedDB;
 import me.maiome.openauth.util.Permission;
 
@@ -58,67 +59,17 @@ public class ComponentLoader {
         }
     }
 
-    private class ConfigurationManager {
-        private YamlConfiguration config = new YamlConfiguration();
-        private String extension = ".yml";
-
-        public ConfigurationManager() {
-            this.load();
-        }
-
-        public void load() {
-            new File(ComponentLoader.resourcedir).mkdir();
-            if (new File(ComponentLoader.resourcedir + File.separator + ".usetxt").exists() == true) {
-                log.info("Found configuration loader modifier: .usetxt");
-                extension = ".txt";
-            }
-            this.init();
-        }
-
-        private void init() {
-            log.info("Loading configuration..");
-            try {
-                this.config.load(new File(ComponentLoader.resourcedir + File.separator + "config" + extension));
-            } catch (java.io.FileNotFoundException e) {
-                InputStream defaults = this.getClass().getResourceAsStream("config.yml");
-                try {
-                    this.config.load(defaults);
-                } catch (java.lang.Exception ex) {
-                    ex.printStackTrace();
-                    log.severe("Could not load loader config!");
-                    return;
-                }
-            } catch (java.lang.Exception e) {
-                e.printStackTrace();
-            }
-            return;
-        }
-
-        public void save() {
-            try {
-                this.config.save(new File(ComponentLoader.resourcedir + File.separator + "config" + extension));
-            } catch (java.lang.Exception e) {
-                e.printStackTrace();
-            }
-            log.info("Saved config.");
-        }
-
-        public YamlConfiguration getConfig() {
-            return this.config;
-        }
-    }
-
     private final static String resourcedir = "plugins" + File.separator + "OComponentFramework";
-    protected final static Map<JavaPlugin, ComponentLoader> instances = new HashMap<JavaPlugin, ComponentLoader>();
+    protected final static Map<String, ComponentLoader> instances = new HashMap<String, ComponentLoader>();
     private CommandsManager<CommandSender> cmgr;
     private CommandsManagerRegistration cmgreg;
     private Map<String, Class<?>> components = new HashMap<String, Class<?>>(); // map of ALL components
     private List<Class> events = new ArrayList<Class>(), beans = new ArrayList<Class>(), commands = new ArrayList<Class>(); // components
-    private Map<Class<?>, List<?>> entities = new HashMap<Class<?>, List<?>>();
-    private Map<Class, EbeanServer> databases = new HashMap<Class, EbeanServer>();
+    private static Map<Class<?>, List<?>> entities = new HashMap<Class<?>, List<?>>();
+    private static Map<Class, EbeanServer> databases = new HashMap<Class, EbeanServer>();
+    private final Class[] comp_cons_types = {JavaPlugin.class};
     private JavaPlugin plugin;
     private LogManager log = new LogManager();
-    private ConfigurationManager config = new ConfigurationManager();
 
     public ComponentLoader(JavaPlugin plugin) {
         // declare the javaplugin we're running for.
@@ -143,22 +94,30 @@ public class ComponentLoader {
     }
 
     public static void setInstance(JavaPlugin plugin, ComponentLoader cl) {
-        if (instances.containsKey(plugin)) {
+        if (instances.containsKey(plugin.getDescription().getName())) {
             throw new UnsupportedOperationException("Can't overwrite an existing ComponentLoader instance.");
         }
-        instances.put(plugin, cl);
+        instances.put(plugin.getDescription().getName(), cl);
     }
 
     public static ComponentLoader getInstance(JavaPlugin plugin) {
-        return instances.get(plugin);
+        return getInstance(plugin.getDescription().getName());
+    }
+
+    public static ComponentLoader getInstance(String plugin) {
+        return getInstance(plugin);
     }
 
     public JavaPlugin getPlugin() {
         return this.plugin;
     }
 
-    public List<Class<?>> getDBEntities(Class component) {
-        return (List<Class<?>>) this.entities.get(component);
+    public static List<Class<?>> getDBEntities(Class component) {
+        return (List<Class<?>>) entities.get(component);
+    }
+
+    public static EbeanServer getDatabase(Class component) {
+        return databases.get(component);
     }
 
     public ExtendedDB initDatabase(final Class component, OComponentBeanConfiguration config) {
@@ -182,13 +141,19 @@ public class ComponentLoader {
             database.getDatabase().createSqlQuery("PRAGMA journal_mode=WAL");
         }
 
-        this.databases.put(component, database.getDatabase());
+        databases.put(component, database.getDatabase());
         return database;
     }
 
     public void registerEventHandler(Class<Listener>...events) {
         for (Class<Listener> event : events) {
-            this.plugin.getServer().getPluginManager().registerEvents(Listener.class.cast(event), this.plugin);
+            try {
+                Constructor c = event.getConstructor(this.comp_cons_types);
+                this.plugin.getServer().getPluginManager().registerEvents(Listener.class.cast(c.newInstance(this.plugin)), this.plugin);
+            } catch (java.lang.Exception e) {
+                this.log.warning("An error occurred while registering an event listener!");
+                e.printStackTrace();
+            }
         }
     }
 
@@ -204,13 +169,16 @@ public class ComponentLoader {
         }
     }
 
-    private void loadComponent(String clazz) {
+    public Class loadComponent(String clazz) {
         try {
-            this.loadComponent(Class.forName(clazz));
+            Class c = Class.forName(clazz);
+            this.loadComponent(c);
+            return c;
         } catch (java.lang.Exception e) {
             this.log.warning("An exception occurred while loading component [" + clazz + "]!");
             e.printStackTrace();
         }
+        return null;
     }
 
     private void loadComponent(final Class<?> clazz) {
@@ -259,7 +227,7 @@ public class ComponentLoader {
                                 if (bean.getAnnotation(Entity.class) != null) beans.add(bean);
                             }
                         }
-                        this.entities.put(clazz, beans); // puts the entities in a List<> for getDatabaseClasses()
+                        entities.put(clazz, beans); // puts the entities in a List<> for getDatabaseClasses()
                     } else { // i guess this means it isn't actually a OComponent bean, huh?
                         this.log.severe("Malformed OComponentBeanTarget in class [" + clazz.getCanonicalName() + "]!");
                         break;
@@ -267,7 +235,6 @@ public class ComponentLoader {
                     this.beans.add(bt);
                     this.log.info("Registering OComponentBean [" + clazz.getCanonicalName() + "] in database!");
                     this.initDatabase(clazz, ocbc);
-                    break;
                 case COMMAND:
                     OComponentCommandTarget occt = clazz.getAnnotation(OComponentCommandTarget.class);
                     if (occt == null || occt.value() == null) {
@@ -275,7 +242,7 @@ public class ComponentLoader {
                     }
                     Class ct = null;
                     try {
-                        if (occt != null || occt.value() != null) {
+                        if (occt != null && occt.value() != null) {
                             ct = occt.value();
                         } else if (occt == null || occt.value() == null) {
                             ct = clazz;
@@ -285,7 +252,7 @@ public class ComponentLoader {
                         e.printStackTrace();
                         break;
                     }
-                    if (OComponentCommandModel.class.isAssignableFrom(ct) && ct != null) {
+                    if (ct != null) {
                         boolean valid = false;
                         for (Method m : ct.getMethods()) {
                             if (m.getAnnotation(Command.class) != null) { // yay, found an @Command annotation!
@@ -305,7 +272,6 @@ public class ComponentLoader {
                         this.log.severe("Malformed OComponentCommand in class [" + clazz.getCanonicalName() + "]!");
                         break;
                     }
-                    break;
                 case EVENT:
                     OComponentEventTarget ocet = clazz.getAnnotation(OComponentEventTarget.class);
                     if (ocet == null || ocet.value() == null) {
@@ -313,7 +279,7 @@ public class ComponentLoader {
                     }
                     Class et = null;
                     try {
-                        if (ocet != null || ocet.value() != null) {
+                        if (ocet != null && ocet.value() != null) {
                             et = ocet.value();
                         } else if (ocet == null || ocet.value() == null) {
                             et = clazz;
@@ -323,7 +289,7 @@ public class ComponentLoader {
                         e.printStackTrace();
                         break;
                     }
-                    if (OComponentEventModel.class.isAssignableFrom(et) && Listener.class.isAssignableFrom(et) && et != null) {
+                    if (Listener.class.isAssignableFrom(et) && et != null) {
                         boolean valid = false;
                         for (Method m : et.getMethods()) {
                             if (m.getAnnotation(EventHandler.class) != null) { // yay, found an @EventHandler annotation!
@@ -343,7 +309,6 @@ public class ComponentLoader {
                         this.log.severe("Malformed OComponentEvent in class [" + clazz.getCanonicalName() + "]!");
                         break;
                     }
-                    break;
             }
         }
         if (oc.value().equals("[unnamed]")) {

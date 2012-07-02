@@ -15,8 +15,10 @@ import java.lang.annotation.*;
  *   @OComponentCommandTarget(ExampleComponent.ExampleEventListener.class)
  *   public class ExampleComponent {
  *       ...
- *       public class ExampleEventListener implements OComponentEventModel {
+ *       public class ExampleEventListener implements Listener {
+ *           @EventHandler(..)
  *           public void onBlockBreak(BlockBreakEvent event) { ... }
+ *           @EventHandler(..)
  *           public void onBlockBuild(BlockBuildEvent event) { ... }
  *       }
  *   }

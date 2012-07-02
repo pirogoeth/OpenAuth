@@ -143,9 +143,9 @@ public class OAPlayer {
         public void run() {
             if (session != null) {
                 updateIP();
-                if (!(session.ip.equals(getIP()))) {
+                if (!(session.getIP().equals(getIP()))) {
                     destroySession(); // destroy the old session
-                    log.info(String.format("WARNING! %s may not be who they claim! Their IP has changed from %s to %s, resetting session!", getName(), session.ip, getIP()));
+                    log.info(String.format("WARNING! %s may not be who they claim! Their IP has changed from %s to %s, resetting session!", getName(), session.getIP(), getIP()));
                     initSession(); // get a new session
                 }
             }
@@ -299,6 +299,9 @@ public class OAPlayer {
     public void updateIP() {
         try {
             this.player_ip = (this.player.getAddress().getAddress().getHostAddress() == this.player_ip) ? this.player_ip : this.player.getAddress().getAddress().getHostAddress();
+            if (this.player_ip != null) {
+                this.getSession().setIP(this.player_ip);
+            }
         } catch (java.lang.NullPointerException e) {
             this.getServer().scheduleSyncDelayedTask(100L, this.updateip);
         }
@@ -477,7 +480,7 @@ public class OAPlayer {
         if (this.flying) this.fly(true);
         this.state = PlayerState.ONLINE;
         this.getServer().scheduleSyncDelayedTask(100L, this.updateip);
-        this.getServer().scheduleSyncDelayedTask(115L, this.ip_comparison);
+        this.getServer().scheduleSyncDelayedTask(140L, this.ip_comparison);
         this.getServer().callEvent(new OAPlayerOnlineEvent(this));
     }
 

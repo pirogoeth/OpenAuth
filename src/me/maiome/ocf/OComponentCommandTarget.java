@@ -15,7 +15,7 @@ import java.lang.annotation.*;
  *   @OComponentCommandTarget(ExampleComponent.ExampleCommands.class)
  *   public class ExampleComponent {
  *       ...
- *       public class ExampleCommands implements OComponentCommandModel {
+ *       public class ExampleCommands {
  *           public class ExampleNestedCommands {
  *               @Command( ... )
  *               @CommandPermissions( ... )
