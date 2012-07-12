@@ -15,6 +15,8 @@ import com.sk89q.bukkit.util.*;
 import com.sk89q.util.*;
 import com.sk89q.minecraft.util.commands.*;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.Configuration;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -61,8 +63,8 @@ public class ComponentLoader {
 
     private final static String resourcedir = "plugins" + File.separator + "OComponentFramework";
     protected final static Map<String, ComponentLoader> instances = new HashMap<String, ComponentLoader>();
-    private CommandsManager<CommandSender> cmgr;
-    private CommandsManagerRegistration cmgreg;
+    protected CommandsManager<CommandSender> cmgr;
+    protected CommandsManagerRegistration cmgreg;
     private Map<String, Class<?>> components = new HashMap<String, Class<?>>(); // map of ALL components
     private List<Class> events = new ArrayList<Class>(), beans = new ArrayList<Class>(), commands = new ArrayList<Class>(); // components
     private static Map<Class<?>, List<?>> entities = new HashMap<Class<?>, List<?>>();
@@ -91,6 +93,9 @@ public class ComponentLoader {
 
         // register the instance
         setInstance(plugin, this);
+
+        // register the command listener
+        Bukkit.getServer().getPluginManager().registerEvents(new CLCommandListener(this), this.plugin);
     }
 
     public static void setInstance(JavaPlugin plugin, ComponentLoader cl) {
@@ -161,6 +166,29 @@ public class ComponentLoader {
         this.cmgreg.register(clazz);
     }
 
+    public boolean command(CommandSender sender, org.bukkit.command.Command cmd, String label, String[] args) {
+        try {
+            this.cmgr.execute(cmd.getName(), args, sender, sender);
+        } catch (CommandPermissionsException e) {
+            sender.sendMessage(ChatColor.RED + "You don't have permission.");
+        } catch (MissingNestedCommandException e) {
+            sender.sendMessage(ChatColor.RED + e.getUsage());
+        } catch (CommandUsageException e) {
+            sender.sendMessage(ChatColor.RED + e.getMessage());
+            sender.sendMessage(ChatColor.RED + e.getUsage());
+        } catch (WrappedCommandException e) {
+            if (e.getCause() instanceof NumberFormatException) {
+                sender.sendMessage(ChatColor.RED + "Number expected, string received.");
+            } else {
+                sender.sendMessage(ChatColor.RED + "An error has occurred. See console.");
+                e.printStackTrace();
+            }
+        } catch (com.sk89q.minecraft.util.commands.CommandException e) {
+            sender.sendMessage(ChatColor.RED + e.getMessage());
+        }
+
+        return true;
+    }
     // component loading code.
 
     public void loadComponents(List<String> clazzlist) {
@@ -235,6 +263,7 @@ public class ComponentLoader {
                     this.beans.add(bt);
                     this.log.info("Registering OComponentBean [" + clazz.getCanonicalName() + "] in database!");
                     this.initDatabase(clazz, ocbc);
+                    break;
                 case COMMAND:
                     OComponentCommandTarget occt = clazz.getAnnotation(OComponentCommandTarget.class);
                     if (occt == null || occt.value() == null) {
@@ -272,6 +301,7 @@ public class ComponentLoader {
                         this.log.severe("Malformed OComponentCommand in class [" + clazz.getCanonicalName() + "]!");
                         break;
                     }
+                    break;
                 case EVENT:
                     OComponentEventTarget ocet = clazz.getAnnotation(OComponentEventTarget.class);
                     if (ocet == null || ocet.value() == null) {
@@ -309,6 +339,7 @@ public class ComponentLoader {
                         this.log.severe("Malformed OComponentEvent in class [" + clazz.getCanonicalName() + "]!");
                         break;
                     }
+                    break;
             }
         }
         if (oc.value().equals("[unnamed]")) {

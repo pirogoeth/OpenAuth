@@ -280,12 +280,6 @@ public class OAPlayer {
         this.player.sendMessage(message);
     }
 
-    public void setDisplayName(String name) {
-        Pattern pattern = Pattern.compile("(?i)&([0-9A-FKLMNOR])");
-        String _name = pattern.matcher(name).replaceAll("\u00A7$1");
-        this.player.setDisplayName(_name);
-    }
-
     public void kickPlayer(String reason) {
         this.player.kickPlayer(reason);
         this.setOffline();
@@ -320,10 +314,6 @@ public class OAPlayer {
 
     // this is called whenever the player moves.
     public void moved(PlayerMoveEvent event) {
-        Location to = event.getTo(), from = event.getFrom(), ll = this.getSession().getLoginLocation();
-        if ((ll.getY() - to.getY() <= 2 || to.getY() - ll.getY() >= -2) && (ll.getX() == to.getX() && ll.getZ() == to.getZ()) ) {
-            return;
-        }
         if (this.getSession().isIdentified() == false
             && ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.movement", true) == true) {
 
