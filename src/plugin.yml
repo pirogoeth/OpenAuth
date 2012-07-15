@@ -1,6 +1,6 @@
 name: OpenAuth
 main: me.maiome.openauth.bukkit.OpenAuth
-version: 1.0.0
+version: 1.1.0
 authors: ['pirogoeth', 'TakSayu']
 depend: ['WorldEdit']
 softdepend: ['PermissionsEx', 'bPermissions', 'PermissionsBukkit', 'Permissions', 'JSONAPI']
