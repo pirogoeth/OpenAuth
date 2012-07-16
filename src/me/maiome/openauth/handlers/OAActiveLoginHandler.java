@@ -105,11 +105,6 @@ public class OAActiveLoginHandler implements OALoginHandler {
             this.log.exDebug(String.format("%s (%s) matched no IP bans!", player.getIP(), player.getName()));
         }
         event.allow();
-        // check ip stuff.
-        if (player.hasIPChanged()) {
-            // this user may not be trusted
-            player.getSession().setIdentified(false, true);
-        }
         this.active.add(player);
         return;
     }

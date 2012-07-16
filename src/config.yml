@@ -53,8 +53,12 @@
 #                        monsters will always be targetable. [default: false]
 #     golem-cruelty - allows(true)/disallows(false) targeting of golems (snowmen, iron golems..)
 #                        monsters will always be targetable. [default: false]
-# points:
-#   list-world-only - whether or not to list points in the current world only, or in all [default: false]
+#   box - settings for the boxtrap action
+#     material-id - block that the box will be made of [default: 1]
+#     torch - add a torch above the player? [default: true]
+#   hounds - settings for the hellhounds action
+#     attack-delay - how long to wait before releasing the hounds on the player [default: 60]
+#     removal-delay - how long before the hounds are marked for removal [default: 600]
 
 version: 1.1.0
 override: true
@@ -103,6 +107,8 @@ actions:
         fire: false
         animal-cruelty: false
         golem-cruelty: false
+    box:
+        material-id: 1
     hounds:
         attack-delay: 60
         removal-delay: 600

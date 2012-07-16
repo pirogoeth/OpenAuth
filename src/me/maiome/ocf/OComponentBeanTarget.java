@@ -5,8 +5,8 @@ import java.lang.annotation.*;
 /**
  * This annotation allows declaration of a target other than the main component class as a BEAN target.
  *
- * This annotation is optional, but if not used, the main component class will be registered with the command handling
- * system as-is.
+ * This annotation is optional, but if not used, the main component class will be registered with the ebean server
+ * system as-is (if it meets bean registration requirements).
  *
  * Example of usage:
  *
@@ -22,12 +22,11 @@ import java.lang.annotation.*;
  */
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.CLASS)
+@Target(ElementType.TYPE)
 public @interface OComponentBeanTarget {
 
     /**
      * This value defines the target bean class for the component.
      */
-    Class value() default null;
-
+    Class value();
 }

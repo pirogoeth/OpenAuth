@@ -122,35 +122,36 @@ public class OAListener implements Listener {
         player.update();
         boolean auth = ConfigInventory.MAIN.getConfig().getBoolean("auth.required", true);
         boolean greet = ConfigInventory.MAIN.getConfig().getBoolean("auth.greet-players", true);
+        String color = String.format("%s%s", ChatColor.BOLD, ChatColor.LIGHT_PURPLE);
         if (greet == true) {
             if (!(auth) && greet) {
-                player.sendMessage(ChatColor.GREEN + String.format(
+                player.sendMessage(color + String.format(
                     "Welcome to %s, %s! We hope you have a wonderful time!",
                     player.getServer().getServer().getServerName(), player.getName()
                 ));
             } else if (!(player.getPlayer().hasPlayedBefore()) || !(OpenAuth.getOAServer().getLoginHandler().isRegistered(player))) {
-                player.sendMessage(ChatColor.GREEN + String.format(
+                player.sendMessage(color + String.format(
                     "Welcome to %s, %s! To play on our server, we require you to register with OpenAuth.",
                     player.getServer().getServer().getServerName(), player.getName()
                 ));
-                player.sendMessage(ChatColor.GREEN + "To register, use this command: /oa register <password>");
-            } else if (player.getPlayer().hasPlayedBefore() && OpenAuth.getOAServer().getLoginHandler().isRegistered(player)) {
-                player.sendMessage(ChatColor.GREEN + String.format(
+                player.sendMessage(color + "To register, use this command: /oa register <password>");
+            } else if (player.getPlayer().hasPlayedBefore() && OpenAuth.getOAServer().getLoginHandler().isRegistered(player) && !(player.getSession().isIdentified())) {
+                player.sendMessage(color + String.format(
                     "Welcome back to %s, %s! Please login to play! To login, use: /oa login <password>",
                     player.getServer().getServer().getServerName(), player.getName()
                 ));
             } else if (player.getSession().isIdentified()) {
-                player.sendMessage(ChatColor.GREEN + String.format(
+                player.sendMessage(color + String.format(
                     "Welcome back to %s, %s! Enjoy your stay!",
                     player.getServer().getServer().getServerName(), player.getName()
                 ));
             } else {
-                player.sendMessage(ChatColor.GREEN + String.format(
+                player.sendMessage(color + String.format(
                     "Hi, %s. You must be some strange transient entity from another dimension (or at least another server)...",
                     player.getName()
                 ));
             }
-            player.sendMessage(ChatColor.GREEN + String.format(
+            player.sendMessage(color + String.format(
                 "You are currently in %s, at %s,%s,%s. The weather in %s is looking quite %s today.",
                 player.getWorld().getName(), player.getLocation().getBlockX(), player.getLocation().getBlockY(), player.getLocation().getBlockZ(), player.getWorld().getName(), ((player.getWorld().hasStorm() == false) ? "sunny" : "stormy")
             ));
@@ -209,7 +210,7 @@ public class OAListener implements Listener {
             return;
         }
 
-        player.moved();
+        player.moved(event);
         return;
     }
 

@@ -79,10 +79,10 @@ public class OAUserCommands {
             return;
         }
         if (!(player.getSession().isFrozen())) {
-            sender.sendMessage(ChatColor.BLUE + player.getName() + " is not already frozen!");
+            sender.sendMessage(ChatColor.BLUE + player.getName() + " is not frozen!");
             return;
         }
-        player.getSession().setFrozen(true);
+        player.getSession().setFrozen(false);
         player.sendMessage(ChatColor.BLUE + "You have been unfrozen!");
         sender.sendMessage(ChatColor.BLUE + player.getName() + " has been unfrozen!");
     }
@@ -93,11 +93,12 @@ public class OAUserCommands {
     @CommandPermissions({ "openauth.admin.user.destroyaccount" })
     public static void destroyact(CommandContext args, CommandSender sender) throws CommandException {
         String user = args.getString(0);
+        String nullstring = null;
         if (!(OpenAuth.getOAServer().getLoginHandler().isRegistered(user))) {
             sender.sendMessage(ChatColor.BLUE + "Account " + user + " does not exist.");
             return;
         }
-        ConfigInventory.DATA.getConfig().set("credentials." + user, null);
-        sender.sendMessage(ChatColor.GREEN + "Removed account: " + user);
+        controller.getOAServer().getLoginHandler().processPlayerRegistration(args.getString(0), nullstring);
+        sender.sendMessage(ChatColor.BLUE + "[" + args.getString(0) + "] has been reset!");
     }
 }

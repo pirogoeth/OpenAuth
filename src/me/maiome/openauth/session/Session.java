@@ -22,6 +22,7 @@ import me.maiome.openauth.actions.*;
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAPlayer;
 import me.maiome.openauth.bukkit.OAServer;
+import me.maiome.openauth.bukkit.events.*;
 import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
@@ -42,9 +43,11 @@ public class Session {
     private boolean frozen;
     private boolean identified = false;
     private List<IAction> actions = new ArrayList<IAction>();
+    private Map<String, SessionData<?>> session_data = new HashMap<String, SessionData<?>>();
     private Location lloc;
     private long spawn_time;
     private boolean hidden = false;
+    private String ip;
 
     protected final int wand_id = ConfigInventory.MAIN.getConfig().getInt("wand-id");
 
@@ -58,6 +61,8 @@ public class Session {
             this.setFrozen(true);
             this.player.sendMessage(ChatColor.RED + "You must identify to continue.");
         }
+        this.ip = (player.getIP() != null ? player.getIP() : "");
+        OpenAuth.getOAServer().callEvent(new OASessionCreateEvent(this));
     }
 
     @Override
@@ -102,22 +107,31 @@ public class Session {
         return this.player.getPlayer().isOnline();
     }
 
+    public String getIP() {
+        return this.ip;
+    }
+
+    public void setIP(String ip) {
+        this.ip = ip;
+    }
+
     // identification related methods
 
     public boolean isIdentified() {
         return this.identified;
     }
 
-    public void setIdentified(boolean identified, boolean update) {
+    public boolean setIdentified(boolean identified, boolean update) {
         if (this.frozen && this.identified) {
             // this means they're trying to bypass being frozen by the stick.
             this.player.sendMessage(ChatColor.GREEN + "Sorry, but you're currently frozen, so I can't let you reidentify.");
-            return;
+            return false;
         }
         if (update) {
             this.frozen = (identified == true) ? false : true;
         }
         this.identified = identified;
+        return true;
     }
 
     public boolean isFrozen() {
@@ -157,6 +171,20 @@ public class Session {
 
     public boolean playerUsingWand() {
         return (this.player.getItemInHand() == this.wand_id && !(this.isFrozen())) ? true : false;
+    }
+
+    // session data
+
+    public void attachSessionData(SessionData<?> data) {
+        this.session_data.put(data.getName(), data);
+    }
+
+    public SessionData<?> getSessionData(String dataname) {
+        return this.session_data.get(dataname);
+    }
+
+    public void removeSessionData(String dataname) {
+        this.session_data.remove(dataname);
     }
 
     // login location

@@ -8,6 +8,7 @@ import org.bukkit.World;
 import org.bukkit.Server;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerLoginEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 
 // minecraft server imports
@@ -125,9 +126,7 @@ public class OAPlayer {
     private CraftPlayer craftplayer;
     private String name = null;
     private Session session = null;
-    private List<String> ip_list = new ArrayList<String>();
     private PlayerState state = PlayerState.UNKNOWN;
-    private boolean ip_changed = false;
     private boolean flying = false;
 
     private String player_ip = null;
@@ -136,6 +135,20 @@ public class OAPlayer {
     private Runnable updateip = new Runnable() {
         public void run() {
             updateIP();
+        }
+    };
+
+    // ip comparison task
+    public Runnable ip_comparison = new Runnable() {
+        public void run() {
+            if (session != null) {
+                updateIP();
+                if (!(session.getIP().equals(getIP()))) {
+                    destroySession(); // destroy the old session
+                    log.info(String.format("WARNING! %s may not be who they claim! Their IP has changed from %s to %s, resetting session!", getName(), session.getIP(), getIP()));
+                    initSession(); // get a new session
+                }
+            }
         }
     };
 
@@ -153,7 +166,7 @@ public class OAPlayer {
         this.server = OpenAuth.getOAServer();
         this.state = PlayerState.UNKNOWN;
         this.sc = OpenAuth.getSessionController();
-        this.session = this.sc.get(this);
+        this.session = this.getSession();
     }
 
     public OAPlayer(PlayerLoginEvent event) {
@@ -267,12 +280,6 @@ public class OAPlayer {
         this.player.sendMessage(message);
     }
 
-    public void setDisplayName(String name) {
-        Pattern pattern = Pattern.compile("(?i)&([0-9A-FKLMNOR])");
-        String _name = pattern.matcher(name).replaceAll("\u00A7$1");
-        this.player.setDisplayName(_name);
-    }
-
     public void kickPlayer(String reason) {
         this.player.kickPlayer(reason);
         this.setOffline();
@@ -283,22 +290,14 @@ public class OAPlayer {
         return this.player_ip;
     }
 
-    public boolean hasIPChanged() {
-        return this.ip_changed;
-    }
-
     public void updateIP() {
         try {
             this.player_ip = (this.player.getAddress().getAddress().getHostAddress() == this.player_ip) ? this.player_ip : this.player.getAddress().getAddress().getHostAddress();
-            if (!(this.ip_list.contains(this.player_ip))) {
-                this.ip_list.add(this.player_ip);
-                this.ip_changed = true;
-            } else {
-                this.ip_changed = false;
+            if (this.player_ip != null) {
+                this.getSession().setIP(this.player_ip);
             }
         } catch (java.lang.NullPointerException e) {
-            // can't really do anything about this, sadly.
-            this.ip_changed = false;
+            this.getServer().scheduleSyncDelayedTask(100L, this.updateip);
         }
     }
 
@@ -314,16 +313,17 @@ public class OAPlayer {
     }
 
     // this is called whenever the player moves.
-    public void moved() {
-        if (this.getSession().isFrozen()
-            && ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.movement", true) == true
-            && !(this.getSession().isIdentified())) {
+    public void moved(PlayerMoveEvent event) {
+        if (this.getSession().isIdentified() == false
+            && ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.movement", true) == true) {
 
             this.sendMessage(ChatColor.RED + "You must first identify to move.");
-            this.setLocation(this.getLocation());
+            event.setCancelled(true);
+            return;
         } else if (this.getSession().isFrozen() && this.getSession().isIdentified()) {
             this.sendMessage(ChatColor.RED + "You have been frozen.");
-            this.setLocation(this.getLocation());
+            event.setCancelled(true);
+            return;
         }
         this.flying = this.getPlayer().isFlying();
     }
@@ -467,10 +467,10 @@ public class OAPlayer {
     // state methods
 
     public void setOnline() {
-        if (this.session != null) this.updateIP();
         if (this.flying) this.fly(true);
         this.state = PlayerState.ONLINE;
         this.getServer().scheduleSyncDelayedTask(100L, this.updateip);
+        this.getServer().scheduleSyncDelayedTask(140L, this.ip_comparison);
         this.getServer().callEvent(new OAPlayerOnlineEvent(this));
     }
 

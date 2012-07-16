@@ -15,8 +15,10 @@ import java.lang.annotation.*;
  *   @OComponentCommandTarget(ExampleComponent.ExampleEventListener.class)
  *   public class ExampleComponent {
  *       ...
- *       public class ExampleEventListener implements OComponentEventModel {
+ *       public class ExampleEventListener implements Listener {
+ *           @EventHandler(..)
  *           public void onBlockBreak(BlockBreakEvent event) { ... }
+ *           @EventHandler(..)
  *           public void onBlockBuild(BlockBuildEvent event) { ... }
  *       }
  *   }
@@ -24,12 +26,11 @@ import java.lang.annotation.*;
  */
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.CLASS)
+@Target(ElementType.TYPE)
 public @interface OComponentEventTarget {
 
     /**
      * This value defines the target event listener class for the component.
      */
-    Class value() default null;
-
+    Class value();
 }

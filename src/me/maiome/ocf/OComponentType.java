@@ -10,12 +10,12 @@ import java.lang.annotation.*;
  */
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.CLASS)
+@Target(ElementType.TYPE)
 public @interface OComponentType {
 
     /**
      * Contains the component types that are used inside this component.
      */
-    ComponentType[] value() default { ComponentType.SUPPORT };
+    ComponentType[] value();
 
 }

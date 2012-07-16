@@ -9,6 +9,5 @@ public abstract class OComponentCommandModel {
     /**
      * The getParent() method returns the parent class that contains the Class implementing this model.
      */
-    public Class getParent();
-
+    public abstract Class getParent();
 }

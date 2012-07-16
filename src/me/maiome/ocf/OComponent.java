@@ -11,7 +11,7 @@ import java.lang.annotation.*;
  */
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.CLASS)
+@Target(ElementType.TYPE)
 public @interface OComponent {
 
     /**

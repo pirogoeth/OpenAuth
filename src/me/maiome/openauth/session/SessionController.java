@@ -139,13 +139,17 @@ public class SessionController {
         this.session_bag.remove(session.getPlayer());
     }
 
+    private void _forget(OAPlayer player) {
+        this.session_bag.remove(player);
+    }
+
     public void forget(Object session) {
         if (session instanceof Session) {
             this._forget((Session) session);
         } else if (session instanceof OAPlayer) {
-            this._forget((Session) ((OAPlayer) session).getSession());
+            this._forget((OAPlayer) session);
         } else if (session instanceof Player) {
-            this._forget(this.get((Player) session));
+            this._forget(OAPlayer.getPlayer((Player) session));
         }
     }
 

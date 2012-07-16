@@ -15,7 +15,7 @@ import java.lang.annotation.*;
  *   @OComponentCommandTarget(ExampleComponent.ExampleCommands.class)
  *   public class ExampleComponent {
  *       ...
- *       public class ExampleCommands implements OComponentCommandModel {
+ *       public class ExampleCommands {
  *           public class ExampleNestedCommands {
  *               @Command( ... )
  *               @CommandPermissions( ... )
@@ -32,12 +32,11 @@ import java.lang.annotation.*;
  */
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.CLASS)
+@Target(ElementType.TYPE)
 public @interface OComponentCommandTarget {
 
     /**
      * This value defines the target command class for the component.
      */
-    Class value() default null;
-
+    Class value();
 }
