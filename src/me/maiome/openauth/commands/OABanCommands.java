@@ -62,24 +62,29 @@ public class OABanCommands {
     @CommandPermissions({ "openauth.ban.ip" })
     public static void banIP(CommandContext args, CommandSender sender) throws CommandException {
         String reason = (args.argsLength() > 1 ? args.getJoinedStrings(1) : "No reason given.");
-        if (OAPlayer.getPlayer(args.getString(0)) == null) {
-            sender.sendMessage(ChatColor.BLUE + "Please provide a valid player to ban.");
-            return;
+        try {
+            if (OAPlayer.getPlayer(args.getString(0)) == null) {
+                sender.sendMessage(ChatColor.BLUE + "Please provide a valid player to ban.");
+                return;
+            }
+            controller.getOAServer().banPlayerByIP(OAPlayer.getPlayer(args.getString(0)), reason);
+            controller.getOAServer().kickPlayer(OAPlayer.getPlayer(args.getString(0)), reason);
+            sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been banned.", args.getString(0)));
+        } catch (java.lang.NullPointerException e) {
+            controller.getOAServer().banPlayerByIP(args.getString(0), reason);
+            sender.sendMessage(ChatColor.BLUE + String.format("IP %s has been banned.", args.getString(0)));
         }
-        controller.getOAServer().banPlayerByIP(OAPlayer.getPlayer(args.getString(0)), reason);
-        controller.getOAServer().kickPlayer(OAPlayer.getPlayer(args.getString(0)), reason);
-        sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been banned.", args.getString(0)));
     }
 
     @Console
-    @Command(aliases = {"unban-ip"}, usage = "<user|IP>", desc = "Allows removal of an IP ban.",
+    @Command(aliases = {"unban-ip"}, usage = "<user|/IP>", desc = "Allows removal of an IP ban.",
              min = 1)
     @CommandPermissions({ "openauth.unban.ip" })
     public static void unbanIP(CommandContext args, CommandSender sender) throws CommandException {
         OAPlayer player = OAPlayer.getPlayer((Player) sender);
         String reason = (args.argsLength() > 1 ? args.getJoinedStrings(1) : "No reason given.");
         if (player == null && args.getString(0).charAt(0) != '/') {
-            sender.sendMessage(ChatColor.BLUE + "You need to provide the banned IP, as this user does not exist in my memory.");
+            sender.sendMessage(ChatColor.BLUE + "You need to provide the banned IP, as this user does not exist in my memory. (Prefix the IP with /)");
             return;
         } else if (args.getString(0).charAt(0) == '/') {
             controller.getOAServer().unbanPlayerByIP(args.getString(0));
@@ -154,7 +159,7 @@ public class OABanCommands {
             Map<String, Object> name_bans = controller.getOAServer().getNameBans();
             String list = new String();
             for (Map.Entry<String, Object> entry : name_bans.entrySet()) {
-                list += " - " + entry.getKey() + " : " + ((MemorySection) entry.getValue()).getString(entry.getKey()) + "\n";
+                list += " - " + entry.getKey() + " : " + entry.getValue() + "\n";
             }
             if (list.length() == 0) {
                 list = " - No bans exist.\n";

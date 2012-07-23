@@ -104,6 +104,7 @@ public class OAListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerLogin(PlayerLoginEvent event) {
+        if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) return; // derp, totally forgot. causes problems with sk89q's hostkeys.
         OAPlayer player = (OAPlayer.getPlayer(event));
         this.controller.getOAServer().getWhitelistHandler().processPlayerJoin(event, player);
         if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) return;

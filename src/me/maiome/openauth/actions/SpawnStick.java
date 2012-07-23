@@ -117,7 +117,7 @@ public class SpawnStick implements IAction {
 
     public void run(final Block block) {
         tracker.increment();
-        EntityType type = this.matchType((CommandSender) this.sender.getPlayer(), this.creature, true);
+        CreatureType type = this.matchType((CommandSender) this.sender.getPlayer(), this.creature, true);
         Location spawnloc = block.getLocation().add(0, 1, 0);
         this.spawned = block.getLocation().getWorld().spawnCreature(spawnloc, type);
     }
@@ -128,30 +128,30 @@ public class SpawnStick implements IAction {
 
     // borrowed from sk89q's commandbook
     //   @url https://github.com/sk89q/commandbook/blob/master/src/main/java/com/sk89q/commandbook/util/EntityUtil.java#L36
-    public EntityType matchType(CommandSender sender, String filter, boolean spawnable) {
-        for (EntityType type : EntityType.values()) {
+    public CreatureType matchType(CommandSender sender, String filter, boolean spawnable) {
+        for (CreatureType type : CreatureType.values()) {
             if (type.name().replace("_", "").equalsIgnoreCase(filter.replace("_", "")) ||
-                   (type.getName() != null && type.getName().equalsIgnoreCase(filter)) && (type.isSpawnable() || !(spawnable))) {
+                   (type.getName() != null && type.getName().equalsIgnoreCase(filter)) && (EntityType.fromName(type.getName()).isSpawnable() || !(spawnable))) {
                 return type;
             }
         }
 
-        for (EntityType testType : EntityType.values()) {
-            if (testType.getName() != null && testType.getName().toLowerCase().startsWith(filter.toLowerCase()) && (testType.isSpawnable() || !(spawnable))) {
+        for (CreatureType testType : CreatureType.values()) {
+            if (testType.getName() != null && testType.getName().toLowerCase().startsWith(filter.toLowerCase()) && (EntityType.fromName(testType.getName()).isSpawnable() || !(spawnable))) {
                 return testType;
             }
         }
 
-        this.sender.sendMessage("The mob you specified doesn't exist, sorry :/ but, you can choose from these mobs to spawn: " + this.getEntityTypeNameList(spawnable));
+        this.sender.sendMessage("The mob you specified doesn't exist, sorry :/ but, you can choose from these mobs to spawn: " + this.getCreatureTypeNameList(spawnable));
         return null;
     }
 
     // borrowed from sk89q's commandbook
     //   @url https://github.com/sk89q/commandbook/blob/master/src/main/java/com/sk89q/commandbook/util/EntityUtil.java#L63
-    public String getEntityTypeNameList(boolean spawnable) {
+    public String getCreatureTypeNameList(boolean spawnable) {
         StringBuilder str = new StringBuilder();
-        for (EntityType type : EntityType.values()) {
-            if (!(spawnable) || type.isSpawnable()) {
+        for (CreatureType type : CreatureType.values()) {
+            if (!(spawnable) || EntityType.fromName(type.getName()).isSpawnable()) {
                 if (str.length() > 0) {
                     str.append(", ");
                 }

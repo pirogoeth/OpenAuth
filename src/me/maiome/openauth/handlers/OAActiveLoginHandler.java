@@ -91,6 +91,10 @@ public class OAActiveLoginHandler implements OALoginHandler {
         if (!(this.isEnabled())) return;
         OAPlayerLoginEvent _event = new OAPlayerLoginEvent(player);
         this.controller.getOAServer().callEvent(_event);
+        if (_event.isCancelled()) {
+            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, _event.getCancelReason());
+            return;
+        }
         player.setOnline();
         if (this.controller.getOAServer().hasNameBan(player.getName())) {
             event.disallow(PlayerLoginEvent.Result.KICK_BANNED, this.controller.getOAServer().getNameBanReason(player.getName()));

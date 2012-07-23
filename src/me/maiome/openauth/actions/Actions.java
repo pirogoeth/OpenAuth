@@ -17,6 +17,7 @@ public enum Actions {
 
     BAN(BanStick.class),
     BOOM(BoomStick.class),
+    BOX(BoxStick.class),
     FREEZE(FreezeStick.class),
     HOUNDS(HellHounds.class),
     SPAWN(SpawnStick.class);

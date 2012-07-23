@@ -35,7 +35,7 @@ public class DBWhitelist {
     /**
      * Location of the point.
      */
-    @NotNull public boolean whitelisted;
+    @NotNull public boolean whitelisted = false;
 
     /**
      * Mandatory constructor for ebean use.
@@ -62,6 +62,9 @@ public class DBWhitelist {
 
     @Transient
     public void save() {
+        if (OpenAuth.getInstance().getDatabase().find(DBWhitelist.class, this.getName()) != null) {
+            return;
+        }
         synchronized (OpenAuth.databaseLock) {
             OpenAuth.getInstance().getDatabase().save(this);
         }
@@ -69,6 +72,10 @@ public class DBWhitelist {
 
     @Transient
     public void update() {
+        if (this.getName().equals(OpenAuth.getInstance().getDatabase().find(DBWhitelist.class, this.getName()).getName()) &&
+            this.whitelisted == OpenAuth.getInstance().getDatabase().find(DBWhitelist.class, this.getName()).isWhitelisted()) {
+            return;
+        }
         synchronized (OpenAuth.databaseLock) {
             OpenAuth.getInstance().getDatabase().update(this);
         }
@@ -95,6 +102,7 @@ public class DBWhitelist {
         this.whitelisted = b;
     }
 
+    @Transient
     public void setWhitelisted(final boolean b, final boolean update) {
         this.setWhitelisted(b);
         if (update == true) this.update();
