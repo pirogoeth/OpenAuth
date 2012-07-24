@@ -60,6 +60,7 @@ public interface OALoginHandler {
      * Processes player identification tries.
      */
     boolean processPlayerIdentification(OAPlayer player, String password);
+    boolean processDirectIdentification(OAPlayer player, String password); // this takes auth from the client negotiator.
 
     /**
      * Processes player registration.

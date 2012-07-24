@@ -128,6 +128,14 @@ public class OAActiveLoginHandler implements OALoginHandler {
         return ((this.getStringHash(password)).equals(match)) ? true : false;
     }
 
+    public boolean processDirectIdentification(OAPlayer player, String password) {
+        if (!(this.isEnabled())) {
+            return true;
+        }
+        String match = OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player.getName()).getPassword();
+        return (password.equals(match)) ? true : false;
+    }
+
     public void processPlayerRegistration(OAPlayer player, String password) {
         this.processPlayerRegistration(player.getName(), password);
     }
