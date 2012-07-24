@@ -31,7 +31,9 @@
 # auth:
 #   require - whether auth is required to be able to play, if so, user
 #             will be frozen [default: true]
-#   greet-players - whether I will greet players upon "meeting: them. [default: true]
+#   password-security - what type of password validating will be used? (basic or complex)
+#             [default: basic]
+#   greet-players - whether I will greet players upon "meeting" them. [default: true]
 #   freeze-actions - actions that the player takes that will be
 #                    frozen.
 #     chat - freeze chat? [default: true]
@@ -88,6 +90,7 @@ whitelisting:
     print-on-load: true
 auth:
     require: true
+    password-security: basic
     greet-players: true
     freeze-actions:
         chat: true
