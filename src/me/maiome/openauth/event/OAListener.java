@@ -30,9 +30,10 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 
 // internal
-import me.maiome.openauth.bukkit.OpenAuth;
-import me.maiome.openauth.bukkit.OAPlayer;
-import me.maiome.openauth.bukkit.OAServer;
+import me.maiome.openauth.bukkit.*;
+import me.maiome.openauth.bukkit.events.*;
+import me.maiome.openauth.client.*;
+import me.maiome.openauth.security.*;
 import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
 
@@ -65,7 +66,7 @@ public class OAListener implements Listener {
         }
 
         if (player.getSession().isFrozen() == true && player.getSession().isIdentified() == true) {
-            if (!(split[0].equals("/oa")) && !(split[0].equals("/openauth")) && !(split[0].equals("/worldedit"))) {
+            if (((!(split[0].equals("/oa")) && !(split[0].equals("/openauth"))) && (!(split[1].equals("login")) && !(split[1].equals("register")))) && !(split[0].equals("/worldedit"))) {
                 player.sendMessage(ChatColor.GREEN + "You are frozen.");
                 event.setCancelled(true);
                 return;
@@ -74,7 +75,7 @@ public class OAListener implements Listener {
 
         if (player.getSession().isFrozen() == true &&
             ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.commands", true) == true) {
-            if (!(split[0].equals("/oa")) && !(split[0].equals("/openauth")) && !(split[0].equals("/worldedit"))) {
+            if (((!(split[0].equals("/oa")) && !(split[0].equals("/openauth"))) && (!(split[1].equals("login")) && !(split[1].equals("register")))) && !(split[0].equals("/worldedit"))) {
                 player.sendMessage(ChatColor.GREEN + "You must identify to use commands.");
                 event.setCancelled(true);
                 return;

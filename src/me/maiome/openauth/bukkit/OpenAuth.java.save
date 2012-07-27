@@ -30,13 +30,11 @@ import java.util.Map;
 
 // core imports
 import me.maiome.openauth.actions.*;
-import me.maiome.openauth.client.*;
 import me.maiome.openauth.commands.*;
 import me.maiome.openauth.database.*;
 import me.maiome.openauth.event.*;
 import me.maiome.openauth.jsonapi.*;
 import me.maiome.openauth.metrics.*;
-import me.maiome.openauth.security.*;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.Permission;
 import me.maiome.openauth.util.Config;
@@ -450,14 +448,11 @@ public class OpenAuth extends JavaPlugin {
 
         OpenAuth.jsch = jsch;
     }
-
-
+    
     /**
      * Returns the active password security validator.
      */
-    public static IPasswordSecurity getActivePWSecurityValidator() {
-        return OAPasswordSecurity.getActiveSecurityValidator();
-    }
+    public static IPasswordSecurity getActivePWSecurityVali
 
     /**
      * Returns the CommandsManager instance used by OpenAuth.

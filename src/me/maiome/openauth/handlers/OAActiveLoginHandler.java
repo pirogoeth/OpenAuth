@@ -13,10 +13,10 @@ import java.security.*;
 import java.math.*;
 
 // internal imports
-import me.maiome.openauth.bukkit.OAPlayer;
-import me.maiome.openauth.bukkit.OAServer;
-import me.maiome.openauth.bukkit.OpenAuth;
+import me.maiome.openauth.bukkit.*;
 import me.maiome.openauth.bukkit.events.*;
+import me.maiome.openauth.client.*;
+import me.maiome.openauth.security.*;
 import me.maiome.openauth.database.DBPlayer;
 import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.ConfigInventory;
@@ -142,16 +142,21 @@ public class OAActiveLoginHandler implements OALoginHandler {
 
     public void processPlayerRegistration(String player, String password) {
         if (!(this.isEnabled())) return;
+        OAPlayerRegistrationEvent event = new OAPlayerRegistrationEvent(player);
+        OpenAuth.getOAServer().callEvent(event);
         DBPlayer data = OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player);
-        if (password == null) { // this is a password reset
+        if (password == null) { // this is a password reset/account removal
             data.setPassword(null);
             data.update();
             return;
         }
+        if (OAPasswordSecurity.getActiveSecurityValidator().validate(password) == false) {
+            OAPlayer.getPlayer(player).sendMessage(ChatColor.RED + "Your registration was cancelled because " + OAPasswordSecurity.getActiveSecurityValidator().explain());
+            return;
+        }
         data.setPassword(this.getStringHash(password));
         data.update();
-        OAPlayerRegistrationEvent event = new OAPlayerRegistrationEvent(player);
-        OpenAuth.getOAServer().callEvent(event);
+        OAPlayer.getPlayer(player).sendMessage(ChatColor.BLUE + "You have been registered and logged in as '" + player + "'.");
     }
 
     public boolean compareToCurrent(OAPlayer player, String password) {

@@ -128,7 +128,8 @@ public class OACommands {
         if (!(controller.getOAServer().getLoginHandler().isRegistered(player))) {
             controller.getOAServer().getLoginHandler().processPlayerRegistration(player, password);
             player.getSession().setIdentified(true, true);
-            player.sendMessage(ChatColor.BLUE + "You have been registered and logged in as '" + player.getName() + "'.");
+            // notification is taken care of in processPlayerRegistration now
+            // player.sendMessage(ChatColor.BLUE + "You have been registered and logged in as '" + player.getName() + "'.");
             return;
         } else if (controller.getOAServer().getLoginHandler().isRegistered(player)) {
             player.sendMessage(ChatColor.RED + "This player account is already registered.");

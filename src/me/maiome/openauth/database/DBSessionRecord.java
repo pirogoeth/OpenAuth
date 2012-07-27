@@ -1,0 +1,1 @@
+package me.maiome.openauth.database;
