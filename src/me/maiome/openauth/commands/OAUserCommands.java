@@ -98,7 +98,7 @@ public class OAUserCommands {
             sender.sendMessage(ChatColor.BLUE + "Account " + user + " does not exist.");
             return;
         }
-        if (OpenAuth.getInstance().getServer().getPlayer(user)) {
+        if (OpenAuth.getInstance().getServer().getPlayer(user) != null) {
             OAPlayer player = OAPlayer.getPlayer(OpenAuth.getInstance().getServer().getPlayer(user));
             player.sendMessage("Your account has been forcibly deleted by an admin, so you have been logged out.");
             player.getSession().setIdentified(false, true);
