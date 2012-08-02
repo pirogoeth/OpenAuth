@@ -1,3 +1,4 @@
+
 package me.maiome.openauth.bukkit;
 
 // bukkit imports
@@ -52,11 +53,13 @@ public class OAPlayer {
         if (obj == null) return null;
         if (obj instanceof Player) {
             Player bplayer = (Player) obj;
-            players.put(bplayer.getName(), new OAPlayer(bplayer));
+            OAPlayer pl = new OAPlayer(bplayer);
+            players.put(bplayer.getName(), pl);
             return players.get(bplayer.getName());
         } else if (obj instanceof PlayerLoginEvent) {
             Player bplayer = ((PlayerLoginEvent) obj).getPlayer();
-            players.put(bplayer.getName(), new OAPlayer((PlayerLoginEvent) obj));
+            OAPlayer pl = new OAPlayer((PlayerLoginEvent) obj);
+            players.put(bplayer.getName(), pl);
             return players.get(bplayer.getName());
         } else if (obj instanceof String) {
             Player bplayer = OpenAuth.getOAServer().getServer().getPlayer((String) obj);
@@ -142,11 +145,15 @@ public class OAPlayer {
     public Runnable ip_comparison = new Runnable() {
         public void run() {
             if (session != null) {
-                updateIP();
+                if (session.getIP().trim().equals("") && !(getIP().equals(null))) return; // first login, no IP on record.
                 if (!(session.getIP().equals(getIP()))) {
-                    destroySession(); // destroy the old session
                     log.info(String.format("WARNING! %s may not be who they claim! Their IP has changed from %s to %s, resetting session!", getName(), session.getIP(), getIP()));
+                    destroySession(); // destroy the old session
                     initSession(); // get a new session
+                } else {
+                    if (player_ip != null && !(player_ip.trim().equals(""))) {
+                        getSession().setIP(player_ip);
+                    }
                 }
             }
         }
@@ -154,7 +161,7 @@ public class OAPlayer {
 
     // construct ALL the things!
 
-    public OAPlayer(Player player) {
+    private OAPlayer(Player player) {
         this.player = player;
         this.name = player.getName();
         synchronized (OpenAuth.databaseLock) {
@@ -169,7 +176,7 @@ public class OAPlayer {
         this.session = this.getSession();
     }
 
-    public OAPlayer(PlayerLoginEvent event) {
+    private OAPlayer(PlayerLoginEvent event) {
         this(event.getPlayer());
         this.player_ip = event.getAddress().getHostAddress();
     }
@@ -293,9 +300,6 @@ public class OAPlayer {
     public void updateIP() {
         try {
             this.player_ip = (this.player.getAddress().getAddress().getHostAddress() == this.player_ip) ? this.player_ip : this.player.getAddress().getAddress().getHostAddress();
-            if (this.player_ip != null) {
-                this.getSession().setIP(this.player_ip);
-            }
         } catch (java.lang.NullPointerException e) {
             this.getServer().scheduleSyncDelayedTask(100L, this.updateip);
         }

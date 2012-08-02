@@ -51,7 +51,7 @@ public class Session {
 
     protected final int wand_id = ConfigInventory.MAIN.getConfig().getInt("wand-id");
 
-    public Session (SessionController sc, OAPlayer player) {
+    public Session(SessionController sc, OAPlayer player) {
         this.controller = sc.getController();
         this.server = player.getServer();
         this.spawn_time = System.currentTimeMillis();

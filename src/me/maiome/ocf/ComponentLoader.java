@@ -164,6 +164,7 @@ public class ComponentLoader {
     }
 
     public void registerCommands(Class<?> clazz) {
+        this.log.info("Attempting to register commmands for class [" + clazz.getCanonicalName() + "]");
         this.cmgreg.register(clazz);
     }
 
