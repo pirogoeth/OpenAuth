@@ -60,7 +60,7 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
     }
 
     public boolean isWhitelisted(String name) {
-        if (!(this.isEnabled())) return true;
+        if (this.isEnabled() == false) return true;
         return this.whitelist.contains(name);
     }
 
@@ -69,7 +69,7 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
     }
 
     public void processPlayerJoin(PlayerLoginEvent event, OAPlayer player) {
-        if (!(this.isEnabled())) return;
+        if (this.isEnabled() == false) return;
         if (!(this.isWhitelisted(player))) {
             if (ConfigInventory.MAIN.getConfig().getBoolean("whitelisting.broadcast-failures", false) == true) {
                 this.controller.getOAServer().getServer().broadcastMessage(ChatColor.GREEN + String.format(
@@ -121,7 +121,7 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
     }
 
     public void whitelistPlayer(String name) {
-        if (!(this.isEnabled())) return;
+        if (this.isEnabled() == false) return;
         if (!(this.whitelist.contains(name))) {
             this.whitelist.add(name);
             DBWhitelist entry = OpenAuth.getInstance().getDatabase().find(DBWhitelist.class, name);
@@ -144,7 +144,7 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
     }
 
     public void unwhitelistPlayer(String name) {
-        if (!(this.isEnabled())) return;
+        if (this.isEnabled() == false) return;
         if (this.whitelist.contains(name)) {
             this.whitelist.remove(name);
             DBWhitelist entry = OpenAuth.getInstance().getDatabase().find(DBWhitelist.class, name);

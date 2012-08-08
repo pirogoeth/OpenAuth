@@ -6,6 +6,7 @@ import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.LogHandler;
 
 // bukkit
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Server;
 
@@ -161,7 +162,7 @@ public class DBSessionRecord {
         return this.blocks_destroyed;
     }
 
-    public String getLocation() {
+    public String getLastLocation() {
         return this.last_location;
     }
 
@@ -181,7 +182,7 @@ public class DBSessionRecord {
         this.last_login = l;
     }
 
-    public void setReuseCount(long l) {
+    public void setReuseCount(int l) {
         this.reuse_count = l;
     }
 
@@ -223,6 +224,6 @@ public class DBSessionRecord {
         double x = new Double(locs[0]), y = new Double(locs[1]), z = new Double(locs[2]);
         String[] los = locstr.split("\\:")[1].split("\\,");
         float yaw = new Float(los[0]), pitch = new Float(los[1]);
-        return new Location(Server.getWorld(world), x, y, z, yaw, pitch);
+        return new Location(Bukkit.getServer().getWorld(world), x, y, z, yaw, pitch);
     }
 }
