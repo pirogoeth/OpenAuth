@@ -71,21 +71,14 @@ public class DBSessionRecord {
      */
     @NotEmpty
     @NotNull
-    public long start_time;
+    public long start_time = 0L;
 
     /**
      * Holds the time that this session was destroyed.
      */
     @NotEmpty
     @NotNull
-    public long close_time;
-
-    /**
-     * Holds the age of the session (in seconds).
-     */
-    @NotEmpty
-    @NotNull
-    public long age;
+    public long close_time = 0L;
 
     /**
      * Holds the number of blocks that were placed during this session.
@@ -115,6 +108,23 @@ public class DBSessionRecord {
 
     public DBSessionRecord(Session session) {
         this.session = session;
+        this.setName(this.session.getPlayer().getName());
+        this.setStartTime(this.session.spawn_time);
+        this.setLastLogin(this.session.spawn_time);
+    }
+
+    public synchronized void save() {
+        OpenAuth.getInstance().getDatabase().save(this);
+    }
+
+    public synchronized void update() {
+        try {
+            OpenAuth.getInstance().getDatabase().update(this);
+        } catch (java.lang.Exception e) {
+            LogHandler.exDebug(String.format("Error updating DBSessionRecord{name=%s,id=%s,start=%s,success=%b}", this.getName(), this.getId(), this.getStartTime(), this.getLoginSuccess()));
+            return;
+        }
+        LogHandler.exDebug(String.format("Successfully updated DBSessionRecord{name=%s,id=%s,start=%s,success=%b}", this.getName(), this.getId(), this.getStartTime(), this.getLoginSuccess()));
     }
 
     @Transient
@@ -150,8 +160,13 @@ public class DBSessionRecord {
         return this.close_time;
     }
 
+    @Transient
     public long getAge() {
-        return this.age;
+        if (this.getCloseTime() == 0L) {
+            return (System.currentTimeMillis() - this.getStartTime());
+        } else {
+            return (this.getCloseTime() - this.getStartTime());
+        }
     }
 
     public long getBlocksPlaced() {
@@ -192,10 +207,6 @@ public class DBSessionRecord {
 
     public void setCloseTime(long l) {
         this.close_time = l;
-    }
-
-    public void setAge(long l) {
-        this.age = l;
     }
 
     public void setBlocksPlaced(long l) {

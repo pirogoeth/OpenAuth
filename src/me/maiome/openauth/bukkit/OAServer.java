@@ -44,10 +44,10 @@ public class OAServer {
     private Map<String, Object> name_bans = new HashMap<String, Object>();
 
     // setup of fields for handlers
-    private final boolean lh_enabled = (ConfigInventory.MAIN.getConfig().getString("login-handler", "off").equals("off")) ? false : true;
-    private final boolean wh_enabled = (ConfigInventory.MAIN.getConfig().getString("whitelist-handler", "off").equals("off")) ? false : true;
-    private final boolean lh_extendable = (ConfigInventory.MAIN.getConfig().getString("login-handler", "default").equals("extended")) ? true : false;
-    private final boolean wh_extendable = (ConfigInventory.MAIN.getConfig().getString("whitelist-handler", "default").equals("extended")) ? true : false;
+    private final boolean lh_enabled = (ConfigInventory.MAIN.getConfig().getString("login-handler", "off").equalsIgnoreCase("off")) ? false : true;
+    private final boolean wh_enabled = (ConfigInventory.MAIN.getConfig().getString("whitelist-handler", "off").equalsIgnoreCase("off")) ? false : true;
+    private final boolean lh_extendable = (ConfigInventory.MAIN.getConfig().getString("login-handler", "default").equalsIgnoreCase("extended")) ? true : false;
+    private final boolean wh_extendable = (ConfigInventory.MAIN.getConfig().getString("whitelist-handler", "default").equalsIgnoreCase("extended")) ? true : false;
 
     // time variables for scheduler tasks
     public final long autosave_delay = ConfigInventory.MAIN.getConfig().getLong("save-ban-delay", 900L);

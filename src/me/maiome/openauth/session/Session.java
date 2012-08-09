@@ -23,6 +23,7 @@ import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAPlayer;
 import me.maiome.openauth.bukkit.OAServer;
 import me.maiome.openauth.bukkit.events.*;
+import me.maiome.openauth.database.DBSessionRecord;
 import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
@@ -33,6 +34,7 @@ public class Session {
     protected transient final int factor = (17 * 6);
     protected transient final int serial = 201;
 
+    public long spawn_time;
     private LogHandler log = new LogHandler();
     private OpenAuth controller;
     private SessionController sc;
@@ -45,9 +47,9 @@ public class Session {
     private List<IAction> actions = new ArrayList<IAction>();
     private Map<String, SessionData<?>> session_data = new HashMap<String, SessionData<?>>();
     private Location lloc;
-    private long spawn_time;
     private boolean hidden = false;
     private String ip;
+    private DBSessionRecord session_record;
 
     protected final int wand_id = ConfigInventory.MAIN.getConfig().getInt("wand-id");
 
@@ -148,6 +150,15 @@ public class Session {
 
     public boolean isHidden() {
         return this.hidden;
+    }
+
+    // session records
+    public void attachSessionRecord(DBSessionRecord record) {
+        this.session_record = record;
+    }
+
+    public DBSessionRecord getSessionRecord() {
+        return this.session_record;
     }
 
     // wand methods

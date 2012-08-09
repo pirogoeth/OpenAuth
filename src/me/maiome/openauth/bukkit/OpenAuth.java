@@ -133,6 +133,9 @@ public class OpenAuth extends JavaPlugin {
         // set our instance
         OpenAuth.setInstance(this);
 
+        // load the build hashtag.
+        String hashtag = (YamlConfiguration.loadConfiguration(controller.getResource("plugin.yml"))).getString("hashtag", "nobuild");
+
         // initialise the configuration
         this.configurationManager.initialise();
 
@@ -189,8 +192,9 @@ public class OpenAuth extends JavaPlugin {
         // register listener(s)
         this.registerEvents(new OAListener(this));
         this.registerEvents(new OAExplosionListener(this));
+        this.registerEvents(new OARecordsListener(this));
 
-        // register command classes.
+        // register base command class.
         this.dynamicCommandRegistry.register(OACommands.OAParentCommand.class);
 
         // generate sessions for all users
@@ -226,6 +230,8 @@ public class OpenAuth extends JavaPlugin {
             this.metrics.addCustomData(OpenAuth.getJSONAPICallHandler().tracker); // add metrics data tracker
         } catch (java.lang.NoClassDefFoundError e) {
             log.warning("JSONAPI call handler could not be loaded -- is JSONAPI loaded?");
+        } catch (java.lang.Exception e) {
+            log.warning("An exception was caught while loading the JSONAPI call handler -- is JSONAPI loaded?");
         }
 
         // enable metrics.
@@ -237,7 +243,7 @@ public class OpenAuth extends JavaPlugin {
         }
 
         // loaded.
-        log.info("Enabled version " + version + ".");
+        log.info("Enabled version [" + version + "b" + hashtag + "].");
     };
 
     /**
@@ -298,6 +304,8 @@ public class OpenAuth extends JavaPlugin {
         List<Class<?>> list = new ArrayList<Class<?>>();
         list.add(DBPlayer.class);
         list.add(DBWhitelist.class);
+        list.add(DBSessionRecord.class);
+        list.add(DBChatChannel.class);
         // list.add(DBBanlist.class);
         return list;
     };

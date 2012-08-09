@@ -24,6 +24,7 @@ import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerKickEvent;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
@@ -93,6 +94,18 @@ public class OAListener implements Listener {
                         event.getPlayer(),
                         event.getMessage().substring(1));
                 }
+                event.setCancelled(true);
+            }
+        }
+    }
+
+    /**
+     * Catches player kicks.
+     */
+    @EventHandler(priority = EventPriority.HIGHEST)
+    public void onPlayerKick(PlayerKickEvent event) {
+        if (ConfigInventory.MAIN.getConfig().getBoolean("misc.catch-moving-too-quickly-kick", false) == true) {
+            if (event.getReason().startsWith("You moved too quickly")) {
                 event.setCancelled(true);
             }
         }

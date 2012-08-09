@@ -125,7 +125,10 @@ public class OAActiveLoginHandler implements OALoginHandler {
             return true;
         }
         String match = OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player.getName()).getPassword();
-        return ((this.getStringHash(password)).equals(match)) ? true : false;
+        boolean success = ((this.getStringHash(password)).equals(match)) ? true : false;
+        OAPlayerAttemptedLoginEvent e = new OAPlayerAttemptedLoginEvent(player, success);
+        this.controller.getOAServer().callEvent(e);
+        return success;
     }
 
     public boolean processDirectIdentification(OAPlayer player, String password) {
@@ -133,7 +136,10 @@ public class OAActiveLoginHandler implements OALoginHandler {
             return true;
         }
         String match = OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player.getName()).getPassword();
-        return (password.equals(match)) ? true : false;
+        boolean success = ((this.getStringHash(password)).equals(match)) ? true : false;
+        OAPlayerAttemptedLoginEvent e = new OAPlayerAttemptedLoginEvent(player, success);
+        this.controller.getOAServer().callEvent(e);
+        return success;
     }
 
     public void processPlayerRegistration(OAPlayer player, String password) {
