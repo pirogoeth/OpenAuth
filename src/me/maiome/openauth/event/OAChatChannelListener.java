@@ -2,6 +2,7 @@ package me.maiome.openauth.event;
 
 import me.maiome.openauth.bukkit.*;
 import me.maiome.openauth.bukkit.event.*;
+import me.maiome.openauth.chat.ChannelManager;
 import me.maiome.openauth.util.*;
 
 import org.bukkit.event.*;
@@ -11,11 +12,11 @@ import org.bukkit.event.player.*;
 public class OAChatChannelListener implements Listener {
 
     private final LogHandler log = new LogHandler();
-    private final OpenAuth controller = OpenAuth.getInstance();
-    private ChatManager manager;
+    private final OpenAuth controller = (OpenAuth) OpenAuth.getInstance();
+    private ChannelManager manager;
 
     public OAChatChannelListener() {
-        this.manager = ChatManager.getManager();
+        this.manager = ChannelManager.getManager();
     }
 
     @EventHandler(priority = EventPriority.HIGH)

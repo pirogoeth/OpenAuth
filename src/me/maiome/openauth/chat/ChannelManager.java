@@ -34,6 +34,6 @@ public class ChannelManager {
     }
 
     private void initialise() {
-        List<DBChatChannel> chans = OpenAuth.getInstace().getDatabase().find(DBChatChannel.class).findList();
+        List<DBChatChannel> chans = OpenAuth.getInstance().getDatabase().find(DBChatChannel.class).findList();
     }
 }

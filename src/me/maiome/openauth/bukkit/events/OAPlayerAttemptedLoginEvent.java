@@ -1,6 +1,8 @@
-package me.maiome.openauth.bukkit.event;
+package me.maiome.openauth.bukkit.events;
 
-import org.bukkit.event.Event;
+import org.bukkit.event.*;
+
+import me.maiome.openauth.bukkit.*;
 
 public class OAPlayerAttemptedLoginEvent extends Event {
 

@@ -6,6 +6,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandSender;
 import org.bukkit.configuration.*;
+import org.bukkit.configuration.file.*;
 import org.bukkit.configuration.serialization.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
@@ -30,7 +31,6 @@ import java.util.Map;
 
 // core imports
 import me.maiome.openauth.actions.*;
-import me.maiome.openauth.client.*;
 import me.maiome.openauth.commands.*;
 import me.maiome.openauth.database.*;
 import me.maiome.openauth.event.*;
@@ -134,7 +134,7 @@ public class OpenAuth extends JavaPlugin {
         OpenAuth.setInstance(this);
 
         // load the build hashtag.
-        String hashtag = (YamlConfiguration.loadConfiguration(controller.getResource("plugin.yml"))).getString("hashtag", "nobuild");
+        String hashtag = (YamlConfiguration.loadConfiguration(this.getResource("plugin.yml"))).getString("hashtag", "nobuild");
 
         // initialise the configuration
         this.configurationManager.initialise();
