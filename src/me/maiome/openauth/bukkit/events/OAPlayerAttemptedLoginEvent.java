@@ -18,7 +18,7 @@ public class OAPlayerAttemptedLoginEvent extends Event {
         return handlers;
     }
 
-    public static HandlerListe getHandlerList() [
+    public static HandlerList getHandlerList() {
         return handlers;
     }
 
