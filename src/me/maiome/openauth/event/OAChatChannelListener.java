@@ -23,7 +23,7 @@ public class OAChatChannelListener implements Listener {
     public void onPlayerChat(PlayerChatEvent event) {
         if (!(event.isCancelled())) {
             this.manager.process(event.getPlayer(), event.getMessage());
-            event.setCancelled();
+            event.setCancelled(true);
         }
     }
 }

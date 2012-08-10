@@ -15,9 +15,11 @@ import org.bukkit.event.player.*;
 public class OARecordsListener implements Listener {
 
     private final LogHandler log = new LogHandler();
-    private final OpenAuth controller = OpenAuth.getInstance();
+    private OpenAuth controller;
 
-    public OARecordsListener() { };
+    public OARecordsListener(OpenAuth controller) {
+        this.controller = controller;
+    };
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerSessionCreated(OASessionCreateEvent event) {
@@ -28,8 +30,7 @@ public class OARecordsListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerSessionDestroyed(OASessionDestroyEvent event) {
-        OAPlayer player = event.getSession().getOAPlayer();
-        DBSessionRecord sr = player.getSessionRecord();
+        DBSessionRecord sr = event.getSession().getSessionRecord();
         sr.setCloseTime(System.currentTimeMillis());
         sr.update();
     }
@@ -37,16 +38,16 @@ public class OARecordsListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockPlace(BlockPlaceEvent event) {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
-        DBSessionRecord sr = player.getSessionRecord();
-        sr.setBlocksPlaced(sr.getBlocksPlaced()++);
+        DBSessionRecord sr = player.getSession().getSessionRecord();
+        sr.setBlocksPlaced(sr.getBlocksPlaced() + 1L);
         sr.update();
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onBlockBreak(BlockBreakEvent event) {
-        OAPlayer player = OAPlayer.getPlayer(event.getPlayer()));
-        DBSessionRecord sr = player.getSessionRecord();
-        sr.setBlocksDestroyed(sr.getBlocksDestroyed()++);
+        OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
+        DBSessionRecord sr = player.getSession().getSessionRecord();
+        sr.setBlocksDestroyed(sr.getBlocksDestroyed() + 1L);
         sr.update();
     }
 }
