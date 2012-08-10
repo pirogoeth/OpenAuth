@@ -1,7 +1,7 @@
 package me.maiome.openauth.event;
 
 import me.maiome.openauth.bukkit.*;
-import me.maiome.openauth.bukkit.event.*;
+import me.maiome.openauth.bukkit.events.*;
 import me.maiome.openauth.chat.ChannelManager;
 import me.maiome.openauth.util.*;
 
