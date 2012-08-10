@@ -23,7 +23,7 @@ public class OARecordsListener implements Listener {
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerSessionCreated(OASessionCreateEvent event) {
-         DBSessionRecord sr = new DBSessionRecord(event.getSession().getPlayer());
+         DBSessionRecord sr = new DBSessionRecord(event.getSession());
          event.getSession().attachSessionRecord(sr);
          sr.save();
     }
