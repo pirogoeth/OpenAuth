@@ -35,10 +35,9 @@ public class DBSessionRecord {
      * Holds the generated id.
      */
     @Id
-    @NotNull
+    @Column(name = "OID")
     @NotEmpty
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    public long id;
+    public int id = null;
 
     /**
      * This will hold the session name.
@@ -51,55 +50,55 @@ public class DBSessionRecord {
      * Holds login success.
      */
     @NotNull
-    public boolean login_success;
+    public boolean loginsuccess;
 
     /**
      * Holds the last login time.
      */
     @NotNull
-    @NotEmpty
-    public long last_login;
+    public long lastlogin;
+
+    /**
+     * Holds the last login IP.
+     */
+    @NotNull
+    public String lastloginip;
 
     /**
      * Holds the number of times this session has been reused before disposal.
      */
     @NotNull
-    public int reuse_count = 0;
+    public int reusecount = 0;
 
     /**
      * Holds the time that the session was created.
      */
-    @NotEmpty
     @NotNull
-    public long start_time = 0L;
+    public long starttime = 0L;
 
     /**
      * Holds the time that this session was destroyed.
      */
-    @NotEmpty
     @NotNull
-    public long close_time = 0L;
+    public long closetime = 0L;
 
     /**
      * Holds the number of blocks that were placed during this session.
      */
-    @NotEmpty
     @NotNull
-    public long blocks_placed = 0;
+    public long blocksplaced = 0;
 
     /**
      * Holds the number of blocks that were broken during this session.
      */
-    @NotEmpty
     @NotNull
-    public long blocks_destroyed = 0;
+    public long blocksdestroyed = 0;
 
     /**
      * Holds the last known location of a player using this session.
      */
-    @NotEmpty
     @NotNull
-    public String last_location = "";
+    public String lastlocation = "";
 
     @Transient
     public Session session;
@@ -108,9 +107,11 @@ public class DBSessionRecord {
 
     public DBSessionRecord(Session session) {
         this.session = session;
+        this.setId(null);
         this.setName(this.session.getPlayer().getName());
-        this.setStartTime(this.session.spawn_time);
-        this.setLastLogin(this.session.spawn_time);
+        this.setStarttime(this.session.spawn_time);
+        this.setLastlogin(this.session.spawn_time);
+        this.setLastloginip(this.session.getIP());
     }
 
     public synchronized void save() {
@@ -121,10 +122,10 @@ public class DBSessionRecord {
         try {
             OpenAuth.getInstance().getDatabase().update(this);
         } catch (java.lang.Exception e) {
-            LogHandler.exDebug(String.format("Error updating DBSessionRecord{name=%s,id=%s,start=%s,success=%b}", this.getName(), this.getId(), this.getStartTime(), this.getLoginSuccess()));
+            LogHandler.exDebug(String.format("Error updating DBSessionRecord{name=%s,id=%s,start=%s,success=%b}", this.getName(), this.getId(), this.getStarttime(), this.getLoginsuccess()));
             return;
         }
-        LogHandler.exDebug(String.format("Successfully updated DBSessionRecord{name=%s,id=%s,start=%s,success=%b}", this.getName(), this.getId(), this.getStartTime(), this.getLoginSuccess()));
+        LogHandler.exDebug(String.format("Successfully updated DBSessionRecord{name=%s,id=%s,start=%s,success=%b}", this.getName(), this.getId(), this.getStarttime(), this.getLoginsuccess()));
     }
 
     @Transient
@@ -140,96 +141,104 @@ public class DBSessionRecord {
         return this.name;
     }
 
-    public boolean getLoginSuccess() {
-        return this.login_success;
+    public boolean getLoginsuccess() {
+        return this.loginsuccess;
     }
 
-    public long getLastLogin() {
-        return this.last_login;
+    public long getLastlogin() {
+        return this.lastlogin;
     }
 
-    public int getReuseCount() {
-        return this.reuse_count;
+    public String getLastloginip() {
+        return this.lastloginip;
     }
 
-    public long getStartTime() {
-        return this.start_time;
+    public int getReusecount() {
+        return this.reusecount;
     }
 
-    public long getCloseTime() {
-        return this.close_time;
+    public long getStarttime() {
+        return this.starttime;
+    }
+
+    public long getClosetime() {
+        return this.closetime;
     }
 
     @Transient
     public long getAge() {
-        if (this.getCloseTime() == 0L) {
-            return (System.currentTimeMillis() - this.getStartTime());
+        if (this.getClosetime() == 0L) {
+            return (System.currentTimeMillis() - this.getStarttime());
         } else {
-            return (this.getCloseTime() - this.getStartTime());
+            return (this.getClosetime() - this.getStarttime());
         }
     }
 
-    public long getBlocksPlaced() {
-        return this.blocks_placed;
+    public long getBlocksplaced() {
+        return this.blocksplaced;
     }
 
-    public long getBlocksDestroyed() {
-        return this.blocks_destroyed;
+    public long getBlocksdestroyed() {
+        return this.blocksdestroyed;
     }
 
-    public String getLastLocation() {
-        return this.last_location;
+    public String getLastlocation() {
+        return this.lastlocation;
     }
 
-    public void setId(long l) {
-        this.id = l;
+    public void setId(final int i) {
+        this.id = i;
     }
 
-    public void setName(String s) {
+    public void setName(final String s) {
         this.name = s;
     }
 
-    public void setLoginSuccess(boolean b) {
-        this.login_success = b;
+    public void setLoginsuccess(final boolean b) {
+        this.loginsuccess = b;
     }
 
-    public void setLastLogin(long l) {
-        this.last_login = l;
+    public void setLastlogin(final long l) {
+        this.lastlogin = l;
     }
 
-    public void setReuseCount(int l) {
-        this.reuse_count = l;
+    public void setLastloginip(final String s) {
+        this.lastloginip = s;
     }
 
-    public void setStartTime(long l) {
-        this.start_time = l;
+    public void setReusecount(final int l) {
+        this.reusecount = l;
     }
 
-    public void setCloseTime(long l) {
-        this.close_time = l;
+    public void setStarttime(final long l) {
+        this.starttime = l;
     }
 
-    public void setBlocksPlaced(long l) {
-        this.blocks_placed = l;
+    public void setClosetime(final long l) {
+        this.closetime = l;
     }
 
-    public void setBlocksDestroyed(long l) {
-        this.blocks_destroyed = l;
+    public void setBlocksplaced(final long l) {
+        this.blocksplaced = l;
     }
 
-    public void setLastLocation(String s) {
-        this.last_location = s;
+    public void setBlocksdestroyed(final long l) {
+        this.blocksdestroyed = l;
+    }
+
+    public void setLastlocation(final String s) {
+        this.lastlocation = s;
     }
 
     @Transient
     public void setLastLocation(final Location loc) {
         String locstring = String.format("%s@%d,%d,%d:%d,%d", loc.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
-        this.setLastLocation(locstring);
+        this.setLastlocation(locstring);
     }
 
     @Transient
     public Location getLastLocationAsLoc() {
-        final String locstr = this.getLastLocation();
+        final String locstr = this.getLastlocation();
         String world = locstr.split("\\@")[0];
         String[] locs = locstr.split("\\@")[1].split("\\:")[0].split("\\,");
         double x = new Double(locs[0]), y = new Double(locs[1]), z = new Double(locs[2]);

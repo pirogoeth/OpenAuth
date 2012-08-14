@@ -31,7 +31,7 @@ public class OARecordsListener implements Listener {
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerSessionDestroyed(OASessionDestroyEvent event) {
         DBSessionRecord sr = event.getSession().getSessionRecord();
-        sr.setCloseTime(System.currentTimeMillis());
+        sr.setClosetime(System.currentTimeMillis());
         sr.update();
     }
 
@@ -39,7 +39,7 @@ public class OARecordsListener implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
         DBSessionRecord sr = player.getSession().getSessionRecord();
-        sr.setBlocksPlaced(sr.getBlocksPlaced() + 1L);
+        sr.setBlocksplaced(sr.getBlocksplaced() + 1L);
         sr.update();
     }
 
@@ -47,7 +47,32 @@ public class OARecordsListener implements Listener {
     public void onBlockBreak(BlockBreakEvent event) {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
         DBSessionRecord sr = player.getSession().getSessionRecord();
-        sr.setBlocksDestroyed(sr.getBlocksDestroyed() + 1L);
+        sr.setBlocksdestroyed(sr.getBlocksdestroyed() + 1L);
+        sr.update();
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerAttemptedLogin(OAPlayerAttemptedLoginEvent event) {
+        DBSessionRecord sr = event.getPlayer().getSession().getSessionRecord();
+        sr.setLoginsuccess(event.loginSucceeded());
+        sr.setLastloginip(event.getPlayer().getIP());
+        sr.update();
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerJoin(PlayerJoinEvent event) {
+        OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
+        DBSessionRecord sr = player.getSession().getSessionRecord();
+        sr.setLastlogin(System.currentTimeMillis());
+        sr.setReusecount(sr.getReusecount() + 1);
+        sr.update();
+    }
+
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
+        DBSessionRecord sr = player.getSession().getSessionRecord();
+        sr.setLastLocation(player.getPlayer().getLocation());
         sr.update();
     }
 }

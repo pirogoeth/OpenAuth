@@ -35,7 +35,8 @@ public class DBWhitelist {
     /**
      * Location of the point.
      */
-    @NotNull public boolean whitelisted = false;
+    @NotNull
+    public boolean whitelisted = false;
 
     /**
      * Mandatory constructor for ebean use.

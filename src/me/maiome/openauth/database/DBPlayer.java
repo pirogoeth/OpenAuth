@@ -69,12 +69,14 @@ public class DBPlayer {
         this.save();
     }
 
+    @Transient
     public void save() {
         synchronized (OpenAuth.databaseLock) {
             OpenAuth.getInstance().getDatabase().save(this);
         }
     }
 
+    @Transient
     public void update() {
         synchronized (OpenAuth.databaseLock) {
             try {
@@ -95,6 +97,7 @@ public class DBPlayer {
         this.name = name;
     }
 
+    @Transient
     public void setName(final String name, final boolean update) {
         this.setName(name);
         if (update == true) this.update();
