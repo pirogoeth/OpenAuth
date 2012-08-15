@@ -15,7 +15,6 @@ import java.math.*;
 // internal imports
 import me.maiome.openauth.bukkit.*;
 import me.maiome.openauth.bukkit.events.*;
-import me.maiome.openauth.client.*;
 import me.maiome.openauth.security.*;
 import me.maiome.openauth.database.DBPlayer;
 import me.maiome.openauth.util.Config;

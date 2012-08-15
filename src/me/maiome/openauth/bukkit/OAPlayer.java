@@ -1,4 +1,3 @@
-
 package me.maiome.openauth.bukkit;
 
 // bukkit imports

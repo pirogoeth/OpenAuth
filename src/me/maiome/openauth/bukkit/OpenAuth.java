@@ -192,7 +192,6 @@ public class OpenAuth extends JavaPlugin {
         // register listener(s)
         this.registerEvents(new OAListener(this));
         this.registerEvents(new OAExplosionListener(this));
-        this.registerEvents(new OARecordsListener(this));
 
         // register base command class.
         this.dynamicCommandRegistry.register(OACommands.OAParentCommand.class);
@@ -304,7 +303,6 @@ public class OpenAuth extends JavaPlugin {
         List<Class<?>> list = new ArrayList<Class<?>>();
         list.add(DBPlayer.class);
         list.add(DBWhitelist.class);
-        list.add(DBSessionRecord.class);
         list.add(DBChatChannel.class);
         // list.add(DBBanlist.class);
         return list;

@@ -33,7 +33,6 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 // internal
 import me.maiome.openauth.bukkit.*;
 import me.maiome.openauth.bukkit.events.*;
-import me.maiome.openauth.client.*;
 import me.maiome.openauth.security.*;
 import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
