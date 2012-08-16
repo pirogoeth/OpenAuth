@@ -36,6 +36,7 @@ import me.maiome.openauth.database.*;
 import me.maiome.openauth.event.*;
 import me.maiome.openauth.jsonapi.*;
 import me.maiome.openauth.metrics.*;
+import me.maiome.openauth.mixins.*;
 import me.maiome.openauth.security.*;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.Permission;
@@ -85,6 +86,11 @@ public class OpenAuth extends JavaPlugin {
      * Metrics-typed container.
      */
     private static Metrics metrics = null;
+
+    /**
+     * Mixin Manager.
+     */
+    private static MixinManager mixinManager;
 
     /**
      * Holds an OAServer instance.
@@ -150,6 +156,9 @@ public class OpenAuth extends JavaPlugin {
         new OAServer(this, this.getServer());
         // initialise out session controller
         new SessionController(this);
+
+        // initialise the mixin manager, which instantiates the generic class loader.
+        this.mixinManager = new MixinManager();
 
         // check if we need to override.
         if (ConfigInventory.MAIN.getConfig().getBoolean("override", false) == true) {
@@ -240,6 +249,9 @@ public class OpenAuth extends JavaPlugin {
             log.warning("Could not load PluginMetrics!");
             e.printStackTrace();
         }
+
+        // make the mixin manager load all mixins.
+        this.mixinManager.load();
 
         // loaded.
         log.info("Enabled version [" + version + "b" + hashtag + "].");
@@ -482,11 +494,18 @@ public class OpenAuth extends JavaPlugin {
     /**
      * Shorthand to register an event listener.
      */
-    private void registerEvents(Listener listener) {
+    public void registerEvents(Listener listener) {
         this.getServer().getPluginManager().registerEvents(
             listener,
             (Plugin) this);
         return;
+    }
+
+    /**
+     * Adds a custom data tracker to metrics.
+     */
+    public void addCustomMetricsTracker(Tracker tracker) {
+        this.metrics.addCustomData(tracker);
     }
 
     /**
@@ -500,7 +519,7 @@ public class OpenAuth extends JavaPlugin {
      * Whether or not a player can be easily wrapped.
      */
     public boolean wrappable(Object obj) {
-        log.warning("DEPRECIATED: SOMETHING USED OpenAuth.wrappable()!");
+        log.warning("DEPRECATED: SOMETHING USED OpenAuth.wrappable()!");
         return OAPlayer.hasPlayer(obj);
     }
 
@@ -508,7 +527,7 @@ public class OpenAuth extends JavaPlugin {
      * Wraps a player into an OAPlayer instance.
      */
     public OAPlayer wrap(Object obj) {
-        log.warning("DEPRECIATED: SOMETHING USED OpenAuth.wrap()!");
+        log.warning("DEPRECATED: SOMETHING USED OpenAuth.wrap()!");
         return OAPlayer.getPlayer(obj);
     }
 }
