@@ -60,7 +60,7 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
     }
 
     public boolean isWhitelisted(String name) {
-        if (this.isEnabled() == false) return true;
+        if (!(this.isEnabled())) return true;
         return this.whitelist.contains(name);
     }
 
@@ -71,11 +71,12 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
     public void processPlayerJoin(PlayerLoginEvent event, OAPlayer player) {
         if (this.isEnabled() == false) return;
         if (!(this.isWhitelisted(player))) {
+            String denialMessage = ConfigInventory.MAIN.getConfig().getString("whitelisting.denial-message", "You are not whitelisted on this server!");
             if (ConfigInventory.MAIN.getConfig().getBoolean("whitelisting.broadcast-failures", false) == true) {
                 this.controller.getOAServer().getServer().broadcastMessage(ChatColor.GREEN + String.format(
-                    "Player %s has tried to join, but is not whitelisted!", player.getName()));
+                    "Player %s has tried to join the server, but is not whitelisted!", player.getName()));
             }
-            event.disallow(PlayerLoginEvent.Result.KICK_WHITELIST, "You are not whitelisted on this server!");
+            event.disallow(PlayerLoginEvent.Result.KICK_WHITELIST, denialMessage);
             return;
         }
         event.allow();

@@ -10,6 +10,7 @@ import org.bukkit.Location;
 import org.bukkit.Server;
 
 // java
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,27 +28,52 @@ import com.avaje.ebean.validation.NotNull;
 @Table(name = "channels")
 public class DBChatChannel {
 
+    /**
+     * Name of the channel.
+     */
     @Id
     @NotEmpty
     @NotNull
     public String name;
 
+    /**
+     * Name of the channel owner.
+     */
     @NotEmpty
     @NotNull
     public String owner;
 
+    /**
+     * Members of the channel.
+     * List string is formatted like this:
+     *   member1,member2,member3,etc
+     */
     @NotEmpty
     @NotNull
     public String members;
 
-    @NotEmpty
+    /**
+     * If the channel is hidden in the list from everyone without the correct permissions.
+     */
     @NotNull
-    public char[] flags;
+    public boolean hidden = false;
 
+    /**
+     * Whether the channel is invite only or not.
+     */
+    @NotNull
+    public boolean invite = false;
+
+    /**
+     * Topicline of the channel.
+     */
     @NotEmpty
     @NotNull
     public String topic;
 
+    /**
+     * Channel join password.
+     */
     @NotNull
     public String password = "";
 
@@ -92,8 +118,12 @@ public class DBChatChannel {
         return this.members;
     }
 
-    public char[] getFlags() {
-        return this.flags;
+    public boolean getHidden() {
+        return this.hidden;
+    }
+
+    public boolean getInvite() {
+        return this.invite;
     }
 
     public String getTopic() {
@@ -107,6 +137,17 @@ public class DBChatChannel {
     @Transient
     public String[] getMembersAsArray() {
         return this.members.split("\\,");
+    }
+
+    @Transient
+    public boolean hasPlayer(String player) {
+        List<String> members = Arrays.asList(this.getMembersAsArray());
+        return members.contains(player);
+    }
+
+    @Transient
+    public boolean hasPlayer(OAPlayer player) {
+        return this.hasPlayer(player.getName());
     }
 
     @Transient
@@ -126,8 +167,12 @@ public class DBChatChannel {
         this.members = s;
     }
 
-    public void setFlags(char[] c) {
-        this.flags = c;
+    public void setHidden(boolean b) {
+        this.hidden = b;
+    }
+
+    public void setInvite(boolean b) {
+        this.invite = b;
     }
 
     public void setTopic(String s) {

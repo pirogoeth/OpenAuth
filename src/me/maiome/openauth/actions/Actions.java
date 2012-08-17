@@ -1,13 +1,15 @@
 package me.maiome.openauth.actions;
 
 // java imports
+import java.io.File;
+import java.lang.reflect.*;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.Set;
-import java.lang.reflect.*;
 
 // internal imports
 import me.maiome.openauth.bukkit.*;
+import me.maiome.openauth.cl.*;
 import me.maiome.openauth.metrics.*;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.ConfigInventory;
@@ -22,10 +24,16 @@ public enum Actions {
     HOUNDS(HellHounds.class),
     SPAWN(SpawnStick.class);
 
+    static {
+        File f = new File("plugins/OpenAuth/actions/");
+        f.mkdir();
+    }
+
     public final Class action;
     private final static LogHandler log = new LogHandler();
     private final static Class[] action_cons_types = {OAServer.class, Session.class};
     private static final Map<String, Class> store = new HashMap<String, Class>();
+    private static final GenericURIClassLoader<IAction> classLoader = new GenericURIClassLoader<IAction>("plugins/OpenAuth/actions/", IAction.class);
 
     Actions(final Class action) {
         this.action = action;
@@ -83,6 +91,21 @@ public enum Actions {
                 registerAction(a.getAction());
             } catch (java.lang.Exception e) {
                 log.info("Exception occurred while initialising Actions enumerator.");
+                e.printStackTrace();
+            }
+        }
+        for (Object ob : classLoader.load().getClasses()) {
+            Class c = null;
+            try {
+                c = (Class) ob;
+            } catch (java.lang.Exception e) {
+                log.info("Exception occurred while casting up external Action.");
+                e.printStackTrace();
+            }
+            try {
+                registerAction(c);
+            } catch (java.lang.Exception e) {
+                log.info("Exception occurred while registering external Action.");
                 e.printStackTrace();
             }
         }

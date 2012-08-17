@@ -15,7 +15,10 @@ import me.maiome.openauth.util.LogHandler;
  * Usage:
  *
  *   GenericURIClassLoader<IPolicy> loader = new GenericURIClassLoader<IPolicy>("policies", IPolicy.class);
- *   List<IPolicy> policies = loader.load();
+ *   List<IPolicy> policies = loader.load().getInstances();
+ *     ==OR==
+ *   GenericURIClassLoader<IPolicy> loader = new GenericURIClassLoader<IPolicy>("policies", IPolicy.class);
+ *   List<Class> policyClasses = loader.load().getClasses();
  *
  * Caveats:
  *
@@ -30,6 +33,10 @@ public class GenericURIClassLoader<T> {
     private String directory = "";
     // class to compare and cast to
     private Class clazz;
+    // list of instances
+    private final List<T> instances = new ArrayList<T>();
+    // list of class objects
+    private final List<Class> classes = new ArrayList<Class>();
 
     /**
      * Obviously this is a constructor.
@@ -50,14 +57,14 @@ public class GenericURIClassLoader<T> {
      *
      * Also, all class loading logic is performed here.
      */
-    public List<T> load() {
+    public GenericURIClassLoader load() {
         List<T> classes = new ArrayList<T>();
         File dir = new File(directory);
 
         // make sure the directory is there.
         if (!(dir.exists())) {
             log.exDebug("{CL} Directory " + this.directory + " does not exist.");
-            return classes;
+            return this;
         }
 
         // use a URLClassLoader to load the classes from the dir.
@@ -67,7 +74,7 @@ public class GenericURIClassLoader<T> {
         } catch (java.lang.Exception e) {
             log.exDebug("{CL} Encountered an error while initialising the class loader.");
             e.printStackTrace();
-            return classes;
+            return this;
         }
 
         // classloading logic
@@ -79,7 +86,7 @@ public class GenericURIClassLoader<T> {
             String fname = f.getName().substring(0, f.getName().lastIndexOf("."));
             // finish loading the class.
             try {
-                Class<?> clazz = loader.loadClass(fname);
+                Class clazz = loader.loadClass(fname);
                 Object ob = clazz.newInstance();
                 try {
                     this.clazz.cast(ob);
@@ -93,12 +100,28 @@ public class GenericURIClassLoader<T> {
                 }
                 T clazzz = (T) ob;
                 classes.add(clazzz);
+                this.classes.add(clazz); // class object
+                this.instances.add(clazzz); // object instance
                 log.exDebug("Loaded class: " + clazzz.getClass().getSimpleName());
             } catch (java.lang.Exception e) {
                 log.exDebug("Error loading " + fname + ".");
                 e.printStackTrace();
             }
         }
-        return classes;
+        return this;
+    }
+
+    /**
+     * Returns all instances of the loaded classes.
+     */
+    public List<T> getInstances() {
+        return this.instances;
+    }
+
+    /**
+     * Returns all loaded class objects.
+     */
+    public List<Class> getClasses() {
+        return this.classes;
     }
 }

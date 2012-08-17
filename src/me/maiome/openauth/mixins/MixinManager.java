@@ -8,6 +8,8 @@ import java.io.File;
 import java.lang.reflect.*;
 import java.util.*;
 
+import org.bukkit.event.Listener;
+
 public class MixinManager {
 
     private final Map<String, IMixin> mixin_map = new HashMap<String, IMixin>();
@@ -17,6 +19,10 @@ public class MixinManager {
     private static final LogHandler log = new LogHandler();
     private static final String directory = "plugins/OpenAuth/mixins/";
 
+    public static MixinManager getInstance() {
+        return instance;
+    }
+
     public MixinManager() {
         instance = this;
         this.loader = new GenericURIClassLoader<IMixin>(directory, IMixin.class);
@@ -25,7 +31,7 @@ public class MixinManager {
     }
 
     public void load() {
-        this.mixins.addAll(this.loader.load());
+        this.mixins.addAll(this.loader.load().getInstances());
         for (IMixin mixin : this.mixins) {
             log.info("Loaded mixin: " + mixin.getName());
             mixin.onInit();
@@ -37,5 +43,9 @@ public class MixinManager {
             mixin.onTeardown();
             log.info("Unloaded mixin: " + mixin.getName());
         }
+    }
+
+    public void registerEvents(org.bukkit.event.Listener listener) {
+        ((OpenAuth) OpenAuth.getInstance()).registerEvents(listener);
     }
 }

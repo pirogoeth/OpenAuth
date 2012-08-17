@@ -20,14 +20,12 @@
 #   epsilon - how many sessions do i need to be inactive before i actually start pruning? [default: 3]
 # wand-id:
 #   this is the id of the admin wand item [default: 369 (blaze rod)]
-# login-handler, whitelist-handler: (handler types {default (or on), off, extended})
-#   default (or on) - uses the default handler for that action
-#   off - turns off the handler
-#   extended - modified 'default' state, allows setting of the handler by an outside plugin
-#     for say, a plugin that extends this one by providing a separate set of handlers
+# login-handler, whitelist-handler: (handler types {default (true/on): true/on or false/off})
+#   decides whether the respective handler is enabled or disabled [default: true]
 # whitelisting:
 #   broadcast-failures - when an unwhitelisted player attempts to join, broadcast it to all players [default: true]
-#   print-on-load - print the whitelist when the whitelisting handler loads
+#   print-on-load - print the whitelist when the whitelisting handler loads [default: true]
+#   denial-message - what message to kick the unwhitelisted players with [default: You are not whitelisted on this server!]
 # auth:
 #   require - whether auth is required to be able to play, if so, user
 #             will be frozen [default: true]
@@ -77,8 +75,8 @@ session-prune-delay: 6000
 session-prune-period: 12000
 session-prune-epsilon: 3
 wand-id: 369
-login-handler: default
-whitelist-handler: default
+login-handler: true
+whitelist-handler: true
 database:
     driver: org.sqlite.JDBC
     url: jdbc:sqlite:{DIR}/{NAME}.db
@@ -90,6 +88,7 @@ database:
 whitelisting:
     broadcast-failures: true
     print-on-load: true
+    denial-message: You are not whitelisted on this server!
 auth:
     require: true
     password-security: basic

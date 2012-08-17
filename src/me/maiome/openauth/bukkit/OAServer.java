@@ -44,10 +44,8 @@ public class OAServer {
     private Map<String, Object> name_bans = new HashMap<String, Object>();
 
     // setup of fields for handlers
-    private final boolean lh_enabled = (ConfigInventory.MAIN.getConfig().getString("login-handler", "off").equalsIgnoreCase("off")) ? false : true;
-    private final boolean wh_enabled = (ConfigInventory.MAIN.getConfig().getString("whitelist-handler", "off").equalsIgnoreCase("off")) ? false : true;
-    private final boolean lh_extendable = (ConfigInventory.MAIN.getConfig().getString("login-handler", "default").equalsIgnoreCase("extended")) ? true : false;
-    private final boolean wh_extendable = (ConfigInventory.MAIN.getConfig().getString("whitelist-handler", "default").equalsIgnoreCase("extended")) ? true : false;
+    private final boolean lh_enabled = ConfigInventory.MAIN.getConfig().getBoolean("login-handler", false);
+    private final boolean wh_enabled = ConfigInventory.MAIN.getConfig().getBoolean("whitelist-handler", false);
 
     // time variables for scheduler tasks
     public final long autosave_delay = ConfigInventory.MAIN.getConfig().getLong("save-ban-delay", 900L);
@@ -65,8 +63,8 @@ public class OAServer {
         // debugging information
         log.exDebug(String.format("AutoSave: {DELAY: %s, PERIOD: %s}", Long.toString(autosave_delay), Long.toString(autosave_period)));
         log.exDebug(String.format("WhitelistSave: {DELAY: %s, PERIOD: %s}", Long.toString(wlsave_delay), Long.toString(wlsave_period)));
-        log.exDebug(String.format("LoginHandler: {ENABLED: %s, EXTENDABLE: %s}", Boolean.toString(lh_enabled), Boolean.toString(lh_extendable)));
-        log.exDebug(String.format("WhitelistHandler: {ENABLED: %s, EXTENDABLE: %s}", Boolean.toString(wh_enabled), Boolean.toString(wh_extendable)));
+        log.exDebug(String.format("LoginHandler: {ENABLED: %s}", Boolean.toString(lh_enabled)));
+        log.exDebug(String.format("WhitelistHandler: {ENABLED: %s}", Boolean.toString(wh_enabled)));
 
         // register the OAServer instance.
         OpenAuth.setOAServer(this);
@@ -152,10 +150,6 @@ public class OAServer {
 
     // setup of handlers
 
-    public boolean isLHExtendable() {
-        return this.lh_extendable;
-    }
-
     public boolean isLHEnabled() {
         return this.lh_enabled;
     }
@@ -166,10 +160,6 @@ public class OAServer {
 
     public OALoginHandler getLoginHandler() {
         return this.loginHandler;
-    }
-
-    public boolean isWHExtendable() {
-        return this.wh_extendable;
     }
 
     public boolean isWHEnabled() {
