@@ -20,7 +20,7 @@
 #   epsilon - how many sessions do i need to be inactive before i actually start pruning? [default: 3]
 # wand-id:
 #   this is the id of the admin wand item [default: 369 (blaze rod)]
-# login-handler, whitelist-handler: (handler types {default (true/on): true/on or false/off})
+# whitelist-handler: (handler types {default (true/on): true/on or false/off})
 #   decides whether the respective handler is enabled or disabled [default: true]
 # whitelisting:
 #   broadcast-failures - when an unwhitelisted player attempts to join, broadcast it to all players [default: true]
@@ -75,7 +75,6 @@ session-prune-delay: 6000
 session-prune-period: 12000
 session-prune-epsilon: 3
 wand-id: 369
-login-handler: true
 whitelist-handler: true
 database:
     driver: org.sqlite.JDBC

@@ -44,7 +44,6 @@ public class OAServer {
     private Map<String, Object> name_bans = new HashMap<String, Object>();
 
     // setup of fields for handlers
-    private final boolean lh_enabled = ConfigInventory.MAIN.getConfig().getBoolean("login-handler", false);
     private final boolean wh_enabled = ConfigInventory.MAIN.getConfig().getBoolean("whitelist-handler", false);
 
     // time variables for scheduler tasks
@@ -58,12 +57,11 @@ public class OAServer {
         this.server = server;
         this.loginHandler = new OAActiveLoginHandler(this.controller);
         this.whitelistHandler = new OAActiveWhitelistHandler(this.controller);
-        this.loginHandler.setEnabled(this.lh_enabled);
+        this.loginHandler.setEnabled(true);
         this.whitelistHandler.setEnabled(this.wh_enabled);
         // debugging information
         log.exDebug(String.format("AutoSave: {DELAY: %s, PERIOD: %s}", Long.toString(autosave_delay), Long.toString(autosave_period)));
         log.exDebug(String.format("WhitelistSave: {DELAY: %s, PERIOD: %s}", Long.toString(wlsave_delay), Long.toString(wlsave_period)));
-        log.exDebug(String.format("LoginHandler: {ENABLED: %s}", Boolean.toString(lh_enabled)));
         log.exDebug(String.format("WhitelistHandler: {ENABLED: %s}", Boolean.toString(wh_enabled)));
 
         // register the OAServer instance.
