@@ -75,10 +75,18 @@ public class OAListener implements Listener {
 
         if (player.getSession().isFrozen() == true &&
             ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.commands", true) == true) {
-            if (((!(split[0].equals("/oa")) && !(split[0].equals("/openauth"))) && (!(split[1].equals("login")) && !(split[1].equals("register")))) && !(split[0].equals("/worldedit"))) {
-                player.sendMessage(ChatColor.GREEN + "You must identify to use commands.");
-                event.setCancelled(true);
-                return;
+            try {
+                if (((!(split[0].equals("/oa")) && !(split[0].equals("/openauth"))) && (!(split[1].equals("login")) && !(split[1].equals("register")))) && !(split[0].equals("/worldedit"))) {
+                    player.sendMessage(ChatColor.GREEN + "You must identify to use commands.");
+                    event.setCancelled(true);
+                    return;
+                }
+            } catch (java.lang.ArrayIndexOutOfBoundsException e) {
+                if (!(split[0].equals("/oa")) && !(split[0].equals("/openauth")) && !(split[0].equals("/worldedit"))) {
+                    player.sendMessage(ChatColor.GREEN + "You must identify to use commands.");
+                    event.setCancelled(true);
+                    return;
+                }
             }
         }
 

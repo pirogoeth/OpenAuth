@@ -148,10 +148,6 @@ public class OAServer {
 
     // setup of handlers
 
-    public boolean isLHEnabled() {
-        return this.lh_enabled;
-    }
-
     public void setLoginHandler(OALoginHandler lh) {
         this.loginHandler = lh;
     }
