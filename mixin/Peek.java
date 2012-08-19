@@ -45,22 +45,38 @@ public class Peek implements IMixin, Listener {
     @CommandPermissions({ "openauth.mixin.peek" })
     public void peek(CommandContext args, CommandSender sender) {
         Player player = OAPlayer.getPlayer(args.getString(0)).getPlayer();
+        if (player == null) {
+            sender.sendMessage("Player " + args.getString(0) + " is not online.");
+            return;
+        }
         if (args.hasFlag('c')) { // clears the player's inventory
             player.getInventory().clear();
+            sender.sendMessage(String.format("\u00A7a%s's inventory has been cleared.", player.getName()));
             return;
         } else if (args.hasFlag('a')) { // shows the active item
             ItemStack active = player.getItemInHand();
             sender.sendMessage(String.format("\u00A7a%s's active item: %s [%s]", player.getName(), active.getType(), active.getAmount()));
             return;
         }
+        ItemStack active = player.getItemInHand();
         StringBuilder data = new StringBuilder();
         data.append(String.format("\u00A7a%s's inventory: \u00A7f", player.getName()));
         PlayerInventory inv = player.getInventory();
         List<ItemStack> stacks = Arrays.asList(inv.getContents());
         for (ItemStack stack : stacks) {
-            String ds = String.format("%s%s [%s]", ((stack == player.getItemInHand()) ? "\u00A7b" : "\u00A7f"), stack.getType(), stack.getAmount());
-            data.append(ds + ((stack == (stacks.get(stacks.size() - 1))) ? "" : ", "));
+            String ds;
+            if (stack == null) {
+                continue;
+            }
+            String c = "\u00A7f";
+            if (stack.equals(active)) {
+                c = "\u00A7b";
+            }
+            ds = String.format("%s%s [%s]", c, stack.getType(), stack.getAmount());
+            data.append(ds + ", ");
         }
-        sender.sendMessage(data.toString());
+        String s = data.toString();
+        s = s.substring(0, s.length() - 2);
+        sender.sendMessage(s);
     }
 }
