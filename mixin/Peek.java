@@ -25,22 +25,12 @@ public class Peek implements IMixin, Listener {
         this.controller = (OpenAuth) OpenAuth.getInstance();
     }
 
-    public class PeekCommand {
-
-        private OpenAuth controller;
-
-        public PeekCommand(OpenAuth controller) {
-            this.controller = controller;
-        }
-
-    }
-
     public String getName() {
         return this.name;
     }
 
     public void onInit() {
-        this.controller.getCommandsManagerRegistration().register(Peek.PeekCommand.class);
+        this.controller.getCommandsManagerRegistration().register(Peek.class);
     }
 
     public void onTeardown() { };
