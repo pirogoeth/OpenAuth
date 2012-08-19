@@ -266,6 +266,8 @@ public class OpenAuth extends JavaPlugin {
         for (Map.Entry<String, OAPlayer> entry : OAPlayer.players.entrySet()) {
             ((OAPlayer) entry.getValue()).setOffline();
         }
+        // unload mixins
+        this.mixinManager.unload();
         // save ALL the bans!
         oaserver.saveBans(false);
         // save the whitelist

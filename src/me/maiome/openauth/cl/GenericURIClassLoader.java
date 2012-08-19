@@ -14,11 +14,11 @@ import me.maiome.openauth.util.LogHandler;
  *
  * Usage:
  *
- *   GenericURIClassLoader<IPolicy> loader = new GenericURIClassLoader<IPolicy>("policies", IPolicy.class);
- *   List<IPolicy> policies = loader.load().getInstances();
+ *   GenericURIClassLoader<IMixin> loader = new GenericURIClassLoader<IMixin>("mixins", IMixin.class);
+ *   List<IMixin> mixins = loader.load().getInstances();
  *     ==OR==
- *   GenericURIClassLoader<IPolicy> loader = new GenericURIClassLoader<IPolicy>("policies", IPolicy.class);
- *   List<Class> policyClasses = loader.load().getClasses();
+ *   GenericURIClassLoader<IMixin> loader = new GenericURIClassLoader<IMixin>("mixins", IMixin.class);
+ *   List<Class> mixinClasses = loader.load().getClasses();
  *
  * Caveats:
  *
@@ -102,7 +102,6 @@ public class GenericURIClassLoader<T> {
                 classes.add(clazzz);
                 this.classes.add(clazz); // class object
                 this.instances.add(clazzz); // object instance
-                log.exDebug("Loaded class: " + clazzz.getClass().getSimpleName());
             } catch (java.lang.Exception e) {
                 log.exDebug("Error loading " + fname + ".");
                 e.printStackTrace();

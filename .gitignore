@@ -1,5 +1,6 @@
 *.class
 build.sh
 downloads.txt
-OpenAuth.jar
+./OpenAuth*.jar
 symbols.txt
+*.save

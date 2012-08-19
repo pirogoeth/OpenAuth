@@ -1,14 +1,17 @@
 declare -a upstream
 
+source ${dmcore}/config/global
+
 # ==============================================================================================================
 # general configurable options
 
 name="OpenAuth"
 basedir="/home/pirogoeth/OpenAuth"
 incdir="${basedir}/inc"
+jvmv="6"
 plugin_datafile="src/plugin.yml"
 javac_includes="inc/craftbukkit.jar:inc/permissions.jar:inc/bukkit.jar:inc/worldedit.jar:inc/pex.jar:inc/JSONAPI.jar"
-javac_src="src/me/maiome/openauth/*/*.java src/me/maiome/openauth/*/*/*.java src/net/eisental/common/*/*.java src/me/maiome/ocf/*.java"
+javac_src="src/me/maiome/openauth/*/*.java src/me/maiome/openauth/*/*/*.java src/net/eisental/common/*/*.java src/me/maiome/ocf/*.java mixin/*.java"
 
 # upstream resources to run compile first to get an UPDATED resource.
 # this will read a resourcelist located at ~/.bcs-resources
@@ -28,6 +31,6 @@ manifest="manifest.txt"
 # ==============================================================================================================
 # dm wrapper options
 
-dm_allowed_actions=( "bukkit" "bukkit-compile" )
+dm_allowed_actions=( "bukkit" "bukkit-compile" "count" )
 
 # dm wrapper options END

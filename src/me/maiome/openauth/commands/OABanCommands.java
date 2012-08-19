@@ -81,7 +81,7 @@ public class OABanCommands {
              min = 1)
     @CommandPermissions({ "openauth.unban.ip" })
     public static void unbanIP(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = OAPlayer.getPlayer((Player) sender);
+        OAPlayer player = OAPlayer.getPlayer(args.getString(0));
         String reason = (args.argsLength() > 1 ? args.getJoinedStrings(1) : "No reason given.");
         if (player == null && args.getString(0).charAt(0) != '/') {
             sender.sendMessage(ChatColor.BLUE + "You need to provide the banned IP, as this user does not exist in my memory. (Prefix the IP with /)");
