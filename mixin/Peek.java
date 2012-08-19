@@ -48,7 +48,7 @@ public class Peek implements IMixin, Listener {
         if (args.hasFlag('c')) { // clears the player's inventory
             player.getInventory().clear();
             return;
-        } else if (args.hasFlag('a')) // shows the active item
+        } else if (args.hasFlag('a')) { // shows the active item
             ItemStack active = player.getItemInHand();
             sender.sendMessage(String.format("\u00A7a%s's active item: %s [%s]", player.getName(), active.getType(), active.getAmount()));
             return;
