@@ -59,7 +59,7 @@ public class Peek implements IMixin, Listener {
         List<ItemStack> stacks = Arrays.asList(inv.getContents());
         for (ItemStack stack : stacks) {
             String ds = String.format("%s%s [%s]", ((stack == player.getItemInHand()) ? "\u00A7b" : "\u00A7f"), stack.getType(), stack.getAmount());
-            data.append(ds + (i == (stacks.length - 1) ? "" : ", "));
+            data.append(ds + ((stack == (stacks.get(stacks.size() - 1))) ? "" : ", "));
         }
         sender.sendMessage(data.toString());
     }
