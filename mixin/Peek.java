@@ -45,12 +45,19 @@ public class Peek implements IMixin, Listener {
     @CommandPermissions({ "openauth.mixin.peek" })
     public void peek(CommandContext args, CommandSender sender) {
         Player player = OAPlayer.getPlayer(args.getString(0)).getPlayer();
+        if (args.hasFlag('c')) { // clears the player's inventory
+            player.getInventory().clear();
+            return;
+        } else if (args.hasFlag('a')) // shows the active item
+            ItemStack active = player.getItemInHand();
+            sender.sendMessage(String.format("\u00A7a%s's active item: %s [%s]", player.getName(), active.getType(), active.getAmount()));
+            return;
+        }
         StringBuilder data = new StringBuilder();
-        data.append(String.format("\u00A7a%s's inventory: ", player.getName()));
+        data.append(String.format("\u00A7a%s's inventory: \u00A7f", player.getName()));
         PlayerInventory inv = player.getInventory();
-        ItemStack[] stacks = inv.getContents();
-        for (int i = 0; i < stacks.length; i++) {
-            ItemStack stack = stacks[i];
+        List<ItemStack> stacks = Arrays.asList(inv.getContents());
+        for (ItemStack stack : stacks) {
             String ds = String.format("%s%s [%s]", ((stack == player.getItemInHand()) ? "\u00A7b" : "\u00A7f"), stack.getType(), stack.getAmount());
             data.append(ds + (i == (stacks.length - 1) ? "" : ", "));
         }
