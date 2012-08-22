@@ -192,9 +192,6 @@ public class OpenAuth extends JavaPlugin {
         // initialise the command registration
         this.dynamicCommandRegistry = new CommandsManagerRegistration(this, this.commands);
 
-        // load ALL the bans!
-        oaserver.loadBans();
-
         // setup instance injector
         this.commands.setInjector(new SimpleInjector(this));
 
@@ -268,16 +265,12 @@ public class OpenAuth extends JavaPlugin {
         }
         // unload mixins
         this.mixinManager.unload();
-        // save ALL the bans!
-        oaserver.saveBans(false);
         // save the whitelist
         oaserver.getWhitelistHandler().saveWhitelist();
         // shutdown all OA tasks
         oaserver.cancelAllOATasks();
         // destroy all living sessions in case this is a reload
         sc.destroyAll();
-        // save the data.
-        ConfigInventory.DATA.save();
 
         log.info("Disabled v" + version + ".");
     }
@@ -318,7 +311,7 @@ public class OpenAuth extends JavaPlugin {
         list.add(DBPlayer.class);
         list.add(DBWhitelist.class);
         list.add(DBChatChannel.class);
-        // list.add(DBBanlist.class);
+        list.add(DBBanRecord.class);
         return list;
     };
 

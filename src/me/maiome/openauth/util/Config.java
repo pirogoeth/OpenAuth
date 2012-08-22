@@ -25,10 +25,8 @@ public class Config {
     public static boolean loaded = false;
     // configuration
     public static YamlConfiguration main;
-    public static YamlConfiguration data;
     // files
     public static File mainf;
-    public static File dataf;
 
     // construct
     public Config(OpenAuth instance, boolean initialise) {
@@ -58,22 +56,18 @@ public class Config {
         // create all config file objects
         try {
             mainf = this.getFile("config");
-            dataf = this.getFile("data");
         } catch (java.lang.Exception e) {}
 
         // create configuration objects
         main = new YamlConfiguration();
-        data = new YamlConfiguration();
 
         // load the configurations
         try {
             main.load(mainf);
-            data.load(dataf);
         } catch (java.io.FileNotFoundException e) {
             log.info("Configuration files do not exist, creating them.");
             try {
                 this.controller.saveResource("config.yml", true);
-                this.controller.saveResource("data.yml", true);
                 initialise();
                 return;
             } catch (java.lang.Exception ex) {
@@ -92,7 +86,6 @@ public class Config {
     public static void save() {
         try {
             main.save(mainf);
-            data.save(dataf);
         } catch (java.io.IOException e) {
             e.printStackTrace();
             return;
@@ -102,19 +95,6 @@ public class Config {
         }
         log.exDebug("Saved configurations.");
         return;
-    }
-
-    public static void save_data() {
-       try {
-           data.save(dataf);
-       } catch (java.io.IOException e) {
-           e.printStackTrace();
-           return;
-       } catch (java.lang.Exception e) {
-           e.printStackTrace();
-           return;
-       }
-       return;
     }
 
     public void check() {

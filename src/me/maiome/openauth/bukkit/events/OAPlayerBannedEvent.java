@@ -5,23 +5,24 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 
 import me.maiome.openauth.bukkit.*;
+import me.maiome.openauth.database.*;
 import me.maiome.openauth.session.*;
 
 public class OAPlayerBannedEvent extends Event implements Cancellable {
 
     private static final HandlerList handlers = new HandlerList();
     private Object player;
-    private String reason;
+    private DBBanRecord record;
     private boolean cancelled;
 
-    public OAPlayerBannedEvent(final OAPlayer player, final String reason) {
+    public OAPlayerBannedEvent(final OAPlayer player, final DBBanRecord record) {
         this.player = player;
-        this.reason = reason;
+        this.record = record;
     }
 
-    public OAPlayerBannedEvent(final String player, final String reason) {
+    public OAPlayerBannedEvent(final String player, final DBBanRecord record) {
         this.player = player;
-        this.reason = reason;
+        this.record = record;
     }
 
     public boolean isCancelled() {
@@ -51,7 +52,7 @@ public class OAPlayerBannedEvent extends Event implements Cancellable {
         }
     }
 
-    public String getReason() {
-        return this.reason;
+    public DBBanRecord getRecord() {
+        return this.record;
     }
 }

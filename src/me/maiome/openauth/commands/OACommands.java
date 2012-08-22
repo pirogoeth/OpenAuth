@@ -147,10 +147,8 @@ public class OACommands {
     @Command(aliases = {"save"}, usage = "", desc = "Saves the data configuration.", max = 0)
     @CommandPermissions({ "openauth.admin.save" })
     public static void savedata(CommandContext args, CommandSender sender) throws CommandException {
-        OpenAuth.getOAServer().saveBans(false);
-        ConfigInventory.DATA.save();
         OpenAuth.getOAServer().getWhitelistHandler().saveWhitelist();
-        sender.sendMessage(ChatColor.GREEN + "OpenAuth data has been saved.");
+        sender.sendMessage(ChatColor.GREEN + "Save completed.");
     }
 
     @Command(aliases = {"test"}, desc = "This is always here to test some new thing.", max = 1)

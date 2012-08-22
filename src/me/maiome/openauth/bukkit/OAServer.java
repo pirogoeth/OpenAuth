@@ -18,6 +18,7 @@ import org.bukkit.event.Event;
 
 // internal imports
 import me.maiome.openauth.bukkit.events.*;
+import me.maiome.openauth.database.*;
 import me.maiome.openauth.handlers.*;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.Permission;
@@ -39,16 +40,10 @@ public class OAServer {
     private OAWhitelistHandler whitelistHandler;
     private boolean started_tasks = false;
 
-    // ban containers
-    private Map<String, Object> ip_bans = new HashMap<String, Object>();
-    private Map<String, Object> name_bans = new HashMap<String, Object>();
-
     // setup of fields for handlers
     private final boolean wh_enabled = ConfigInventory.MAIN.getConfig().getBoolean("whitelist-handler", false);
 
     // time variables for scheduler tasks
-    public final long autosave_delay = ConfigInventory.MAIN.getConfig().getLong("save-ban-delay", 900L);
-    public final long autosave_period = ConfigInventory.MAIN.getConfig().getLong("save-ban-period", 5400L);
     public final long wlsave_delay = ConfigInventory.MAIN.getConfig().getLong("save-whitelist-delay", 2700L);
     public final long wlsave_period = ConfigInventory.MAIN.getConfig().getLong("save-whitelist-period", 10800L);
 
@@ -60,7 +55,6 @@ public class OAServer {
         this.loginHandler.setEnabled(true);
         this.whitelistHandler.setEnabled(this.wh_enabled);
         // debugging information
-        log.exDebug(String.format("AutoSave: {DELAY: %s, PERIOD: %s}", Long.toString(autosave_delay), Long.toString(autosave_period)));
         log.exDebug(String.format("WhitelistSave: {DELAY: %s, PERIOD: %s}", Long.toString(wlsave_delay), Long.toString(wlsave_period)));
         log.exDebug(String.format("WhitelistHandler: {ENABLED: %s}", Boolean.toString(wh_enabled)));
 
@@ -69,7 +63,7 @@ public class OAServer {
     }
 
     public String toString() {
-        return String.format("OAServer{autosave_delay=%d,autosave_period=%d,wlsave_delay=%d,wlsave_period=%d}", this.autosave_delay, this.autosave_period, this.wlsave_delay, this.wlsave_period);
+        return String.format("OAServer{wlsave_delay=%d,wlsave_period=%d}", this.wlsave_delay, this.wlsave_period);
     }
 
     public int hashCode() {
@@ -82,7 +76,6 @@ public class OAServer {
         if (this.started_tasks == true) return;
         this.started_tasks = true;
         // runs scheduler tasks
-        this.scheduleAsynchronousRepeatingTask(this.autosave_delay, this.autosave_period, this.autosave_task);
         this.scheduleAsynchronousRepeatingTask(this.wlsave_delay, this.wlsave_period, this.whitelistsave_task);
     }
 
@@ -124,21 +117,7 @@ public class OAServer {
         return this.controller.getSessionController();
     }
 
-    public Map<String, Object> getNameBans() {
-        return new HashMap<String, Object>(this.name_bans);
-    }
-
-    public Map<String, Object> getIPBans() {
-        return new HashMap<String, Object>(this.ip_bans);
-    }
-
     // scheduled tasks.
-
-    private Runnable autosave_task = new Runnable () {
-        public void run() {
-            saveBans();
-        }
-    };
 
     private Runnable whitelistsave_task = new Runnable () {
         public void run() {
@@ -182,137 +161,82 @@ public class OAServer {
         player.setOffline();
     }
 
-    public void banPlayerByIP(final OAPlayer player) {
-        OAPlayerBannedEvent event = new OAPlayerBannedEvent(player, "No reason given.");
-        this.callEvent(event);
-        if (!(this.ip_bans.containsKey(player.getIP().replace('.', ','))) && !(event.isCancelled())) {
-            this.ip_bans.put(player.getIP().replace('.', ','), "No reason given.");
+    public boolean banPlayer(final OAPlayer banned, final int type, final String banner, final String reason) {
+        try {
+            DBBanRecord record = new DBBanRecord(banned, type, banner, reason);
+            OAPlayerBannedEvent event = new OAPlayerBannedEvent(banned, record);
+            this.callEvent(event);
+            if (event.isCancelled()) {
+                record.delete();
+                return false;
+            }
+            return true;
+        } catch (java.lang.Exception e) {
+            return false;
         }
     }
 
-    public void banPlayerByIP(final OAPlayer player, final String reason) {
-        OAPlayerBannedEvent event = new OAPlayerBannedEvent(player, reason);
-        this.callEvent(event);
-        if (!(this.ip_bans.containsKey(player.getIP().replace('.', ','))) && !(event.isCancelled())) {
-            this.ip_bans.put(player.getIP().replace('.', ','), reason);
+    public boolean unbanPlayer(final String name) {
+        try {
+            DBBanRecord record = OpenAuth.getInstance().getDatabase().find(DBBanRecord.class, name);
+            OAPlayerUnbannedEvent event = new OAPlayerUnbannedEvent(name, record);
+            this.callEvent(event);
+            if (event.isCancelled()) {
+                return false;
+            }
+            record.delete();
+            return true;
+        } catch (java.lang.Exception e) {
+            return false;
         }
     }
 
-    public void banPlayerByIP(final String IP) {
-        if (!(this.ip_bans.containsKey(IP.replace('.', ',')))) {
-            this.ip_bans.put(IP.replace('.', ','), "No reason given.");
-        }
-    }
-
-    public void banPlayerByIP(final String IP, final String reason) {
-        if (!(this.ip_bans.containsKey(IP.replace('.', ',')))) {
-            this.ip_bans.put(IP.replace('.', ','), reason);
-        }
-    }
-
-    public void unbanPlayerByIP(final OAPlayer player) {
-        if (this.ip_bans.containsKey(player.getIP().replace('.', ','))) {
-            this.ip_bans.remove(player.getIP().replace('.', ','));
-            log.info(String.format("Removed ban for %s(%s).", player.getName(), player.getIP()));
-        }
-    }
-
-    public void unbanPlayerByIP(final String IP) {
-        if (this.ip_bans.containsKey(IP.replace('.', ','))) {
-            this.ip_bans.remove(IP.replace('.', ','));
-            log.info(String.format("Removed ban for %s.", IP));
-        }
-    }
-
-    public void banPlayerByName(final OAPlayer player) {
-        OAPlayerBannedEvent event = new OAPlayerBannedEvent(player, "No reason given.");
-        this.callEvent(event);
-        if (!(this.name_bans.containsKey(player.getName())) && !(event.isCancelled())) {
-            this.name_bans.put(player.getName(), "No reason given.");
-        }
-    }
-
-    public void banPlayerByName(final OAPlayer player, final String reason) {
-        OAPlayerBannedEvent event = new OAPlayerBannedEvent(player, reason);
-        this.callEvent(event);
-        if (!(this.name_bans.containsKey(player.getName())) && !(event.isCancelled())) {
-            this.name_bans.put(player.getName(), reason);
-        }
-    }
-
-    public void banPlayerByName(final String player) {
-        OAPlayerBannedEvent event = new OAPlayerBannedEvent(player, "No reason given.");
-        this.callEvent(event);
-        if (!(this.name_bans.containsKey(player)) && !(event.isCancelled())) {
-            this.name_bans.put(player, "No reason given.");
-        }
-    }
-
-    public void banPlayerByName(final String player, final String reason) {
-        OAPlayerBannedEvent event = new OAPlayerBannedEvent(player, reason);
-        this.callEvent(event);
-        if (!(this.name_bans.containsKey(player)) && !(event.isCancelled())) {
-            this.name_bans.put(player, reason);
-        }
-    }
-
-    public void unbanPlayerByName(final OAPlayer player) {
-        if (this.name_bans.containsKey(player.getName())) {
-            this.name_bans.remove(player.getName());
-            log.info(String.format("Removed ban for %s.", player.getName()));
-        }
-    }
-
-    public void unbanPlayerByName(final String player) {
-        if (this.name_bans.containsKey(player)) {
-            this.name_bans.remove(player);
-            log.info(String.format("Removed ban for %s.", player));
+    public String getNameBanReason(final String name) {
+        DBBanRecord record = OpenAuth.getInstance().getDatabase().find(DBBanRecord.class, name);
+        try {
+            if (record == null) {
+                return "There has been an error in the ban system. Please contact the server administrator.";
+            }
+            return record.getReason();
+        } catch (java.lang.Exception e) {
+            return "There has been an error in the ban system. Please contact the server administrator.";
         }
     }
 
     public boolean hasNameBan(final String name) {
-        return this.name_bans.containsKey(name);
-    }
-
-    public String getNameBanReason(final String name) {
-        return (String) this.name_bans.get(name);
-    }
-
-    public boolean hasIPBan(final String IP) {
-        return this.ip_bans.containsKey(IP.replace('.', ','));
+        DBBanRecord record = OpenAuth.getInstance().getDatabase().find(DBBanRecord.class, name);
+        if (record == null) {
+            return false;
+        }
+        if (record.getType() == 1 && record.getBannable().equals(name)) {
+            return true;
+        }
+        return false;
     }
 
     public String getIPBanReason(final String IP) {
-        return (String) this.ip_bans.get(IP.replace('.', ','));
-    }
-
-    public void saveBans() {
-        this.saveBans(true);
-    }
-
-    public void saveBans(boolean save) {
+        List<DBBanRecord> records = OpenAuth.getInstance().getDatabase().find(DBBanRecord.class).where().eq("type", 2).eq("bannable", IP).findList();
         try {
-            ConfigInventory.DATA.getConfig().set("ban_storage.ip", this.ip_bans);
-            ConfigInventory.DATA.getConfig().set("ban_storage.name", this.name_bans);
-            log.exDebug("Successfully saved bans.");
+            DBBanRecord record = records.get(0);
+            if (record == null) {
+                return "There has been an error in the ban system. Please contact the server administrator.";
+            }
+            return record.getReason();
         } catch (java.lang.Exception e) {
-            log.exDebug("Exception occurred while saving bans (this could just mean you have no bans to save).");
-            log.exDebug(e.getMessage());
-            return;
-        }
-        if (save == true) {
-            Config.save_data();
+            return "There has been an error in the ban system. Please contact the server administrator.";
         }
     }
 
-    public void loadBans() {
+    public boolean hasIPBan(final String IP) {
+        List<DBBanRecord> records = OpenAuth.getInstance().getDatabase().find(DBBanRecord.class).where().eq("type", 2).eq("bannable", IP).findList();
         try {
-            this.ip_bans = (Map<String, Object>) ConfigInventory.DATA.getConfig().getConfigurationSection("ban_storage.ip").getValues(true);
-            this.name_bans = (Map<String, Object>) ConfigInventory.DATA.getConfig().getConfigurationSection("ban_storage.name").getValues(true);
+            DBBanRecord record = records.get(0);
+            if (record == null) {
+                return false;
+            }
+            return true;
         } catch (java.lang.Exception e) {
-            log.exDebug("Exception occurred while loading bans (this could just mean you have no bans to load).");
-            e.printStackTrace();
-            return;
+            return false;
         }
     }
 

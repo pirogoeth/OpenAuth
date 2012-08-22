@@ -98,11 +98,12 @@ public class BanStick implements IAction {
 
     public void run(final OAPlayer player) {
         this.target = player;
-        this.server.banPlayerByName(player);
         tracker.increment();
         if (this.args != null) {
+            this.server.banPlayer(player, 1, this.sender.getName(), StringUtil.joinString(this.args, " "));
             this.server.kickPlayer(player, StringUtil.joinString(this.args, " "));
         } else {
+            this.server.banPlayer(player, 1, this.sender.getName(), "No reason given.");
             this.server.kickPlayer(player);
         }
         this.used = true;
@@ -112,6 +113,6 @@ public class BanStick implements IAction {
     public void run(final Entity entity) {} //stub to complete implementation
 
     public void undo() {
-        this.server.unbanPlayerByName(this.target);
+        this.server.unbanPlayer(this.target.getName());
     }
 }

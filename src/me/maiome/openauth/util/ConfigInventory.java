@@ -14,8 +14,7 @@ import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.util.Config;
 
 public enum ConfigInventory {
-    MAIN(Config.main, Config.mainf),
-    DATA(Config.data, Config.dataf);
+    MAIN(Config.main, Config.mainf);
 
     public final YamlConfiguration config;
     public final File file;
