@@ -308,10 +308,10 @@ public class OpenAuth extends JavaPlugin {
     @Override
     public List<Class<?>> getDatabaseClasses() {
         List<Class<?>> list = new ArrayList<Class<?>>();
+        list.add(DBBanRecord.class);
         list.add(DBPlayer.class);
         list.add(DBWhitelist.class);
-        list.add(DBChatChannel.class);
-        list.add(DBBanRecord.class);
+        list.add(DBWorldRecord.class);
         return list;
     };
 

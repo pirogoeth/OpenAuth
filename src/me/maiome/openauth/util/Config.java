@@ -78,7 +78,6 @@ public class Config {
             e.printStackTrace();
             return;
         }
-        this.check();
         loaded = true;
         return;
     }
@@ -94,11 +93,6 @@ public class Config {
             return;
         }
         log.exDebug("Saved configurations.");
-        return;
-    }
-
-    public void check() {
-        // version checking! (stub)
         return;
     }
 }

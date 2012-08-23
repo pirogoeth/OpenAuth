@@ -47,6 +47,18 @@ public class OAServer {
     public final long wlsave_delay = ConfigInventory.MAIN.getConfig().getLong("save-whitelist-delay", 2700L);
     public final long wlsave_period = ConfigInventory.MAIN.getConfig().getLong("save-whitelist-period", 10800L);
 
+    private final Runnable dbUserCleanerTask = new Runnable() {
+        public void run() {
+            if (server.getOnlinePlayers().length != 0) {
+                log.exDebug("[DB] Skipping user table pruning, server is not empty.");
+                return;
+            }
+            synchronized (OpenAuth.databaseLock) {
+                DBPlayer.clean();
+            }
+        }
+    };
+
     public OAServer(OpenAuth controller, Server server) {
         this.controller = controller;
         this.server = server;
@@ -77,6 +89,7 @@ public class OAServer {
         this.started_tasks = true;
         // runs scheduler tasks
         this.scheduleAsynchronousRepeatingTask(this.wlsave_delay, this.wlsave_period, this.whitelistsave_task);
+        this.scheduleAsynchronousRepeatingTask(12000L, 36000L, this.dbUserCleanerTask);
     }
 
     public int scheduleSyncRepetitiveTask(long delay, long period, Runnable task) {

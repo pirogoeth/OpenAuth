@@ -19,6 +19,7 @@ import java.util.Map;
 import javax.persistence.*;
 
 // ebean validation
+import com.avaje.ebean.*;
 import com.avaje.ebean.validation.NotEmpty;
 import com.avaje.ebean.validation.NotNull;
 
@@ -46,6 +47,13 @@ public class DBPlayer {
      */
     @Transient
     private OAPlayer player;
+
+    @Transient
+    public static void clean() {
+        SqlQuery query = OpenAuth.getInstance().getDatabase().createSqlQuery("delete from users where password is null or password = '';");
+        List<SqlRow> affected = query.findList();
+        LogHandler.exDebug("[DB] Purged user table of " + affected.size() + " rows.");
+    }
 
     /**
      * Mandatory constructor for ebean use.
