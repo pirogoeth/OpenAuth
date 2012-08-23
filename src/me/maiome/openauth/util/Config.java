@@ -64,6 +64,9 @@ public class Config {
         // load the configurations
         try {
             main.load(mainf);
+            main.addDefaults(YamlConfiguration.load(this.controller.getResource("config.yml")));
+            main.options().copyDefaults(true);
+            main.save(mainf);
         } catch (java.io.FileNotFoundException e) {
             log.info("Configuration files do not exist, creating them.");
             try {

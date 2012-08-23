@@ -149,6 +149,13 @@ public class OpenAuth extends JavaPlugin {
         log.info("NOTE: Initialising database, this *MAY* take a while...");
         this.initialiseDatabase();
 
+        // warn about ebean's rebuild
+        if (ConfigInventory.MAIN.getConfig().getBoolean("database.rebuild", true) == true) {
+            log.info("!! [WARNING] The 'database.rebuild' option in your config.yml is set to true!");
+            log.info("!! [WARNING] This means that your database will be recreated every time the server starts and your data will be lost!");
+            log.info("!! [WARNING] If this is not what you want, stop the server and change the entry to false.");
+        }
+
         // set logging level
         log.setExtraneousDebugging((ConfigInventory.MAIN.getConfig().getBoolean("debug", false) == false) ? false : true);
 
