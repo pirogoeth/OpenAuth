@@ -38,7 +38,6 @@ public class DBBanRecord {
     /**
      * Type of ban, 1 for name, 2 for IP.
      */
-    @NotEmpty
     @NotNull
     private int type;
 
@@ -60,7 +59,6 @@ public class DBBanRecord {
      * Time the ban was placed, (seconds since the zero epoch)
      */
     @Temporal(TemporalType.DATE)
-    @NotEmpty
     @NotNull
     private Date time = new Date();
 

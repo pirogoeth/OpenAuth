@@ -59,6 +59,14 @@
 #   hounds - settings for the hellhounds action
 #     attack-delay - how long to wait before releasing the hounds on the player [default: 60]
 #     removal-delay - how long before the hounds are marked for removal [default: 600]
+# mixin:
+#   extchat:
+#     staff:
+#       prefix -- prefix of the staff chat message
+#       format -- format of the staff chat message
+#         %p => prefix
+#         %s => sender
+#         %m => message
 # misc:
 #   catch-moving-too-quickly-kick - prevents players from getting kicked for moving too quickly [default: false]
 
@@ -116,5 +124,10 @@ actions:
     hounds:
         attack-delay: 60
         removal-delay: 600
+mixin:
+    extchat:
+        staff:
+            prefix: STAFF
+            format: [%p] <%s> %m
 misc:
     catch-moving-too-quickly-kick: false

@@ -64,13 +64,13 @@ public class Smelter implements IMixin, Listener {
         }
         if (drop == null) return;
 
-        block.getWorld().dropItemNaturally(block.getLocation(), new ItemStack(drop, 1));
+        block.getWorld().dropItemNaturally(block.getLocation(), new ItemStack(drop, 1, (short) 0, block.getData()));
         block.setType(Material.AIR);
     }
 
     private void smelt(Block block) {
         int id = -1;
-        byte data = 15;
+        byte data = 127;
 
 
         if (block.getType() == Material.COBBLESTONE) {
@@ -101,10 +101,10 @@ public class Smelter implements IMixin, Listener {
                 this.smelt(block);
             }
         } else if (under.getType() == Material.CAULDRON) {
-            if (((Cauldron) under.getType().getNewData(under.getData())).isFull() && this.isOnPiston(block)) {
+            if (((Cauldron) under.getType().getNewData(under.getData())).isFull()) {
                 this.drop(block);
             }
-        } else if (under.getType() == Material.WATER && block.getData() == 15) {
+        } else if (under.getType() == Material.WATER && block.getData() == 127) {
             this.drop(block);
         }
     }
