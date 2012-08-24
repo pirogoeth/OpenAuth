@@ -106,7 +106,6 @@ public class ExtendedChat implements IMixin, Listener {
                 target.sendMessage("[PM from " + player.getName() + "]: " + event.getMessage().substring(event.getMessage().indexOf(" ")));
                 return;
             } else if (this.staffChatList.contains(player)) {
-                player.sendMessage("asdgknaslkdng");
                 // this is a staff chat channel message.
                 event.setCancelled(true);
                 List<Player> players = Arrays.asList(OpenAuth.getInstance().getServer().getOnlinePlayers());
@@ -120,8 +119,6 @@ public class ExtendedChat implements IMixin, Listener {
                         target.sendMessage(format);
                     }
                 }
-            } else {
-                player.sendMessage("dongsasdf");
             }
         } catch (java.lang.Exception e) { }
     }
