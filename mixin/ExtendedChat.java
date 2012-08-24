@@ -88,36 +88,38 @@ public class ExtendedChat implements IMixin, Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerChat(PlayerChatEvent event) {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
-        if (event.getMessage().charAt(0) == '@') {
-            // this is a PM.
-            event.setCancelled(true);
-            String _target = event.getMessage().split(" ")[0].substring(1);
-            OAPlayer target = OAPlayer.getPlayer(OpenAuth.getInstance().getServer().getPlayer(_target));
-            if (target == null) {
-                player.sendMessage("Player " + _target + " is not online.");
-                return;
-            }
-            player.sendMessage("[PM to " + target.getName() + "]: " + event.getMessage().substring(event.getMessage().indexOf(" ")));
-            target.sendMessage("[PM from " + player.getName() + "]: " + event.getMessage().substring(event.getMessage().indexOf(" ")));
-            return;
-        } else if (this.staffChatList.contains(event.getPlayer().getName())) {
-            player.sendMessage("asdgknaslkdng");
-            // this is a staff chat channel message.
-            event.setCancelled(true);
-            List<Player> players = Arrays.asList(OpenAuth.getInstance().getServer().getOnlinePlayers());
-            for (Player target : players) {
-                if (target.isOnline() && !(target.getName().equals(player.getName()))) {
-                    String format = "[\u00A7c%p\u00A7f] <%s> %m";
-                    format.replace("%p", "Staff");
-                    format.replace("%s", player.getName());
-                    format.replace("%m", event.getMessage());
-                    player.sendMessage(format);
-                    target.sendMessage(format);
+        try {
+            if (event.getMessage().charAt(0) == '@') {
+                // this is a PM.
+                event.setCancelled(true);
+                String _target = event.getMessage().split(" ")[0].substring(1);
+                OAPlayer target = OAPlayer.getPlayer(OpenAuth.getInstance().getServer().getPlayer(_target));
+                if (target == null) {
+                    player.sendMessage("Player " + _target + " is not online.");
+                    return;
                 }
+                player.sendMessage("[PM to " + target.getName() + "]: " + event.getMessage().substring(event.getMessage().indexOf(" ")));
+                target.sendMessage("[PM from " + player.getName() + "]: " + event.getMessage().substring(event.getMessage().indexOf(" ")));
+                return;
+            } else if (this.staffChatList.contains(event.getPlayer().getName())) {
+                player.sendMessage("asdgknaslkdng");
+                // this is a staff chat channel message.
+                event.setCancelled(true);
+                List<Player> players = Arrays.asList(OpenAuth.getInstance().getServer().getOnlinePlayers());
+                for (Player target : players) {
+                    if (target.isOnline() && !(target.getName().equals(player.getName()))) {
+                        String format = "[\u00A7c%p\u00A7f] <%s> %m";
+                        format.replace("%p", "Staff");
+                        format.replace("%s", player.getName());
+                        format.replace("%m", event.getMessage());
+                        player.sendMessage(format);
+                        target.sendMessage(format);
+                    }
+                }
+            } else {
+                player.sendMessage("dongsasdf");
             }
-        } else {
-            player.sendMessage("dongsasdf");
-        }
+        } catch (java.lang.Exception e) { }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
