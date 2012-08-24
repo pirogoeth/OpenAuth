@@ -62,7 +62,8 @@ public class ExtendedChat implements IMixin, Listener {
                 return;
             }
             if (invitee.hasPermission(permissible)) {
-                invitee.sendMessage("You have been invited by " + sender.getName() + " to join the staff channel. Use /staff to switch.");
+                invitee.sendMessage(ChatColor.GREEN + "You have been invited by " + sender.getName() + " to join the staff channel. Use /staff to switch.");
+                sender.sendMessage(ChatColor.GREEN + "Player " + username + " has been invited to join the staff channel.");
                 return;
             } else {
                 sender.sendMessage("Player " + username + " does not have permission to join the staff channel.");
@@ -114,6 +115,8 @@ public class ExtendedChat implements IMixin, Listener {
                     target.sendMessage(format);
                 }
             }
+        } else {
+            player.sendMessage("dongsasdf");
         }
     }
 
