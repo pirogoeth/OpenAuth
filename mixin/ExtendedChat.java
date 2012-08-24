@@ -74,7 +74,7 @@ public class ExtendedChat implements IMixin, Listener {
             sender.sendMessage("You're the console...you can already see the staff channel.");
             return;
         }
-        OAPlayer player;
+        OAPlayer player = null;
         if (sender instanceof Player) {
             player = OAPlayer.getPlayer((Player) sender);
         }
