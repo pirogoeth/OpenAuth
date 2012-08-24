@@ -96,18 +96,10 @@ public class ExtendedChat implements IMixin, Listener {
                 player.sendMessage("Player " + _target + " is not online.");
                 return;
             }
-            player.sendMessage("[PM to " + target.getName() + "]: " + event.getMessage());
-            target.sendMessage("[PM from " + player.getName() + "]: " + event.getMessage());
+            player.sendMessage("[PM to " + target.getName() + "]: " + event.getMessage().substring(event.getMessage().indexOf(" ")));
+            target.sendMessage("[PM from " + player.getName() + "]: " + event.getMessage().substring(event.getMessage().indexOf(" ")));
             return;
-        }
-        boolean isStaff = false;
-        for (String name : this.staffChatList) {
-            log.info("Staff chat: " + name);
-            if (name.equals(player.getName())) {
-                isStaff = true;
-            }
-        }
-        if (isStaff) {
+        } else if (this.staffChatList.contains(player.getName())) {
             player.sendMessage("asdgknaslkdng");
             // this is a staff chat channel message.
             event.setCancelled(true);
