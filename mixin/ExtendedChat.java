@@ -84,7 +84,7 @@ public class ExtendedChat implements IMixin, Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGH)
+    @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerChat(PlayerChatEvent event) {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
         if (event.getMessage().charAt(0) == '@') {
@@ -99,7 +99,7 @@ public class ExtendedChat implements IMixin, Listener {
             player.sendMessage("[PM to " + target.getName() + "]: " + event.getMessage().substring(event.getMessage().indexOf(" ")));
             target.sendMessage("[PM from " + player.getName() + "]: " + event.getMessage().substring(event.getMessage().indexOf(" ")));
             return;
-        } else if (this.staffChatList.contains(player.getName())) {
+        } else if (this.staffChatList.contains(event.getPlayer().getName())) {
             player.sendMessage("asdgknaslkdng");
             // this is a staff chat channel message.
             event.setCancelled(true);
@@ -110,6 +110,7 @@ public class ExtendedChat implements IMixin, Listener {
                     format.replace("%p", "Staff");
                     format.replace("%s", player.getName());
                     format.replace("%m", event.getMessage());
+                    player.sendMessage(format);
                     target.sendMessage(format);
                 }
             }
