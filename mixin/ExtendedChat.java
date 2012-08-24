@@ -106,10 +106,10 @@ public class ExtendedChat implements IMixin, Listener {
             List<Player> players = Arrays.asList(OpenAuth.getInstance().getServer().getOnlinePlayers());
             for (Player target : players) {
                 if (target.isOnline() && !(target.getName().equals(player.getName()))) {
-                    String format = ConfigInventory.MAIN.getConfig().getString("mixin.extchat.staff.format", "[%p] <%s> %m");
-                    format.replaceAll("%p", ConfigInventory.MAIN.getConfig().getString("mixin.extchat.staff.prefix", "STAFF"));
-                    format.replaceAll("%s", player.getName());
-                    format.replaceAll("%m", event.getMessage());
+                    String format = ConfigInventory.MAIN.getConfig().getString("mixin.extchat.staff.format", "[@p] <@s> @m");
+                    format.replaceAll("@p", ConfigInventory.MAIN.getConfig().getString("mixin.extchat.staff.prefix", "STAFF"));
+                    format.replaceAll("@s", player.getName());
+                    format.replaceAll("@m", event.getMessage());
                     target.sendMessage(format);
                 }
             }
