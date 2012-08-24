@@ -56,7 +56,7 @@ public class DBWorldRecord {
      * OAPlayer transient for use later.
      */
     @Transient
-    private World world;
+    private World world = null;
 
     /**
      * Mandatory constructor for ebean use.
@@ -66,14 +66,14 @@ public class DBWorldRecord {
     /**
      * Main constructor.
      */
-    public DBWorldRecord(final World world) {
+    private DBWorldRecord(final World world) {
         this.world = world;
         this.setName(world.getName());
         this.save();
     }
 
     @Transient
-    public void save() {
+    private void save() {
         synchronized (OpenAuth.databaseLock) {
             OpenAuth.getInstance().getDatabase().save(this);
         }
@@ -122,5 +122,27 @@ public class DBWorldRecord {
 
     public void setLockdown(boolean b) {
         this.lockdown = b;
+    }
+
+    @Transient
+    private void setWorld(final World w) throws IllegalOperationException {
+        if (this.world != null) {
+            throw new IllegalOperationException("Cannot reset the world assiciated to a DBWorldRecord.");
+        }
+        this.world = w;
+    }
+
+    @Transient
+    public static DBWorldRecord getWorldRecord(final World w) {
+        return getWorldRecord(w.getName());
+    }
+
+    @Transient
+    public static DBWorldRecord getWorldRecord(final String s) {
+        DBWorldRecord record = OpenAuth.getInstance().getDatabase().find(DBWorldRecord.class, s);
+        if (record == null) {
+            record = new DBWorldRecord(OpenAuth.getInstance().getServer().getWorld(s));
+        }
+        return record;
     }
 }
