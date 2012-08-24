@@ -102,6 +102,7 @@ public class ExtendedChat implements IMixin, Listener {
         }
         boolean isStaff = false;
         for (String name : this.staffChatList) {
+            log.info("Staff chat: " + name);
             if (name.equals(player.getName())) {
                 isStaff = true;
             }
