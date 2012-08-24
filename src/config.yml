@@ -64,9 +64,9 @@
 #     staff:
 #       prefix -- prefix of the staff chat message
 #       format -- format of the staff chat message
-#         @p => prefix
-#         @s => sender
-#         @m => message
+#         PREFIX => prefix
+#         SENDER => sender
+#         MESSAGE => message
 # misc:
 #   catch-moving-too-quickly-kick - prevents players from getting kicked for moving too quickly [default: false]
 
@@ -128,6 +128,6 @@ mixin:
     extchat:
         staff:
             prefix: STAFF
-            format: [@p] <@s> @m
+            format: [PREFIX] <SENDER> MESSAGE
 misc:
     catch-moving-too-quickly-kick: false
