@@ -101,6 +101,7 @@ public class ExtendedChat implements IMixin, Listener {
             return;
         }
         if (this.staffChatList.contains(player.getName())) {
+            player.sendMessage("asdgknaslkdng");
             // this is a staff chat channel message.
             event.setCancelled(true);
             List<Player> players = Arrays.asList(OpenAuth.getInstance().getServer().getOnlinePlayers());
