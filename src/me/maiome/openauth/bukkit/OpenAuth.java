@@ -37,6 +37,7 @@ import me.maiome.openauth.event.*;
 import me.maiome.openauth.jsonapi.*;
 import me.maiome.openauth.metrics.*;
 import me.maiome.openauth.mixins.*;
+import me.maiome.openauth.policies.*;
 import me.maiome.openauth.security.*;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.Permission;
@@ -128,6 +129,11 @@ public class OpenAuth extends JavaPlugin {
     private CommandsManagerRegistration dynamicCommandRegistry;
 
     /**
+     * Contains the GameModePolicy instance.
+     */
+    private GameModePolicy gmPolicy;
+
+    /**
      * Lock for the database to prevent persistence errors.
      */
     public static final Object databaseLock = new Object();
@@ -205,6 +211,11 @@ public class OpenAuth extends JavaPlugin {
         // register listener(s)
         this.registerEvents(new OAListener(this));
         this.registerEvents(new OAExplosionListener(this));
+
+        // check if the game mode policy is enabled
+        if (ConfigInventory.MAIN.getConfig().getBoolean("policies.gamemode", false) == true) {
+            this.gmPolicy = new GameModePolicy();
+        }
 
         // register base command class.
         this.dynamicCommandRegistry.register(OACommands.OAParentCommand.class);

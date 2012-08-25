@@ -125,9 +125,9 @@ public class DBWorldRecord {
     }
 
     @Transient
-    private void setWorld(final World w) throws IllegalOperationException {
+    private void setWorld(final World w) throws UnsupportedOperationException {
         if (this.world != null) {
-            throw new IllegalOperationException("Cannot reset the world assiciated to a DBWorldRecord.");
+            throw new UnsupportedOperationException("Cannot reset the world assiciated to a DBWorldRecord.");
         }
         this.world = w;
     }
