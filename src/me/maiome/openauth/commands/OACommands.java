@@ -57,7 +57,8 @@ public class OACommands {
         @Command(aliases = {"openauth", "oa"}, desc = "OpenAuth commands",
                  flags = "", min = 1)
         @NestedCommand({ OACommands.class, OAActionCommands.ActionParentCommand.class, OABanCommands.BanParentCommand.class,
-                         OAUserCommands.UserParentCommand.class, OAWhitelistCommands.WhitelistParentCommand.class })
+                         OAUserCommands.UserParentCommand.class, OAWhitelistCommands.WhitelistParentCommand.class,
+                         OAGameModePolicyCommands.GMPParentCommand.class })
         public static void openAuth() {}
     }
 

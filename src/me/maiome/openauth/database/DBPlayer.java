@@ -50,9 +50,15 @@ public class DBPlayer {
 
     @Transient
     public static void clean() {
-        SqlQuery query = OpenAuth.getInstance().getDatabase().createSqlQuery("delete from users where password is null or password = '';");
-        List<SqlRow> affected = query.findList();
-        LogHandler.exDebug("[DB] Purged user table of " + affected.size() + " rows.");
+        try {
+            SqlQuery affecting = OpenAuth.getInstance().getDatabase().createSqlQuery("select * from users where password is null or password = '';");
+            List<SqlRow> affected = affecting.findList();
+            SqlQuery query = OpenAuth.getInstance().getDatabase().createSqlQuery("delete from users where password is null or password = '';");
+            LogHandler.exDebug("[DB] Purged user table of " + affected.size() + " rows.");
+        } catch (java.lang.Exception e) {
+            LogHandler.exDebug("Error occurred while purging user table.");
+            e.printStackTrace();
+        }
     }
 
     /**
