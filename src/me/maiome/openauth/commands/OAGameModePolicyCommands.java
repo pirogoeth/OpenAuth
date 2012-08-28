@@ -21,7 +21,7 @@ public class OAGameModePolicyCommands {
         this.controller = controller;
     }
 
-    public class GMPParentCommand {
+    public static class GMPParentCommand {
 
         private OpenAuth controller;
 
@@ -31,7 +31,7 @@ public class OAGameModePolicyCommands {
 
         @Command(aliases = {"gmp"}, desc = "Commands to control the game mode policy.")
         @NestedCommand({ OAGameModePolicyCommands.class })
-        public void gmp() { }
+        public static void gmp() { }
     }
 
     @Console
