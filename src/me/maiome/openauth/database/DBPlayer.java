@@ -49,11 +49,19 @@ public class DBPlayer {
     private OAPlayer player;
 
     @Transient
-    public static void clean() {
+    public static synchronized void clean() {
         try {
             SqlQuery affecting = OpenAuth.getInstance().getDatabase().createSqlQuery("select * from users where password is null or password = '';");
             List<SqlRow> affected = affecting.findList();
-            SqlQuery query = OpenAuth.getInstance().getDatabase().createSqlQuery("delete from users where password is null or password = '';");
+            // new weird method that's probably very slow.
+            for (SqlRow row : affected) {
+                DBPlayer pl = OpenAuth.getInstance().getDatabase().find(DBPlayer.class, row.getString("name"));
+                pl.delete();
+            }
+            // this is the old method that SHOULD'VE WORKED, but doesn't. should've worked because it works directly in sqlite3/sql.
+            // but doesn't work here for some reason.
+            //
+            // SqlQuery query = OpenAuth.getInstance().getDatabase().createSqlQuery("delete from users where password is null or password = '';");
             LogHandler.exDebug("[DB] Purged user table of " + affected.size() + " rows.");
         } catch (java.lang.Exception e) {
             LogHandler.exDebug("Error occurred while purging user table.");
@@ -100,6 +108,19 @@ public class DBPlayer {
                 return;
             }
             LogHandler.exDebug("Successfully updated DBPlayer [" + this.name + "].");
+        }
+    }
+
+    @Transient
+    public void delete() {
+        synchronized (OpenAuth.databaseLock) {
+            try {
+                OpenAuth.getInstance().getDatabase().delete(this);
+            } catch (java.lang.Exception e) {
+                LogHandler.exDebug("Error deleting DBPlayer [" + this.name + "]: " + e.getMessage());
+                return;
+            }
+            LogHandler.exDebug("Successfully deleted DBPlayer [" + this.name + "].");
         }
     }
 
