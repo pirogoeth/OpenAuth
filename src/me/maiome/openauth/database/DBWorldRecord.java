@@ -125,6 +125,11 @@ public class DBWorldRecord {
         return this.lockdown;
     }
 
+    @Transient
+    public boolean isLockdown() {
+        return this.getLockdown();
+    }
+
     public void setLockdown(boolean b) {
         this.lockdown = b;
     }
