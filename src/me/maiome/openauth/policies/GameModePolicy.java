@@ -32,7 +32,14 @@ public class GameModePolicy implements Listener {
         if (!(player.hasPermission(String.format("openauth.gmpolicy.exempt.%s", w.getName()))) &&
             record.getEnforce() == true && player.getPlayer().getGameMode().getValue() != record.getGamemode()) {
 
+            event.setCancelled(true);
             player.getPlayer().setGameMode(GameMode.getByValue(record.getGamemode()));
+        }
+        if (!(player.hasPermission(String.format("openauth.gmpolicy.exempt.%s", w.getName()))) &&
+            record.getEnforce() == true && event.getNewGameMode().getValue() != record.getGamemode()) {
+            // trying to change to an incorrect mode for the world..
+
+            event.setCancelled(true);
         }
     }
 
