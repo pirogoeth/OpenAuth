@@ -40,7 +40,7 @@ public class OAGameModePolicyCommands {
     public void list(CommandContext args, CommandSender sender) {
         List<DBWorldRecord> records = controller.getDatabase().find(DBWorldRecord.class).findList();
         StringBuilder s = new StringBuilder();
-        s.append("== World Records (" + records.size() + ") ==\n");
+        s.append("\u00A7b== World Records (" + records.size() + ") ==\u00A7f\n");
         for (DBWorldRecord record : records) {
             String f = String.format("%s: game mode: %d, enforce policies: %s, locked down: %s\n",
                 record.getName(),

@@ -112,6 +112,11 @@ public class DBWorldRecord {
         return this.enforce;
     }
 
+    @Transient
+    public boolean isEnforce() {
+        return this.getEnforce();
+    }
+
     public void setEnforce(boolean b) {
         this.enforce = b;
     }
