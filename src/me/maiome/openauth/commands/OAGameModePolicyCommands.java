@@ -57,8 +57,9 @@ public class OAGameModePolicyCommands {
     @CommandPermissions({ "openauth.gmp.set" })
     public void setproperty(CommandContext args, CommandSender sender) {
         String worldName = args.getString(0);
+        String property = "";
         try {
-            String property = args.getString(1);
+            property = args.getString(1);
         } catch (java.lang.Exception e) {
             sender.sendMessage("\u00A7bAccepted property values: \u00A7agamemode\u00A7f, \u00A7aenforce\u00A7f, \u00A7alockdown\u00A7f.");
             return;
