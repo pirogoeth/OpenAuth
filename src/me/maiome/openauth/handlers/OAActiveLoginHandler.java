@@ -79,7 +79,13 @@ public class OAActiveLoginHandler implements OALoginHandler {
     }
 
     public boolean isRegistered(String player) {
-        return (OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player).getPassword() != null);
+        boolean exists = false;
+        try {
+            exists = (OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player).getPassword() != null);
+        } catch (java.lang.NullPointerException e) {
+        } finally {
+            return exists;
+        }
     }
 
     public LoginStatus getPlayerStatus(OAPlayer player) {

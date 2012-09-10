@@ -33,7 +33,7 @@ public class GameModePolicy implements Listener {
             record.getEnforce() == true && player.getPlayer().getGameMode().getValue() != record.getGamemode()) {
 
             event.setCancelled(true);
-            player.getPlayer().setGameMode(GameMode.getByValue(record.getGamemode()));
+            player.getPlayer().setGameMode(GameMode.getByValue(record.getGamemode())); // TODO - there's some weirdness right here. need to queue for changes.
         }
         if (!(player.hasPermission(String.format("openauth.gmpolicy.exempt.%s", w.getName()))) &&
             record.getEnforce() == true && event.getNewGameMode().getValue() != record.getGamemode()) {

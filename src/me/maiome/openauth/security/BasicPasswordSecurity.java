@@ -33,7 +33,7 @@ public class BasicPasswordSecurity implements IPasswordSecurity {
     }
 
     public String explain() {
-        return "your password is less than 4 characters long.";
+        return "your password is less than 4 characters long or is invalid.";
     }
 
     public boolean validate(String password) {
@@ -41,6 +41,10 @@ public class BasicPasswordSecurity implements IPasswordSecurity {
             return false;
         } else if (password.length() > 4) {
             return true;
+        } else if (password.equalsIgnoreCase("<password>")) {
+            return false;
+        } else if (password.equalsIgnoreCase("password")) {
+            return false;
         }
         return false;
     }

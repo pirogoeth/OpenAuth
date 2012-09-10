@@ -42,7 +42,7 @@ public class OAGameModePolicyCommands {
         StringBuilder s = new StringBuilder();
         s.append("\u00A7b== World Records (" + records.size() + ") ==\u00A7f\n");
         for (DBWorldRecord record : records) {
-            String f = String.format("%s: game mode: %d, enforce policies: %s, locked down: %s\n",
+            String f = String.format(" - %s: \u00A7agame mode: \u00A7b%d, \u00A7aenforce policies: \u00A7b%s, \u00A7alocked down: \u00A7b%s\u00A7f\n",
                 record.getName(),
                 record.getGamemode(),
                 (record.getEnforce() == true ? "yes" : "no"),
@@ -57,7 +57,12 @@ public class OAGameModePolicyCommands {
     @CommandPermissions({ "openauth.gmp.set" })
     public void setproperty(CommandContext args, CommandSender sender) {
         String worldName = args.getString(0);
-        String property = args.getString(1);
+        try {
+            String property = args.getString(1);
+        } catch (java.lang.Exception e) {
+            sender.sendMessage("\u00A7bAccepted property values: \u00A7agamemode\u00A7f, \u00A7aenforce\u00A7f, \u00A7alockdown\u00A7f.");
+            return;
+        }
         String value = "";
         try {
             value = args.getString(2);
