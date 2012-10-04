@@ -142,7 +142,7 @@ public class OABanCommands {
             List<DBBanRecord> bans = OpenAuth.getInstance().getDatabase().find(DBBanRecord.class).where().eq("type", 1).findList();
             String list = new String();
             for (DBBanRecord record : bans) {
-                list += String.format(" - %s -=- banned by %s on %s -=- criteria (T%d): %s\n", record.getName(), record.getBanner(), record.getTime().toString(), record.getType(), record.getBannable());
+                list += String.format(" - \u00A7a%s\u00A7f -=- banned by \u00A7a%s\u00A7f on \u00A7a%s\u00A7f for \u00A7a%s\u00A7f -=- criteria (T%d): \u00A7a%s\u00A7f\n", record.getName(), record.getBanner(), record.getTime().toString(), record.getReason(), record.getType(), record.getBannable());
             }
             if (list.length() == 0) {
                 list = " - No bans exist.\n";
@@ -159,7 +159,7 @@ public class OABanCommands {
             List<DBBanRecord> bans = OpenAuth.getInstance().getDatabase().find(DBBanRecord.class).where().eq("type", 2).findList();
             String list = new String();
             for (DBBanRecord record : bans) {
-                list += String.format(" - %s -=- banned by %s on %s -=- criteria (T%d): %s\n", record.getName(), record.getBanner(), record.getTime().toString(), record.getType(), record.getBannable());
+                list += String.format(" - \u00A7a%s\u00A7f -=- banned by \u00A7a%s\u00A7f on \u00A7a%s\u00A7f for \u00A7a%s\u00A7f -=- criteria (T%d): \u00A7a%s\u00A7f\n", record.getName(), record.getBanner(), record.getTime().toString(), record.getReason(), record.getType(), record.getBannable());
             }
             if (list.length() == 0) {
                 list = " - No bans exist.\n";

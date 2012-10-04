@@ -29,17 +29,11 @@ public class GameModePolicy implements Listener {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
         World w = event.getPlayer().getLocation().getWorld();
         DBWorldRecord record = DBWorldRecord.getWorldRecord(w);
-        if (!(player.hasPermission(String.format("openauth.gmpolicy.exempt.%s", w.getName()))) &&
-            record.getEnforce() == true && player.getPlayer().getGameMode().getValue() != record.getGamemode()) {
-
-            event.setCancelled(true);
-            player.getPlayer().setGameMode(GameMode.getByValue(record.getGamemode())); // TODO - there's some weirdness right here. need to queue for changes.
-        }
-        if (!(player.hasPermission(String.format("openauth.gmpolicy.exempt.%s", w.getName()))) &&
-            record.getEnforce() == true && event.getNewGameMode().getValue() != record.getGamemode()) {
-            // trying to change to an incorrect mode for the world..
-
-            event.setCancelled(true);
+        if (event.getNewGameMode().getValue() != record.getGamemode()) {
+            if (!(player.hasPermission(String.format("openauth.gmpolicy.exempt.%s", w.getName()))) && record.getEnforce() == true) {
+                event.setCancelled(true);
+                player.getPlayer().setGameMode(GameMode.getByValue(record.getGamemode())); // TODO - there's some weirdness right here. need to queue for changes.
+            }
         }
     }
 
