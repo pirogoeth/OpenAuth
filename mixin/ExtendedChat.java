@@ -21,7 +21,7 @@ public class ExtendedChat implements IMixin, Listener {
     private OpenAuth controller;
     private static final LogHandler log = new LogHandler();
     private static final String permissible = "openauth.extchat.staff";
-    private final List<OAPlayer> staffChatList = new ArrayList<OAPlayer>();
+    private final List<String> staffChatList = new ArrayList<String>();
 
     public ExtendedChat() {
         this((OpenAuth) OpenAuth.getInstance());
@@ -74,16 +74,12 @@ public class ExtendedChat implements IMixin, Listener {
             sender.sendMessage("You're the console...you can already see the staff channel.");
             return;
         }
-        OAPlayer player = null;
-        if (sender instanceof Player) {
-            player = OAPlayer.getPlayer((Player) sender);
-        }
-        if (this.staffChatList.contains(player)) {
-            this.staffChatList.remove(player);
+        if (this.staffChatList.contains(sender.getName())) {
+            this.staffChatList.remove(sender.getName());
             sender.sendMessage(ChatColor.BLUE + "You have switched to normal game chat.");
             return;
-        } else if (!(this.staffChatList.contains(player))) {
-            this.staffChatList.add(player);
+        } else if (!(this.staffChatList.contains(sender.getName()))) {
+            this.staffChatList.add(sender.getName());
             sender.sendMessage(ChatColor.BLUE + "You have switched to the staff chat.");
             return;
         }
@@ -92,8 +88,7 @@ public class ExtendedChat implements IMixin, Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerChat(PlayerChatEvent event) {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
-        try {
-            if (event.getMessage().charAt(0) == '@') {
+        if (event.getMessage().charAt(0) == '@') {
                 // this is a PM.
                 event.setCancelled(true);
                 String _target = event.getMessage().split(" ")[0].substring(1);
@@ -101,31 +96,30 @@ public class ExtendedChat implements IMixin, Listener {
                 if (target == null) {
                     player.sendMessage("Player " + _target + " is not online.");
                     return;
-                }
-                player.sendMessage("[PM to " + target.getName() + "]: " + event.getMessage().substring(event.getMessage().indexOf(" ")));
-                target.sendMessage("[PM from " + player.getName() + "]: " + event.getMessage().substring(event.getMessage().indexOf(" ")));
-                return;
-            } else if (this.staffChatList.contains(player)) {
-                // this is a staff chat channel message.
-                event.setCancelled(true);
-                List<Player> players = Arrays.asList(OpenAuth.getInstance().getServer().getOnlinePlayers());
-                for (Player target : players) {
-                    if (target.isOnline() && !(target.getName().equals(player.getName()))) {
-                        String format = "[\u00A7c%p\u00A7f] <%s> %m";
-                        format.replace("%p", "Staff");
-                        format.replace("%s", player.getName());
-                        format.replace("%m", event.getMessage());
-                        player.sendMessage(format);
-                        target.sendMessage(format);
-                    }
+            }
+            player.sendMessage("[PM to " + target.getName() + "]: " + event.getMessage().substring(event.getMessage().indexOf(" ")));
+            target.sendMessage("[PM from " + player.getName() + "]: " + event.getMessage().substring(event.getMessage().indexOf(" ")));
+            return;
+        } else if (this.staffChatList.contains(event.getPlayer().getName())) {
+            // this is a staff chat channel message.
+            event.setCancelled(true);
+            List<Player> players = Arrays.asList(OpenAuth.getInstance().getServer().getOnlinePlayers());
+            String format = "[\u00A7c%p\u00A7f] <%s> %m";
+            format.replace("%p", "Staff");
+            format.replace("%s", player.getName());
+            format.replace("%m", event.getMessage());
+            player.sendMessage(format);
+            for (Player target : players) {
+                if (target.isOnline() && !(target.getName().equals(player.getName()))) {
+                    target.sendMessage(format);
                 }
             }
-        } catch (java.lang.Exception e) { }
+        }
     }
 
     @EventHandler(priority = EventPriority.HIGH)
     public void onPlayerJoin(PlayerJoinEvent event) {
-        if (this.staffChatList.contains(OAPlayer.getPlayer(event.getPlayer()))) {
+        if (this.staffChatList.contains(event.getPlayer().getName())) {
             event.getPlayer().sendMessage(ChatColor.BLUE + "NOTICE: Your chat focus is still on staff chat!");
             return;
         }
