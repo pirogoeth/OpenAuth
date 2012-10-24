@@ -86,7 +86,7 @@ public class ExtendedChat implements IMixin, Listener {
     }
 
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onPlayerChat(PlayerChatEvent event) {
+    public void onPlayerChat(AsyncPlayerChatEvent event) {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
         if (event.getMessage().charAt(0) == '@') {
                 // this is a PM.
