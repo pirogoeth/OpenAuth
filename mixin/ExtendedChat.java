@@ -74,13 +74,13 @@ public class ExtendedChat implements IMixin, Listener {
             sender.sendMessage("You're the console...you can already see the staff channel.");
             return;
         }
-        sender = (Player) sender;
-        if (this.staffChatList.contains(sender)) {
-            this.staffChatList.remove(sender);
+        Player player = (Player) sender;
+        if (this.staffChatList.contains(player)) {
+            this.staffChatList.remove(player);
             sender.sendMessage(ChatColor.BLUE + "You have switched to normal game chat.");
             return;
-        } else if (!(this.staffChatList.contains(sender))) {
-            this.staffChatList.add(sender);
+        } else if (!(this.staffChatList.contains(player))) {
+            this.staffChatList.add(player);
             sender.sendMessage(ChatColor.BLUE + "You have switched to the staff chat.");
             return;
         }
