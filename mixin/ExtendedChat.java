@@ -21,7 +21,7 @@ public class ExtendedChat implements IMixin, Listener {
     private OpenAuth controller;
     private static final LogHandler log = new LogHandler();
     private static final String permissible = "openauth.extchat.staff";
-    private final List<String> staffChatList = new ArrayList<String>();
+    private final List<Player> staffChatList = new ArrayList<Player>();
 
     public ExtendedChat() {
         this((OpenAuth) OpenAuth.getInstance());
@@ -74,6 +74,7 @@ public class ExtendedChat implements IMixin, Listener {
             sender.sendMessage("You're the console...you can already see the staff channel.");
             return;
         }
+        sender = (Player) sender;
         if (this.staffChatList.contains(sender.getName())) {
             this.staffChatList.remove(sender.getName());
             sender.sendMessage(ChatColor.BLUE + "You have switched to normal game chat.");
@@ -100,7 +101,7 @@ public class ExtendedChat implements IMixin, Listener {
             player.sendMessage("[PM to " + target.getName() + "]: " + event.getMessage().substring(event.getMessage().indexOf(" ")));
             target.sendMessage("[PM from " + player.getName() + "]: " + event.getMessage().substring(event.getMessage().indexOf(" ")));
             return;
-        } else if (this.staffChatList.contains(event.getPlayer().getName())) {
+        } else if (this.staffChatList.contains(event.getPlayer())) {
             // this is a staff chat channel message.
             event.setCancelled(true);
             List<Player> players = Arrays.asList(OpenAuth.getInstance().getServer().getOnlinePlayers());

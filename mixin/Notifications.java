@@ -46,6 +46,7 @@ public class Notifications implements IMixin, Listener {
      * This event is passed AFTER the player changes world, so you can get the
      * player's new world from player.getLocation().getWorld().
      */
+    @EventHandler
     public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
         Player player = event.getPlayer();
         // send a message to all players in the previous world.
