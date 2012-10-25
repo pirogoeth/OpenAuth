@@ -76,7 +76,7 @@ public class Pager {
                 s.sendMessage(pi.src.getLine(i));
             }
             s.sendMessage(infoColor + "---------------------------------------------------");
-            if (pi.pageCount>1) s.sendMessage("Use " + ChatColor.YELLOW + (s instanceof Player?"/":"") + "wpage [page#|next|prev|last]" + ChatColor.WHITE + " to see other pages.");
+            if (pi.pageCount>1) s.sendMessage("Use " + ChatColor.YELLOW + (s instanceof Player?"/":"") + "oa page [page#|next|prev|last]" + ChatColor.WHITE + " to see other pages.");
         }        
     }
     

@@ -86,7 +86,7 @@ public class ExtendedChat implements IMixin, Listener {
         }
     }
 
-    @EventHandler(priority = EventPriority.HIGHEST)
+    @EventHandler(ignoreCancelled = true)
     public void onPlayerChat(AsyncPlayerChatEvent event) {
         OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
         if (event.getMessage().charAt(0) == '@') {
