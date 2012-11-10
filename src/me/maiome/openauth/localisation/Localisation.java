@@ -76,7 +76,7 @@ public abstract class Localisation implements ILocalisation {
         if (!(new File(localisationsPath).isDirectory())) {
             throw new InvalidArgumentException("Provided path is a file, not a directory.");
         }
-        
+
         this.localisationsDirectory = localisationsPath;
     }
 
@@ -94,7 +94,7 @@ public abstract class Localisation implements ILocalisation {
      * the set localisations folder.
      */
     private List<File> findLocalisations();
-    
+
     /**
      * Searches the translation list to find a translation that matches the requested translation.
      * After it successfully matches a translation, it sets the matched translation file in the
