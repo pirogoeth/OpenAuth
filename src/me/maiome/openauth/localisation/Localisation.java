@@ -1,7 +1,7 @@
 import java.io.*;
 import java.util.*;
 
-public abstract class Localisation implements ILocalisation {
+public class Localisation implements ILocalisation {
 
     /**
      * This is all general information that needs to be known for use.
@@ -88,19 +88,29 @@ public abstract class Localisation implements ILocalisation {
     }
 
     /**
+     * Shorthand for getLocalisedString(String nodeName).
+     */
+    public static String get(String nodeName) {
+        return Localisation.getInstance().getLocalisedString(nodeName);
+    }
+
+    /**
      * Searches the localisations folder for translation files.
      *
      * Translation files are qualified as files that end with a .lang extension inside
      * the set localisations folder.
      */
-    private List<File> findLocalisations();
+    private List<File> findLocalisations() {
+    }
 
     /**
      * Searches the translation list to find a translation that matches the requested translation.
      * After it successfully matches a translation, it sets the matched translation file in the
      * localisationFile variable.
      */
-    boolean requestTranslation(String name);
+    public boolean requestTranslation(String name) {
+    }
+
     /**
      * Reads the data from the localisation file found by requestTranslation(String name). Localisation files should look like this:
      *
@@ -111,13 +121,12 @@ public abstract class Localisation implements ILocalisation {
      *
      * ...etc, so on and so forth.
      */
-    void processLocalisation();
+    private void processLocalisation() {
+    }
+
     /**
      * Returns the translation string mapped to the given node.
      */
-    String getLocalisedString(String nodeName);
-    /**
-     * Shorthand for getLocalisedString(String nodeName).
-     */
-    String get(String nodeName);
+    public String getLocalisedString(String nodeName) {
+    }
 }
