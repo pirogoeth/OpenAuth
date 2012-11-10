@@ -36,17 +36,17 @@ public class ComplexPasswordSecurity implements IPasswordSecurity {
     }
 
     public String explain() {
-        return "your password must be longer than 4 characters and must contain AT LEAST one uppercase letter, one lowercase letter, and one digit or your password is invalid.";
+        return "your password must be longer than 8 characters and must contain AT LEAST one uppercase letter, one lowercase letter, and one digit or your password is invalid.";
     }
 
     public boolean validate(String password) {
         Matcher matcher = pattern.matcher(password);
-        if (password.length() > 4 && matcher.matches()) {
-            return true;
-        } else if (password.equalsIgnoreCase("<password>")) {
+        if (password.equalsIgnoreCase("<password>")) {
             return false;
         } else if (password.equalsIgnoreCase("password")) {
             return false;
+        } else if (password.length() >= 8 && matcher.matches()) {
+            return true;
         } else {
             return false;
         }

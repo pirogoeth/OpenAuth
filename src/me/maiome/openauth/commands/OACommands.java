@@ -4,6 +4,7 @@ package me.maiome.openauth.commands;
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAPlayer;
 import me.maiome.openauth.bukkit.OAPlayer.Direction;
+import me.maiome.openauth.mixin.MixinManager;
 import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.LogHandler;
 import me.maiome.openauth.util.ConfigInventory;
@@ -98,7 +99,7 @@ public class OACommands {
         return;
     }
 
-    @Command(aliases = {"changepass"}, usage = "<oldpass> <newpass>", desc = "Change your current password.",
+    @Command(aliases = {"change-pass"}, usage = "<oldpass> <newpass>", desc = "Change your current password.",
              min = 2, max = 2)
     public static void changepass(CommandContext args, CommandSender sender) throws CommandException {
         OAPlayer player = OAPlayer.getPlayer((Player) sender);
@@ -152,18 +153,10 @@ public class OACommands {
         sender.sendMessage(ChatColor.GREEN + "Save completed.");
     }
 
-    @Command(aliases = {"test"}, desc = "This is always here to test some new thing.", max = 1)
-    public static void ptest(CommandContext args, CommandSender sender) throws CommandException {
-        OAPlayer player = OAPlayer.getPlayer((Player) sender);
-        int dist = ((args.argsLength() > 0) ? Integer.parseInt(args.getString(0)) : 5);
-        HashSet<Byte> transparent = new HashSet<Byte>();
-        transparent.add(new Integer(0).byteValue());
-        transparent.add(new Integer(1).byteValue());
-        List<Block> sight = player.getPlayer().getLineOfSight(transparent, dist);
-        StringBuilder blocklist = new StringBuilder();
-        for (Block b : sight) {
-            blocklist.append(b.getTypeId() + ",");
-        }
-        sender.sendMessage(ChatColor.BLUE + blocklist.toString());
+    @Command(aliases = {"load-new-mixins"}, usage = "", desc = "Loads any mixins that haven't been loaded yet.", max = 0)
+    @CommandPermissions({ "openauth.admin.load-new-mixins" })
+    public static void loadNewMixins(CommandContext args, ComandSender sender) throws CommandException {
+        MixinManager.getInstance().load();
+        sender.sendMessage(ChatColor.GREEN + "Tried to load new mixins -- check console for feedback.");
     }
 }

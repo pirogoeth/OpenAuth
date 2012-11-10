@@ -31,8 +31,12 @@ public class MixinManager {
     }
 
     public void load() {
-        this.mixins.addAll(this.loader.load().getInstances());
-        for (IMixin mixin : this.mixins) {
+        List<IMixin> newMixins = this.loader.load().getInstances();
+        for (IMixin mixin : newMixin) {
+            if (this.mixins.contains(mixin)) {
+                continue;
+            }
+            this.mixins.add(mixin);
             log.info("Loaded mixin: " + mixin.getName());
             mixin.onInit();
         }

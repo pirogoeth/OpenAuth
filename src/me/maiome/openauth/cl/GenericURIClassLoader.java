@@ -37,6 +37,8 @@ public class GenericURIClassLoader<T> {
     private final List<T> instances = new ArrayList<T>();
     // list of class objects
     private final List<Class> classes = new ArrayList<Class>();
+    // list of files loaded
+    private final List<File> files = new ArrayList<File>();
 
     /**
      * Obviously this is a constructor.
@@ -64,7 +66,7 @@ public class GenericURIClassLoader<T> {
         // make sure the directory is there.
         if (!(dir.exists())) {
             log.exDebug("{CL} Directory " + this.directory + " does not exist.");
-            return this;
+            return null;
         }
 
         // use a URLClassLoader to load the classes from the dir.
@@ -74,12 +76,16 @@ public class GenericURIClassLoader<T> {
         } catch (java.lang.Exception e) {
             log.exDebug("{CL} Encountered an error while initialising the class loader.");
             e.printStackTrace();
-            return this;
+            return null;
         }
 
         // classloading logic
         for (File f : dir.listFiles()) {
             if (!(f.getName().endsWith(".class"))) { // we only want to load .class files
+                continue;
+            }
+            if (this.files.contains(f)) {
+                // this file has already been loaded...
                 continue;
             }
             // get the filename without the .class
@@ -102,6 +108,7 @@ public class GenericURIClassLoader<T> {
                 classes.add(clazzz);
                 this.classes.add(clazz); // class object
                 this.instances.add(clazzz); // object instance
+                this.files.add(f); // file instance
             } catch (java.lang.Exception e) {
                 log.exDebug("Error loading " + fname + ".");
                 e.printStackTrace();
@@ -122,5 +129,12 @@ public class GenericURIClassLoader<T> {
      */
     public List<Class> getClasses() {
         return this.classes;
+    }
+
+    /**
+     * Returns all files that have been loaded by the loader.
+     */
+    public List<File> getFiles() {
+        return this.files;
     }
 }

@@ -33,18 +33,18 @@ public class BasicPasswordSecurity implements IPasswordSecurity {
     }
 
     public String explain() {
-        return "your password is less than 4 characters long or is invalid.";
+        return "your password is less than 8 characters long or is invalid.";
     }
 
     public boolean validate(String password) {
-        if (password.length() <= 4) {
-            return false;
-        } else if (password.length() > 4) {
-            return true;
-        } else if (password.equalsIgnoreCase("<password>")) {
+        if (password.equalsIgnoreCase("<password>")) {
             return false;
         } else if (password.equalsIgnoreCase("password")) {
             return false;
+        } else if (password.length() < 8) {
+            return false;
+        } else if (password.length() >= 8) {
+            return true;
         }
         return false;
     }

@@ -22,13 +22,51 @@ public class OAJSONAPINativeMethods {
 
     public OAJSONAPINativeMethods() { } // don't instantiate!
 
-    @OAJSONAPIMethod(name = "oa-test")
-    public static String nothing(Object[] args) {
+    @OAJSONAPIMethod(name = "oa-getWhitelist")
+    public static String getWhitelist(Object[] args) {
         StringBuilder s = new StringBuilder();
-        s.append("something");
-        for (Object o : args) {
-            s.append(o.toString());
+        List<String> whitelist = OpenAuth.getOAServer().getWhitelistHandler().getWhitelist();
+        for (String name : whitelist) {
+            s.append(name + ",");
         }
         return s.toString();
+    }
+
+    @OAJSONAPIMethod(name = "oa-whitelistPlayer")
+    public static String whitelistPlayer(Object[] args) {
+        String name;
+        try {
+            name = (String) args[0];
+        } catch (Exception e) {
+            throw e;
+        }
+        OpenAuth.getOAServer().getWhitelistHandler().whitelistPlayer(name);
+        // verify that the user was in fact added to the whitelist
+        OpenAuth.getOAServer().getWhitelistHandler().saveWhitelist();
+        OpenAuth.getOAServer().getWhitelistHandler().loadWhitelist();
+        List<String> whitelist = OpenAuth.getOAServer().getWhitelistHandler().getWhitelist();
+        if (whitelist.contains(name)) {
+            return "true";
+        }
+        return "false";
+    }
+
+    @OAJSONAPIMethod(name = "oa-unwhitelistPlayer")
+    public static String unwhitelistPlayer(Object[] args) {
+        String name;
+        try {
+            name = (String) args[0];
+        } catch (Exception e) {
+            throw e;
+        }
+        OpenAuth.getOAServer().getWhitelistHandler().unwhitelistPlayer(name);
+        // verify that the user was in fact removed from the whitelist
+        OpenAuth.getOAServer().getWhitelistHandler().saveWhitelist();
+        OpenAuth.getOAServer().getWhitelistHandler().loadWhitelist();
+        List<String> whitelist = OpenAuth.getOAServer().getWhitelistHandler().getWhitelist();
+        if (whitelist.contains(name)) {
+            return "false";
+        }
+        return "true";
     }
 }
