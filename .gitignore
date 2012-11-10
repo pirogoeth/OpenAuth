@@ -4,3 +4,7 @@ downloads.txt
 ./OpenAuth*.jar
 symbols.txt
 *.save
+.old_compile.sh
+OpenAuth-*.jar
+OpenAuth.jar
+compile_mixins.sh
