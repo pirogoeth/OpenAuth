@@ -5,8 +5,6 @@ public class Localisation implements ILocalisation {
 
     /**
      * This is all general information that needs to be known for use.
-     *
-     * This is VERY unfinished.
      */
 
     /**
@@ -78,6 +76,17 @@ public class Localisation implements ILocalisation {
         }
 
         this.localisationsDirectory = localisationsPath;
+
+        List<File> localisations;
+
+        try {
+            localisations = this.findLocalisations();
+        } catch (java.lang.IllegalArgumentException e) {
+            this.localisationsDirectory = "";
+            throw e;
+        }
+
+        this.translationList = localisations;
     }
 
     /**
@@ -95,12 +104,31 @@ public class Localisation implements ILocalisation {
     }
 
     /**
+     * Shorthand for getLocalisedString(String nodeName, Map<String, String> replacements).
+     */
+    public static String get(String nodeName, Map<String, String> replacements) {
+        return Localisation.getInstance().getLocalisedString(nodeName, replacements);
+    }
+
+    /**
      * Searches the localisations folder for translation files.
      *
      * Translation files are qualified as files that end with a .lang extension inside
      * the set localisations folder.
      */
     private List<File> findLocalisations() {
+        if (this.localisationDirectory == "") {
+            throw new Exception("Localisation directory is not set.");
+        }
+
+        File locDirectory = new File(this.localisationDirectory);
+
+        if (!(locDirectory.isDirectory())) {
+            throw new IllegalArgumentException("Cannot use a file for the translation DIRECTORY.");
+        }
+
+        List<File> translations = Arrays.asList(locDirectory.listFiles(new TranslationFilenameFilter()));
+        return translations;
     }
 
     /**
@@ -109,6 +137,13 @@ public class Localisation implements ILocalisation {
      * localisationFile variable.
      */
     public boolean requestTranslation(String name) {
+        for (File translation : this.translationList) {
+            if (translation.getName().equals(name)) {
+                this.processLocalisation(translation);
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -121,12 +156,49 @@ public class Localisation implements ILocalisation {
      *
      * ...etc, so on and so forth.
      */
-    private void processLocalisation() {
+    private void processLocalisation(File translationFile) {
+        Scanner translation = new Scanner(translation, "UTF-8");
+        while (translation.hasLine()) {
+            String line = translation.getLine();
+            if (line.charAt(0) == '@') { // check for data points.
+                if (line.substring(0, line.indexOf(' ')).equals("@localisation:")) { // localisation name
+                    String givenTransName = line.substring(line.indexOf(' ')).trim();
+                    if (!(givenTransName.equals(translation.getName()))) {
+                        throw new Exception(String.format("Translation filename and data point name do not match: [%s <=> %s]", translation.getName(), givenTransName));
+                    }
+                    this.translationName = givenTransName;
+                } else if (line.substring(0, line.indexOf(' ')).equals("@expectation:")) { // translation expectation
+                    String expectedCount = line.substring(line.indexOf(' ')).trim();
+                    int expCount = Integer.valueOf(expectedCount);
+                    this.expectedTranslationCount = expCount;
+                } else { // invalid data point
+                    continue;
+                }
+            } else if (Pattern.matches("(.+) \=\> (.+)", line)) { // this should be a node element
+                line = line.split("\\=\\>");
+                line[0] = line[0].trim();
+                if (line[1].charAt(0) == ' ') line[1] = line[1].substring(1);
+                this.translationMap.put(line[0], line[1]);
+                this.foundTranslationCount++;
+            }
+        }
     }
 
     /**
      * Returns the translation string mapped to the given node.
      */
     public String getLocalisedString(String nodeName) {
+        return this.translationMap.get(nodeName);
+    }
+
+    /**
+     * Returns the translation string mapped to the given node and all given replacements performed.
+     */
+    public String getLocalisedString(String nodeName, Map<String, String> replacements) {
+        String trans = this.translationMap.get(nodeName);
+        for (Map.Entry<String, String> entry : replacements.entrySet()) {
+            trans = trans.replace(entry.getKey(), entry.getValue());
+        }
+        return trans;
     }
 }

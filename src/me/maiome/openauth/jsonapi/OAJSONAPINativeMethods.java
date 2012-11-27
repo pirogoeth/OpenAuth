@@ -4,6 +4,8 @@ import me.maiome.openauth.bukkit.*;
 import me.maiome.openauth.jsonapi.*;
 import me.maiome.openauth.util.*;
 
+import java.util.*;
+
 public class OAJSONAPINativeMethods {
 
     private static OAJSONAPICallHandler callhandler;
@@ -33,7 +35,7 @@ public class OAJSONAPINativeMethods {
     }
 
     @OAJSONAPIMethod(name = "oa-whitelistPlayer")
-    public static String whitelistPlayer(Object[] args) {
+    public static String whitelistPlayer(Object[] args) throws Exception {
         String name;
         try {
             name = (String) args[0];
@@ -52,7 +54,7 @@ public class OAJSONAPINativeMethods {
     }
 
     @OAJSONAPIMethod(name = "oa-unwhitelistPlayer")
-    public static String unwhitelistPlayer(Object[] args) {
+    public static String unwhitelistPlayer(Object[] args) throws Exception {
         String name;
         try {
             name = (String) args[0];

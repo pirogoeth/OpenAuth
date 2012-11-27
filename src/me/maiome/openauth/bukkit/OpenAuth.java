@@ -382,8 +382,7 @@ public class OpenAuth extends JavaPlugin {
     /**
      * I think the other version of this was causing issues, so here's this!
      */
-    @Override
-    public File getDataFolder() {
+    public File getFolder() {
         return new File("plugins" + File.separator + "OpenAuth");
     }
 
