@@ -55,6 +55,9 @@ public class Notifications implements IMixin, Listener {
         }
         // send a message to all players in the new world.
         for (Player p : player.getLocation().getWorld().getPlayers()) {
+           if (p.getName().equals(player.getName())) {
+               continue;
+           }
            p.sendMessage(ChatColor.GREEN + "[" + ChatColor.BLUE + player.getName() + ChatColor.GREEN + "] has entered the world.");
         }
     }
