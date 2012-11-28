@@ -10,15 +10,15 @@ public interface ILocalisation {
     /**
      * This is the File instance for the file containing the translation strings we're going to use.
      */
-    File localisationFile;
+    File localisationFile = null;
     /**
      * This Map will hold all of the final strings, etc.
      */
-    Map<String, String> translationMap;
+    Map<String, String> translationMap = null;
     /**
      * State of translation thingy.
      */
-    boolean translationLoaded;
+    boolean translationLoaded = false;
     /**
      * Source directory for localisations.
      */
@@ -26,11 +26,11 @@ public interface ILocalisation {
     /**
      * List of found translation files.
      */
-    List<File> translationList;
+    List<File> translationList = null;
     /**
      * Holds the instance of the localiser.
      */
-    ILocalisation instance;
+    ILocalisation instance = null;
 
     /**
      * The following is all information about the loaded translation.
@@ -71,14 +71,14 @@ public interface ILocalisation {
     /**
      * Returns the localiser instance.
      */
-    ILocalisation getInstance();
+    /* static ILocalisation getInstance(); */
     /**
      * Searches the localisations folder for translation files.
      *
      * Translation files are qualified as files that end with a .lang extension inside
      * the set localisations folder.
      */
-    List<File> findLocalisations();
+    List<File> findLocalisations() throws Exception;
     /**
      * Searches the translation list to find a translation that matches the requested translation.
      * After it successfully matches a translation, it sets the matched translation file in the
@@ -95,13 +95,17 @@ public interface ILocalisation {
      *
      * ...etc, so on and so forth.
      */
-    void processLocalisation();
+    void processLocalisation(File localisationFile) throws Exception;
     /**
      * Returns the translation string mapped to the given node.
      */
     String getLocalisedString(String nodeName);
     /**
+     * Returns the translation string mapped to the given node with the given replacements processed.
+     */
+    String getLocalisedString(String nodeName, Map<String, String> replacements);
+    /**
      * Shorthand for getLocalisedString(String nodeName).
      */
-    String get(String nodeName);
+    /* static String get(String nodeName); */
 }

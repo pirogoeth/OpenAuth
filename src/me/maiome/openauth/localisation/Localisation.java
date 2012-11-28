@@ -1,5 +1,8 @@
 import java.io.*;
 import java.util.*;
+import java.util.regex.*;
+
+import me.maiome.openauth.localisation.TranslationFilenameFilter;
 
 public class Localisation implements ILocalisation {
 
@@ -72,7 +75,7 @@ public class Localisation implements ILocalisation {
             throw new UnsupportedOperationException("Cannot reset localisations directory.");
         }
         if (!(new File(localisationsPath).isDirectory())) {
-            throw new InvalidArgumentException("Provided path is a file, not a directory.");
+            throw new IllegalArgumentException("Provided path is a file, not a directory.");
         }
 
         this.localisationsDirectory = localisationsPath;
@@ -84,6 +87,9 @@ public class Localisation implements ILocalisation {
         } catch (java.lang.IllegalArgumentException e) {
             this.localisationsDirectory = "";
             throw e;
+        } catch (java.lang.Exception e) {
+            this.localisationsDirectory = "";
+            return;
         }
 
         this.translationList = localisations;
@@ -116,12 +122,12 @@ public class Localisation implements ILocalisation {
      * Translation files are qualified as files that end with a .lang extension inside
      * the set localisations folder.
      */
-    private List<File> findLocalisations() {
-        if (this.localisationDirectory == "") {
+    public List<File> findLocalisations() throws Exception {
+        if (this.localisationsDirectory == "") {
             throw new Exception("Localisation directory is not set.");
         }
 
-        File locDirectory = new File(this.localisationDirectory);
+        File locDirectory = new File(this.localisationsDirectory);
 
         if (!(locDirectory.isDirectory())) {
             throw new IllegalArgumentException("Cannot use a file for the translation DIRECTORY.");
@@ -139,8 +145,12 @@ public class Localisation implements ILocalisation {
     public boolean requestTranslation(String name) {
         for (File translation : this.translationList) {
             if (translation.getName().equals(name)) {
-                this.processLocalisation(translation);
-                return true;
+                try {
+                    this.processLocalisation(translation);
+                    return true;
+                } catch (java.lang.Exception e) {
+                    return false;
+                }
             }
         }
         return false;
@@ -156,15 +166,21 @@ public class Localisation implements ILocalisation {
      *
      * ...etc, so on and so forth.
      */
-    private void processLocalisation(File translationFile) {
-        Scanner translation = new Scanner(translation, "UTF-8");
-        while (translation.hasLine()) {
-            String line = translation.getLine();
+    public void processLocalisation(File translationFile) throws Exception {
+        Scanner translation;
+        try {
+            translation = new Scanner(translationFile, "UTF-8");
+        } catch (java.lang.Exception e) {
+            throw e;
+        }
+        String translationFilename = translationFile.getName().split("\\.")[0];
+        while (translation.hasNextLine()) {
+            String line = translation.nextLine();
             if (line.charAt(0) == '@') { // check for data points.
                 if (line.substring(0, line.indexOf(' ')).equals("@localisation:")) { // localisation name
                     String givenTransName = line.substring(line.indexOf(' ')).trim();
-                    if (!(givenTransName.equals(translation.getName()))) {
-                        throw new Exception(String.format("Translation filename and data point name do not match: [%s <=> %s]", translation.getName(), givenTransName));
+                    if (!(givenTransName.equals(translationFilename))) {
+                        throw new Exception(String.format("Translation filename and data point name do not match: [%s <=> %s]", translationFilename, givenTransName));
                     }
                     this.translationName = givenTransName;
                 } else if (line.substring(0, line.indexOf(' ')).equals("@expectation:")) { // translation expectation
@@ -174,11 +190,11 @@ public class Localisation implements ILocalisation {
                 } else { // invalid data point
                     continue;
                 }
-            } else if (Pattern.matches("(.+) \=\> (.+)", line)) { // this should be a node element
-                line = line.split("\\=\\>");
-                line[0] = line[0].trim();
-                if (line[1].charAt(0) == ' ') line[1] = line[1].substring(1);
-                this.translationMap.put(line[0], line[1]);
+            } else if (Pattern.matches("(.+) \\=\\> (.+)", line)) { // this should be a node element
+                String[] lineAr = line.split("\\=\\>");
+                lineAr[0] = lineAr[0].trim();
+                if (lineAr[1].charAt(0) == ' ') lineAr[1] = lineAr[1].substring(1);
+                this.translationMap.put(lineAr[0], lineAr[1]);
                 this.foundTranslationCount++;
             }
         }
