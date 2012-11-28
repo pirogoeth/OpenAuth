@@ -4,7 +4,7 @@ package me.maiome.openauth.commands;
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAPlayer;
 import me.maiome.openauth.bukkit.OAPlayer.Direction;
-import me.maiome.openauth.mixin.MixinManager;
+import me.maiome.openauth.mixins.MixinManager;
 import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.LogHandler;
 import me.maiome.openauth.util.ConfigInventory;
@@ -155,7 +155,7 @@ public class OACommands {
 
     @Command(aliases = {"load-new-mixins"}, usage = "", desc = "Loads any mixins that haven't been loaded yet.", max = 0)
     @CommandPermissions({ "openauth.admin.load-new-mixins" })
-    public static void loadNewMixins(CommandContext args, ComandSender sender) throws CommandException {
+    public static void loadNewMixins(CommandContext args, CommandSender sender) throws CommandException {
         MixinManager.getInstance().load();
         sender.sendMessage(ChatColor.GREEN + "Tried to load new mixins -- check console for feedback.");
     }

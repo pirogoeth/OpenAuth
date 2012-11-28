@@ -32,7 +32,7 @@ public class MixinManager {
 
     public void load() {
         List<IMixin> newMixins = this.loader.load().getInstances();
-        for (IMixin mixin : newMixin) {
+        for (IMixin mixin : newMixins) {
             if (this.mixins.contains(mixin)) {
                 continue;
             }
