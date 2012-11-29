@@ -17,11 +17,11 @@ public class Localisation implements ILocalisation {
     /**
      * This Map will hold all of the final strings, etc.
      */
-    private Map<String, String> translationMap;
+    private Map<String, String> translationMap = new HashMap<String, String>();
     /**
      * State of translation thingy.
      */
-    private boolean translationLoaded;
+    private boolean translationLoaded = false;
     /**
      * Source directory for localisations.
      */
@@ -33,7 +33,7 @@ public class Localisation implements ILocalisation {
     /**
      * Holds the instance of the localiser.
      */
-    public static ILocalisation instance;
+    public static ILocalisation instance = null;
 
     /**
      * The following is all information about the loaded translation.
@@ -68,6 +68,31 @@ public class Localisation implements ILocalisation {
      */
 
     /**
+     * Returns an ILocalisation instance.
+     */
+    public static ILocalisation getInstance() {
+        if (instance == null) {
+            instance = new Localisation();
+        }
+
+        return instance;
+    }
+
+    /**
+     * Shorthand for getLocalisedString(String nodeName).
+     */
+    public static String get(String nodeName) {
+        return Localisation.getInstance().getLocalisedString(nodeName);
+    }
+
+    /**
+     * Shorthand for getLocalisedString(String nodeName, Map<String, String> replacements).
+     */
+    public static String get(String nodeName, Map<String, String> replacements) {
+        return Localisation.getInstance().getLocalisedString(nodeName, replacements);
+    }
+
+    /**
      * Sets the localisations folder to search for translation files.
      */
     public void setLocalisationsFolder(String localisationsPath) {
@@ -93,27 +118,6 @@ public class Localisation implements ILocalisation {
         }
 
         this.translationList = localisations;
-    }
-
-    /**
-     * Returns an ILocalisation instance.
-     */
-    public static ILocalisation getInstance() {
-        return instance;
-    }
-
-    /**
-     * Shorthand for getLocalisedString(String nodeName).
-     */
-    public static String get(String nodeName) {
-        return Localisation.getInstance().getLocalisedString(nodeName);
-    }
-
-    /**
-     * Shorthand for getLocalisedString(String nodeName, Map<String, String> replacements).
-     */
-    public static String get(String nodeName, Map<String, String> replacements) {
-        return Localisation.getInstance().getLocalisedString(nodeName, replacements);
     }
 
     /**
@@ -144,11 +148,12 @@ public class Localisation implements ILocalisation {
      */
     public boolean requestTranslation(String name) {
         for (File translation : this.translationList) {
-            if (translation.getName().equals(name)) {
+            if (translation.getName().split("\\.")[0].equals(name)) {
                 try {
                     this.processLocalisation(translation);
                     return true;
                 } catch (java.lang.Exception e) {
+                    e.printStackTrace();
                     return false;
                 }
             }
@@ -176,6 +181,9 @@ public class Localisation implements ILocalisation {
         String translationFilename = translationFile.getName().split("\\.")[0];
         while (translation.hasNextLine()) {
             String line = translation.nextLine();
+            if (line.trim().equals("")) {
+                continue;
+            }
             if (line.charAt(0) == '@') { // check for data points.
                 if (line.substring(0, line.indexOf(' ')).equals("@localisation:")) { // localisation name
                     String givenTransName = line.substring(line.indexOf(' ')).trim();
@@ -183,20 +191,32 @@ public class Localisation implements ILocalisation {
                         throw new Exception(String.format("Translation filename and data point name do not match: [%s <=> %s]", translationFilename, givenTransName));
                     }
                     this.translationName = givenTransName;
+                    continue;
                 } else if (line.substring(0, line.indexOf(' ')).equals("@expectation:")) { // translation expectation
                     String expectedCount = line.substring(line.indexOf(' ')).trim();
                     int expCount = Integer.valueOf(expectedCount);
                     this.expectedTranslationCount = expCount;
+                    continue;
                 } else { // invalid data point
                     continue;
                 }
-            } else if (Pattern.matches("(.+) \\=\\> (.+)", line)) { // this should be a node element
-                String[] lineAr = line.split("\\=\\>");
-                lineAr[0] = lineAr[0].trim();
-                if (lineAr[1].charAt(0) == ' ') lineAr[1] = lineAr[1].substring(1);
-                this.translationMap.put(lineAr[0], lineAr[1]);
-                this.foundTranslationCount++;
+            } else if (Pattern.matches("(.+)(?:\\s+\\=\\>\\s+)(.+)", line)) { // this should be a node element
+                Pattern p = Pattern.compile("(.+)(?:\\s+\\=\\>\\s+)(.+)");
+                Matcher m = p.matcher(line);
+                if (m.find() && m.groupCount() != 2) continue;
+                try {
+                    String node = m.group(1).trim();
+                    String transl = m.group(2).trim();
+                    this.translationMap.put(node, transl);
+                    this.foundTranslationCount++;
+                } catch (java.lang.Exception e) {
+                    e.printStackTrace();
+                    continue;
+                }
             }
+        } // time to check the translation count
+        if (this.foundTranslationCount != this.expectedTranslationCount) {
+            throw new Exception(String.format("Translation counts do not match up; expected %d, got %d.", this.expectedTranslationCount, this.foundTranslationCount));
         }
     }
 
