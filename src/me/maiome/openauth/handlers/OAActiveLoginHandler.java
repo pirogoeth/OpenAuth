@@ -113,9 +113,6 @@ public class OAActiveLoginHandler implements OALoginHandler {
         } else {
             this.log.exDebug(String.format("%s (%s) matched no IP bans!", player.getIP(), player.getName()));
         }
-        if (ConfigInventory.MAIN.getConfig().getBoolean("auth.hide-inventory", false)) {
-            player.getSession().unhideInventory();
-        }
         event.allow();
         this.active.add(player);
         return;
@@ -134,6 +131,9 @@ public class OAActiveLoginHandler implements OALoginHandler {
         }
         String match = OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player.getName()).getPassword();
         boolean success = ((this.getStringHash(password)).equals(match)) ? true : false;
+        if (ConfigInventory.MAIN.getConfig().getBoolean("auth.hide-inventory", false) && success) {
+            player.getSession().unhideInventory();
+        }
         OAPlayerAttemptedLoginEvent e = new OAPlayerAttemptedLoginEvent(player, success);
         this.controller.getOAServer().callEvent(e);
         return success;

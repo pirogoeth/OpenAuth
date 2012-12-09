@@ -49,7 +49,7 @@ public class Session {
     private Location lloc;
     private boolean hidden = false;
     private String ip;
-    private ItemStack[] inventory;
+    private ItemStack[] inventory = new ItemStack[] { };
 
     protected final int wand_id = ConfigInventory.MAIN.getConfig().getInt("wand-id");
 
@@ -179,7 +179,7 @@ public class Session {
     public void hideInventory() {
         Inventory playerInv = this.player.getPlayer().getInventory();
         this.inventory = playerInv.getContents();
-        playerInv.setContents(new ItemStack[] { });
+        playerInv.clear();
         this.player.getPlayer().updateInventory();
     }
 
