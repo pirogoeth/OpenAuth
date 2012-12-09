@@ -113,6 +113,9 @@ public class OAActiveLoginHandler implements OALoginHandler {
         } else {
             this.log.exDebug(String.format("%s (%s) matched no IP bans!", player.getIP(), player.getName()));
         }
+        if (ConfigInventory.MAIN.getConfig().getBoolean("auth.hide-inventory", false)) {
+            player.getSession().unhideInventory();
+        }
         event.allow();
         this.active.add(player);
         return;

@@ -75,6 +75,10 @@ public class OACommands {
     public static void login(CommandContext args, CommandSender sender) throws CommandException {
         OAPlayer player = OAPlayer.getPlayer((Player) sender);
         String password = args.getString(0);
+        if (player.getSession().isIdentified()) {
+            player.sendMessage(ChatColor.BLUE + "You are already logged in.");
+            return;
+        }
         if (controller.getOAServer().getLoginHandler().processPlayerIdentification(player, password)) {
             if (player.getSession().setIdentified(true, true)) {
                 player.sendMessage(ChatColor.GREEN + "You have been logged in as '" + player.getName() + "'.");
@@ -93,6 +97,10 @@ public class OACommands {
              max = 0)
     public static void logout(CommandContext args, CommandSender sender) throws CommandException {
         OAPlayer player = OAPlayer.getPlayer((Player) sender);
+        if (!(player.getSession().isIdentified())) {
+            player.sendMessage(ChatColor.BLUE + "You are not logged in.");
+            return;
+        }
         if (player.getSession().setIdentified(false, true)) {
             player.sendMessage(ChatColor.BLUE + "You have been logged out.");
         }
@@ -158,5 +166,11 @@ public class OACommands {
     public static void loadNewMixins(CommandContext args, CommandSender sender) throws CommandException {
         MixinManager.getInstance().load();
         sender.sendMessage(ChatColor.GREEN + "Tried to load new mixins -- check console for feedback.");
+    }
+
+    @Command(aliases = {"locfix"}, usage = "", desc = "Fixes the player's location.", max = 0)
+    @CommandPermissions({ "openauth.locfix" })
+    public static void locFix(CommandContext args, CommandSender sender) throws CommandException {
+        OAPlayer.getPlayer((Player) sender).fixLocation();
     }
 }

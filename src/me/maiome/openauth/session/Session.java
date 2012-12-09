@@ -14,6 +14,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Entity;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -48,6 +49,7 @@ public class Session {
     private Location lloc;
     private boolean hidden = false;
     private String ip;
+    private ItemStack[] inventory;
 
     protected final int wand_id = ConfigInventory.MAIN.getConfig().getInt("wand-id");
 
@@ -171,6 +173,21 @@ public class Session {
 
     public boolean playerUsingWand() {
         return (this.player.getItemInHand() == this.wand_id && !(this.isFrozen())) ? true : false;
+    }
+
+    // inventory operations
+    public void hideInventory() {
+        Inventory playerInv = this.player.getPlayer().getInventory();
+        this.inventory = playerInv.getContents();
+        playerInv.setContents(new ItemStack[] { });
+        this.player.getPlayer().updateInventory();
+    }
+
+    public void unhideInventory() {
+        Inventory playerInv = this.player.getPlayer().getInventory();
+        playerInv.setContents(this.inventory);
+        this.inventory = new ItemStack[] { };
+        this.player.getPlayer().updateInventory();
     }
 
     // session data

@@ -71,7 +71,7 @@ public class OARootAliasCommands {
         }
 
         @Command(aliases = {"logout"}, desc = "Logout of OA.",
-                 flags = "", min = 1, max = 1)
+                 flags = "", max = 0)
         public static void logoutRootAlias(CommandContext args, CommandSender sender) throws CommandException {
             OACommands.logout(args, sender);
         }

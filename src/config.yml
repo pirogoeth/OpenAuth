@@ -32,10 +32,12 @@
 #   password-security - what type of password validating will be used? (basic or complex)
 #             [default: basic]
 #   greet-players - whether I will greet players upon "meeting" them. [default: true]
+#   hide-inventory - do I hide the player's inventory before the identify? [default: false]
 #   freeze-actions - actions that the player takes that will be
 #                    frozen.
 #     chat - freeze chat? [default: true]
 #     commands - freeze all commands besides OA commands? [default: true]
+#     drop - prevent players from dropping items? [default: true]
 #     interact - freeze all player interactions? [default: true]
 #     block-interact - freeze all block interactions? [default: true]
 #     block-place - freeze all block placements? [default: true]
@@ -94,9 +96,11 @@ auth:
     require: true
     password-security: basic
     greet-players: true
+    hide-inventory: false
     freeze-actions:
         chat: true
         commands: true
+        drop: true
         interact: true
         block-interact: true
         block-place: true

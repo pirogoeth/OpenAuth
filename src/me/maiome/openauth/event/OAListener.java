@@ -21,6 +21,7 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.PlayerChatEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
+import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
@@ -144,7 +145,11 @@ public class OAListener implements Listener {
         player.update();
         boolean auth = ConfigInventory.MAIN.getConfig().getBoolean("auth.required", true);
         boolean greet = ConfigInventory.MAIN.getConfig().getBoolean("auth.greet-players", true);
+        boolean hideInv = ConfigInventory.MAIN.getConfig().getBoolean("auth.hide-inventory", false);
         String color = String.format("%s%s", ChatColor.BOLD, ChatColor.LIGHT_PURPLE);
+        if (hideInv) {
+            player.getSession().hideInventory();
+        }
         if (greet == true) {
             if (!(auth) && greet) {
                 player.sendMessage(color + String.format(
@@ -205,17 +210,33 @@ public class OAListener implements Listener {
 
         try {
             if (player.getSession().isIdentified() == false &&
-               ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.chat", true) == true) {
+                ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.chat", true) == true) {
 
                 event.setCancelled(true);
                 player.sendMessage(ChatColor.RED + "You must identify first to chat.");
-               return;
+                return;
             }
         } catch (java.lang.Exception e) {
             log.warning(String.format("Caught Exception %s while processing onPlayerChat.", e.getMessage()));
             log.exDebug(e.toString());
         }
         return;
+    }
+
+    /**
+     * Called when a player drops an item.
+     */
+    @EventHandler(priority = EventPriority.HIGH)
+    public void onPlayerDroppedItem(PlayerDropItemEvent event) {
+        OAPlayer player = OAPlayer.getPlayer(event.getPlayer());
+
+        if (player.getSession().isIdentified() == false &&
+            ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.drop", true) == true) {
+
+            event.setCancelled(true);
+            player.sendMessage(ChatColor.RED + "You must first identify to drop items.");
+            return;
+        }
     }
 
     /**
