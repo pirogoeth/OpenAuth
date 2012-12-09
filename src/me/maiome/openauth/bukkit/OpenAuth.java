@@ -157,9 +157,9 @@ public class OpenAuth extends JavaPlugin {
 
         // warn about ebean's rebuild
         if (ConfigInventory.MAIN.getConfig().getBoolean("database.rebuild", true) == true) {
-            log.info("!! [WARNING] The 'database.rebuild' option in your config.yml is set to true!");
-            log.info("!! [WARNING] This means that your database will be recreated every time the server starts and your data will be lost!");
-            log.info("!! [WARNING] If this is not what you want, stop the server and change the entry to false.");
+            log.info(" - [WARNING] The 'database.rebuild' option in your config.yml is set to true!");
+            log.info(" - [WARNING] This means that your database will be recreated every time the server starts and your data will be lost!");
+            log.info(" - [WARNING] If this is not what you want, stop the server and change the entry to false.");
         }
 
         // set logging level
@@ -219,6 +219,9 @@ public class OpenAuth extends JavaPlugin {
 
         // register base command class.
         this.dynamicCommandRegistry.register(OACommands.OAParentCommand.class);
+        this.dynamicCommandRegistry.register(OARootAliasCommands.LoginRootAliasCommand.class);
+        this.dynamicCommandRegistry.register(OARootAliasCommands.LogoutRootAliasCommand.class);
+        this.dynamicCommandRegistry.register(OARootAliasCommands.RegisterRootAliasCommand.class);
 
         // generate sessions for all users
         sc.createAll();

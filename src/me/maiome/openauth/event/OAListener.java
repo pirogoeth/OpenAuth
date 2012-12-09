@@ -76,13 +76,13 @@ public class OAListener implements Listener {
         if (player.getSession().isFrozen() == true &&
             ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.commands", true) == true) {
             try {
-                if (((!(split[0].equals("/oa")) && !(split[0].equals("/openauth"))) && (!(split[1].equals("login")) && !(split[1].equals("register")))) && !(split[0].equals("/worldedit"))) {
+                if (((!(split[0].equals("/oa")) && !(split[0].equals("/login")) && !(split[0].equals("/register")) && !(split[0].equals("/openauth"))) && (!(split[1].equals("login")) && !(split[1].equals("register")))) && !(split[0].equals("/worldedit"))) {
                     player.sendMessage(ChatColor.GREEN + "You must identify to use commands.");
                     event.setCancelled(true);
                     return;
                 }
             } catch (java.lang.ArrayIndexOutOfBoundsException e) {
-                if (!(split[0].equals("/oa")) && !(split[0].equals("/openauth")) && !(split[0].equals("/worldedit"))) {
+                if (!(split[0].equals("/oa")) && !(split[0].equals("/openauth")) && !(split[0].equals("/worldedit")) && !(split[0].equals("/login")) && !(split[0].equals("/register"))) {
                     player.sendMessage(ChatColor.GREEN + "You must identify to use commands.");
                     event.setCancelled(true);
                     return;
@@ -156,10 +156,10 @@ public class OAListener implements Listener {
                     "Welcome to %s, %s! To play on our server, we require you to register with OpenAuth.",
                     player.getServer().getServer().getServerName(), player.getName()
                 ));
-                player.sendMessage(color + "To register, use this command: /oa register <password>");
+                player.sendMessage(color + "To register, use this command: /register <password>");
             } else if (player.getPlayer().hasPlayedBefore() && OpenAuth.getOAServer().getLoginHandler().isRegistered(player) && !(player.getSession().isIdentified())) {
                 player.sendMessage(color + String.format(
-                    "Welcome back to %s, %s! Please login to play! To login, use: /oa login <password>",
+                    "Welcome back to %s, %s! Please login to play! To login, use: /login <password>",
                     player.getServer().getServer().getServerName(), player.getName()
                 ));
             } else if (player.getSession().isIdentified()) {
