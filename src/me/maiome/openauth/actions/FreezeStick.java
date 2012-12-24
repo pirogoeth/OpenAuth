@@ -18,9 +18,6 @@ import me.maiome.openauth.util.Permission;
 
 public class FreezeStick implements IAction {
 
-    protected final int factor = (17 * 7);
-    protected final int serial = 302;
-
     public static final String name = "freeze";
     public static final Tracker tracker = new Tracker("FreezeStick");
 
@@ -48,10 +45,6 @@ public class FreezeStick implements IAction {
 
     public String toString() {
         return String.format("FreezeStick{permissible=%s}", this.permissible);
-    }
-
-    public int hashCode() {
-        return (int) Math.abs(((this.factor) + (this.server.hashCode() + this.attached.hashCode() + this.serial)));
     }
 
     public boolean allowed() {

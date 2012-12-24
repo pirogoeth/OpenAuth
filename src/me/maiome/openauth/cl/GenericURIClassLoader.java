@@ -14,6 +14,8 @@ import me.maiome.openauth.util.LogHandler;
  *
  * Usage:
  *
+ *  GenericURIClassLoader<T> loader = new GenericURIClassLoader<T>(String abstractPathToClasses, Class clazz);
+ *
  *   GenericURIClassLoader<IMixin> loader = new GenericURIClassLoader<IMixin>("mixins", IMixin.class);
  *   List<IMixin> mixins = loader.load().getInstances();
  *     ==OR==
@@ -57,7 +59,7 @@ public class GenericURIClassLoader<T> {
      *
      * Fuck you Science.
      *
-     * Also, all class loading logic is performed here.
+     * Class loading logic is performed here.
      */
     public GenericURIClassLoader load() {
         List<T> classes = new ArrayList<T>();

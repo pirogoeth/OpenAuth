@@ -22,9 +22,6 @@ import me.maiome.openauth.util.Permission;
 
 public class SessionController {
 
-    protected final int factor = (17 * 6);
-    protected final int serial = 200;
-
     private Map<OAPlayer, Session> session_bag = new HashMap<OAPlayer, Session>();
     private LogHandler log = new LogHandler();
     private OpenAuth controller;
@@ -47,10 +44,6 @@ public class SessionController {
 
     public String toString() {
         return String.format("SessionController{prune_delay=%d,prune_period=%d,prune_epsilon=%d}", this.prune_delay, this.prune_period, this.prune_epsilon);
-    }
-
-    public int hashCode() {
-        return (int) Math.abs(((this.factor) + (this.controller.hashCode() + this.server.hashCode() + this.serial)));
     }
 
     public void startSchedulerTasks() {

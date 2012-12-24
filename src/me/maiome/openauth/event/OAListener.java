@@ -147,7 +147,7 @@ public class OAListener implements Listener {
         boolean greet = ConfigInventory.MAIN.getConfig().getBoolean("auth.greet-players", true);
         boolean hideInv = ConfigInventory.MAIN.getConfig().getBoolean("auth.hide-inventory", false);
         String color = String.format("%s%s", ChatColor.BOLD, ChatColor.LIGHT_PURPLE);
-        if (hideInv) {
+        if (hideInv && !(player.getSession().isIdentified())) {
             player.getSession().hideInventory();
         }
         if (greet == true) {

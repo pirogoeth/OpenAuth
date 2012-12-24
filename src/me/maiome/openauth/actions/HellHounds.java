@@ -24,9 +24,6 @@ import java.util.List;
 
 public class HellHounds implements IAction {
 
-    protected final int factor = (17 * 7);
-    protected final int serial = 304;
-
     public static final String name = "hounds";
     public static final Tracker tracker = new Tracker("HellHounds");
     public static List<OAPlayer> attacking = new ArrayList<OAPlayer>();
@@ -58,10 +55,6 @@ public class HellHounds implements IAction {
 
     public String toString() {
         return String.format("HellHounds{permissible=%s}", this.permissible);
-    }
-
-    public int hashCode() {
-        return (int) Math.abs(((this.factor) + (this.server.hashCode() + this.attached.hashCode() + this.serial)));
     }
 
     // task for auto-destruction of wolves

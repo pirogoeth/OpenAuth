@@ -25,9 +25,6 @@ import me.maiome.openauth.util.LoginStatus;
 
 public class OAActiveLoginHandler implements OALoginHandler {
 
-    protected final int factor = (17 * 8);
-    protected final int serial = 400;
-
     private List<OAPlayer> active = new ArrayList<OAPlayer>();
     private OpenAuth controller;
     private LogHandler log = new LogHandler();
@@ -39,10 +36,6 @@ public class OAActiveLoginHandler implements OALoginHandler {
 
     public String toString() {
         return String.format("OAActiveLoginHandler{enabled=%b}", this.enabled);
-    }
-
-    public int hashCode() {
-        return (int) Math.abs(((this.factor) + (this.controller.hashCode() + this.serial)));
     }
 
     public void setEnabled(boolean b) {

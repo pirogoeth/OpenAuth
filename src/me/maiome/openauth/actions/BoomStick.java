@@ -33,9 +33,6 @@ import me.maiome.openauth.util.Permission;
 
 public class BoomStick implements IAction {
 
-    protected final int factor = (17 * 7);
-    protected final int serial = 301;
-
     public static final String name = "boom";
     public static final Tracker tracker = new Tracker("BoomStick");
 
@@ -68,10 +65,6 @@ public class BoomStick implements IAction {
 
     public String toString() {
         return String.format("BoomStick{permissible=%s}", this.permissible);
-    }
-
-    public int hashCode() {
-        return (int) Math.abs(((this.factor) + (this.server.hashCode() + this.attached.hashCode() + this.serial)));
     }
 
     public boolean allowed() {

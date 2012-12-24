@@ -31,9 +31,6 @@ import me.maiome.openauth.util.Permission;
 
 public class Session {
 
-    protected transient final int factor = (17 * 6);
-    protected transient final int serial = 201;
-
     public long spawn_time;
     private LogHandler log = new LogHandler();
     private OpenAuth controller;
@@ -73,11 +70,6 @@ public class Session {
     }
 
     @Override
-    public int hashCode() {
-        return (int) ((this.factor) + Math.abs((this.controller.hashCode() + this.sc.hashCode() + this.player.getName().hashCode() + this.wand_id + this.serial)));
-    }
-
-    @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Session)) return false;
         if (obj == null) return false;
@@ -90,7 +82,7 @@ public class Session {
             return false;
         };
 
-        return ((this.toString().equals(sess.toString())) && (this.hashCode() == sess.hashCode()));
+        return ((this.toString().equals(sess.toString())));
     }
 
     public long getAge() {

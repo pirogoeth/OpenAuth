@@ -21,9 +21,6 @@ import java.util.List;
 
 public class BoxStick implements IAction {
 
-    protected final int factor = (17 * 7);
-    protected final int serial = 304;
-
     public static String name = "box";
     public static final Tracker tracker = new Tracker("BoxStick");
 
@@ -55,10 +52,6 @@ public class BoxStick implements IAction {
 
     public String toString() {
         return String.format("BoxStick{permissible=%s}", this.permissible);
-    }
-
-    public int hashCode() {
-        return (int) Math.abs(((this.factor) + (this.server.hashCode() + this.attached.hashCode() + this.serial)));
     }
 
     public boolean allowed() {
