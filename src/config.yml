@@ -14,6 +14,8 @@
 # save-whitelist: (whitelist saving)
 #   delay - how long to wait before starting to save the whitelist [default: 18000 == 15 minutes]
 #   period - how long to go in between running the whitelist saving task [default: 72000 == 60 minutes/1 hour]
+# server: (server management settings)
+#   lockdown-reason - reason to give for lockdown kick [default: The server is currently locked down for maintenance.]
 # session-prune: (player session pruning)
 #   delay - how long to wait before starting the pruning task [default: 6000 == 5 minutes]
 #   period - how long to go in between running the task [default: 12000 == 10 minutes]
@@ -78,6 +80,8 @@ save-whitelist-period: 72000
 session-prune-delay: 6000
 session-prune-period: 12000
 session-prune-epsilon: 3
+server:
+    lockdown-reason: The server is currently locked down for maintenance.
 wand-id: 369
 whitelist-handler: true
 database:

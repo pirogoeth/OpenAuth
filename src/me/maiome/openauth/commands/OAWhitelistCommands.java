@@ -81,16 +81,22 @@ public class OAWhitelistCommands {
              max = 0)
     @CommandPermissions({ "openauth.whitelist.show" })
     public static void whitelistshow(CommandContext args, CommandSender sender) throws CommandException {
+        StringBuilder list = new StringBuilder();
         if (controller.getOAServer().getWhitelistHandler().isEnabled()) {
             sender.sendMessage(ChatColor.BLUE + "Whitelist:");
             for (String name : controller.getOAServer().getWhitelistHandler().getWhitelist()) {
-                sender.sendMessage(ChatColor.BLUE + String.format(" => %s", name));
+                list.append(ChatColor.BLUE + String.format(" - %s\n", name));
             }
+            if (list.length() == 0) {
+                sender.sendMessage(ChatColor.BLUE + " - No whitelist entries.");
+                return;
+            }
+            Pager.beginPaging(sender, "===[OpenAuth] Whitelist List===", list.toString(), ChatColor.BLUE, ChatColor.RED);
+            return;
         } else {
             sender.sendMessage(ChatColor.GREEN + "Whitelisting is disabled!");
             return;
         }
-        return;
     }
 
     @Console

@@ -36,6 +36,7 @@ import me.maiome.openauth.bukkit.*;
 import me.maiome.openauth.bukkit.events.*;
 import me.maiome.openauth.security.*;
 import me.maiome.openauth.util.ConfigInventory;
+import me.maiome.openauth.util.LockdownManager;
 import me.maiome.openauth.util.LogHandler;
 
 public class OAListener implements Listener {
@@ -126,6 +127,11 @@ public class OAListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerLogin(PlayerLoginEvent event) {
+        LockdownManager lck = LockdownManager.getInstance();
+        if (lck.isLocked()) {
+            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, lck.getLockReason());
+            return;
+        }
         if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) return; // derp, totally forgot. causes problems with sk89q's hostkeys.
         OAPlayer player = (OAPlayer.getPlayer(event));
         this.controller.getOAServer().getWhitelistHandler().processPlayerJoin(event, player);

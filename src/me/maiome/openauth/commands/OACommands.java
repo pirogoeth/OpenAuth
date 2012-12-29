@@ -6,13 +6,15 @@ import me.maiome.openauth.bukkit.OAPlayer;
 import me.maiome.openauth.bukkit.OAPlayer.Direction;
 import me.maiome.openauth.mixins.MixinManager;
 import me.maiome.openauth.util.Config;
-import me.maiome.openauth.util.LogHandler;
 import me.maiome.openauth.util.ConfigInventory;
+import me.maiome.openauth.util.LockdownManager;
+import me.maiome.openauth.util.LogHandler;
 
 // command framework imports
 import com.sk89q.minecraft.util.commands.*;
 
 // bukkit imports
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -105,6 +107,30 @@ public class OACommands {
             player.sendMessage(ChatColor.BLUE + "You have been logged out.");
         }
         return;
+    }
+
+    @Command(aliases = {"lock"}, usage = "<-s|-u> [reason{if -s}]", desc = "Allows locking of the server.",
+             min = 1, max = 1)
+    @CommandPermissions({"openauth.admin.lock"})
+    public static void lock(CommandContext args, CommandSender sender) throws CommandException {
+        String reason = args.getString(0);
+        reason = ((reason != "") ? reason : LockdownManager.getInstance().getDefaultLockReason());
+        if (args.hasFlag('s')) {
+            for (Player player : Bukkit.getServer().getOnlinePlayers()) {
+                if (!(player.hasPermission("openauth.lockdown.exempt"))) {
+                    player.kickPlayer(reason);
+                }
+            }
+            LockdownManager lck = LockdownManager.getInstance();
+            lck.setLockReason(reason);
+            lck.setLocked(true);
+            sender.sendMessage(ChatColor.BLUE + "The server has been locked down.");
+            return;
+        } else if (args.hasFlag('u')) {
+            LockdownManager lck = LockdownManager.getInstance();
+            lck.setLocked(false);
+            return;
+        }
     }
 
     @Command(aliases = {"change-pass"}, usage = "<oldpass> <newpass>", desc = "Change your current password.",
