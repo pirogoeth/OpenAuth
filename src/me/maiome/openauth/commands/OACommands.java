@@ -110,7 +110,7 @@ public class OACommands {
     }
 
     @Command(aliases = {"lock"}, usage = "<-s|-u> [reason{if -s}]", desc = "Allows locking of the server.",
-             min = 1, max = 1)
+             flags = "su", min = 1, max = 1)
     @CommandPermissions({"openauth.admin.lock"})
     public static void lock(CommandContext args, CommandSender sender) throws CommandException {
         String reason = args.getString(0);
