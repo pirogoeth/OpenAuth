@@ -66,7 +66,6 @@ public enum Actions {
                     log.exDebug(String.format("Registered Metrics data tracker [%s] from %s.", metric.getColumnName(), a.getCanonicalName()));
                 } catch (java.lang.Exception e) {
                     log.info("Exception occurred while registering Action data tracker.");
-                    e.printStackTrace();
                 }
             } catch (java.lang.Exception e) {
                 log.info("Exception occurred while registering Action data tracker.");
