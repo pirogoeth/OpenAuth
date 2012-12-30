@@ -61,10 +61,13 @@ public enum Actions {
             log.exDebug(String.format("Action %s (%s) was registered.", (String) a.getField("name").get(a), a.getCanonicalName()));
             try {
                 Tracker metric = (Tracker) a.getField("tracker").get(a);
-                if (metric != null) {
+                try {
                     OpenAuth.getMetrics().addCustomData(metric);
+                    log.exDebug(String.format("Registered Metrics data tracker [%s] from %s.", metric.getColumnName(), a.getCanonicalName()));
+                } catch (java.lang.Exception e) {
+                    log.info("Exception occurred while registering Action data tracker.");
+                    e.printStackTrace();
                 }
-                log.exDebug(String.format("Registered Metrics data tracker [%s] from %s.", metric.getColumnName(), a.getCanonicalName()));
             } catch (java.lang.Exception e) {
                 log.info("Exception occurred while registering Action data tracker.");
                 e.printStackTrace();
