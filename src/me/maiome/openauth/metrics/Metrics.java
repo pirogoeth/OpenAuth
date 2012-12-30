@@ -25,7 +25,7 @@
  * authors and contributors and should not be interpreted as representing official policies,
  * either expressed or implied, of anybody else.
  */
-package org.mcstats;
+package me.maiome.openauth.metrics;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.file.YamlConfiguration;
@@ -57,11 +57,11 @@ import java.util.logging.Level;
  * Public methods provided by this class: </p>
  * <code>
  * Graph createGraph(String name); <br/>
- * void addCustomData(BukkitMetrics.Plotter plotter); <br/>
+ * void addCustomData(Metrics.Plotter plotter); <br/>
  * void start(); <br/>
  * </code>
  */
-public class BukkitMetrics {
+public class Metrics {
 
     /**
      * The current revision number
@@ -121,7 +121,7 @@ public class BukkitMetrics {
      */
     private volatile BukkitTask task = null;
 
-    public BukkitMetrics(final Plugin plugin) throws IOException {
+    public Metrics(final Plugin plugin) throws IOException {
         if (plugin == null) {
             throw new IllegalArgumentException("Plugin cannot be null");
         }
@@ -171,7 +171,7 @@ public class BukkitMetrics {
     }
 
     /**
-     * Add a Graph object to BukkitMetrics that represents data for the plugin that should be sent to the backend
+     * Add a Graph object to Metrics that represents data for the plugin that should be sent to the backend
      *
      * @param graph The name of the graph
      */
@@ -577,7 +577,7 @@ public class BukkitMetrics {
         }
 
         /**
-         * Called when the server owner decides to opt-out of BukkitMetrics while the server is running.
+         * Called when the server owner decides to opt-out of Metrics while the server is running.
          */
         protected void onOptOut() {
         }
