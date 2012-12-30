@@ -226,6 +226,9 @@ public class OpenAuth extends JavaPlugin {
         // generate sessions for all users
         sc.createAll();
 
+        // initialise the Actions enum.
+        Actions.init();
+
         // setup PluginMetrics
         if (ConfigInventory.MAIN.getConfig().getBoolean("metrics-enabled", true) == true) {
             if (ConfigInventory.MAIN.getConfig().getBoolean("show-metrics-notice", true) == true) {
@@ -233,8 +236,7 @@ public class OpenAuth extends JavaPlugin {
                     "NOTICE: You have chosen to OPT-IN to PluginMetrics for this plugin!",
                     "PluginMetrics will anonymously collect statistical data about the server and this plugin to send back to the plugin author.",
                     "The data collected will only be used for statistic gathering to keep track of certain aspects of the plugin and its development.",
-                    "If you'd prefer to disable PluginMetrics and keep it from loading in this plugin, open the config.yml for this plugin and change metrics-enabled to false and reload your server.",
-                    "Or, while the server is running, you can run /oa settings metrics-enabled false while logged in or on the console to disable statistics collection."
+                    "If you'd prefer to disable PluginMetrics and keep it from loading in this plugin, open the config.yml for this plugin and change metrics-enabled to false and reload your server."
                 };
                 for (String line : metrics_warning) {
                     log.info(line);
@@ -242,7 +244,6 @@ public class OpenAuth extends JavaPlugin {
             }
             try {
                 this.metrics = new Metrics(this);
-                Actions.loadMetricsData();
             } catch (java.lang.Exception e) {
                 log.warning("Could not load PluginMetrics!");
                 e.printStackTrace();

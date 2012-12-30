@@ -59,6 +59,16 @@ public enum Actions {
         try {
             store.put((String) a.getField("name").get(a), a);
             log.exDebug(String.format("Action %s (%s) was registered.", (String) a.getField("name").get(a), a.getCanonicalName()));
+            try {
+                Tracker metric = (Tracker) a.getField("tracker").get(action);
+                if (metric != null) {
+                    OpenAuth.getMetrics().addCustomData(metric);
+                }
+                log.exDebug(String.format("Registered Metrics data tracker [%s] from %s.", metric.getColumnName(), action.getCanonicalName()));
+            } catch (java.lang.Exception e) {
+                log.info("Exception occurred while registering Action data tracker.");
+                e.printStackTrace();
+            }
         } catch (java.lang.Exception e) {
             log.info("Exception occurred while registering an Action.");
             e.printStackTrace();
@@ -85,7 +95,7 @@ public enum Actions {
     }
 
     // Instantiates all internal actions when the class is loaded.
-    static {
+    public static void init() {
         for (Actions a : Actions.values()) {
             try {
                 registerAction(a.getAction());
@@ -157,22 +167,5 @@ public enum Actions {
      */
     public static Set<String> getActions() {
         return (Set<String>) store.keySet();
-    }
-
-    /**
-     * This iterates through all actions that are registered and loads metrics data for each.
-     */
-    public static void loadMetricsData() {
-        for (Actions a : Actions.values()) {
-            try {
-                Class action = a.getAction();
-                Tracker metric = (Tracker) action.getField("tracker").get(action);
-                OpenAuth.getMetrics().addCustomData(metric);
-                log.exDebug(String.format("Registered Metrics data tracker [%s] from %s.", metric.getColumnName(), action.getCanonicalName()));
-            } catch (java.lang.Exception e) {
-                log.info("Exception occurred while registering Action data trackers.");
-                e.printStackTrace();
-            }
-        }
     }
 }
