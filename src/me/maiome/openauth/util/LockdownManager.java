@@ -11,7 +11,7 @@ public class LockdownManager {
     private OpenAuth server;
     private LogHandler log = new LogHandler();
     private boolean isLocked = false;
-    private static LockdownManager instance;
+    private static LockdownManager instance = null;
 
     public LockdownManager() {
         this.lockdownMessage = this.defaultLockdownMessage = ConfigInventory.MAIN.getConfig().getString("server.lockdown-reason", "The server is currently locked down for maintenance.");
@@ -19,7 +19,7 @@ public class LockdownManager {
     }
 
     public static LockdownManager getInstance() {
-        if (!(instance)) {
+        if (instance == null) {
             instance = new LockdownManager();
         }
         return instance;
