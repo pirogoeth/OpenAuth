@@ -60,7 +60,7 @@ public enum Actions {
             store.put((String) a.getField("name").get(a), a);
             log.exDebug(String.format("Action %s (%s) was registered.", (String) a.getField("name").get(a), a.getCanonicalName()));
             try {
-                Tracker metric = (Tracker) a.getField("tracker").get(a);
+                Tracker metric = (Tracker) a.getDeclaredField("tracker").get(a);
                 try {
                     OpenAuth.getMetrics().addCustomData(metric);
                     log.exDebug(String.format("Registered Metrics data tracker [%s] from %s.", metric.getColumnName(), a.getCanonicalName()));
@@ -69,7 +69,7 @@ public enum Actions {
                 }
             } catch (java.lang.Exception e) {
                 log.info("Exception occurred while registering Action data tracker.");
-                e.printStackTrace();
+                // e.printStackTrace();
             }
         } catch (java.lang.Exception e) {
             log.info("Exception occurred while registering an Action.");

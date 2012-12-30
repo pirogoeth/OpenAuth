@@ -19,6 +19,9 @@ public class LockdownManager {
     }
 
     public static LockdownManager getInstance() {
+        if (!(instance)) {
+            instance = new LockdownManager();
+        }
         return instance;
     }
 
