@@ -32,6 +32,8 @@ public class FreezeStick implements IAction {
     protected OAPlayer sender;
     protected OAPlayer target;
 
+    public FreezeStick() { }
+
     public FreezeStick(OAServer server, Session attached) {
         this.server = server;
         this.sc = server.getController().getSessionController();

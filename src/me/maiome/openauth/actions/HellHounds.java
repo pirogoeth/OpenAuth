@@ -46,6 +46,8 @@ public class HellHounds implements IAction {
     protected List<Wolf> spawned = new ArrayList<Wolf>();
     protected boolean storming;
 
+    public HellHounds() { }
+
     public HellHounds(OAServer server, Session attached) {
         this.server = server;
         this.sc = server.getController().getSessionController();

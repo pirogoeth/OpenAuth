@@ -34,6 +34,8 @@ public class BanStick implements IAction {
     protected OAPlayer target;
     protected OAPlayer sender;
 
+    public BanStick() { }
+
     public BanStick(OAServer server, Session attached) {
         this.server = server;
         this.sc = server.getController().getSessionController();

@@ -113,8 +113,7 @@ public class OACommands {
              flags = "su")
     @CommandPermissions({"openauth.admin.lock"})
     public static void lock(CommandContext args, CommandSender sender) throws CommandException {
-        String reason = args.getString(0);
-        reason = ((reason != "") ? reason : LockdownManager.getInstance().getDefaultLockReason());
+        String reason = ((args.getString(0) != null && args.getString(0) != "") ? args.getString(0) : LockdownManager.getInstance().getDefaultLockReason());
         if (args.hasFlag('s')) {
             for (Player player : Bukkit.getServer().getOnlinePlayers()) {
                 if (!(player.hasPermission("openauth.lockdown.exempt"))) {

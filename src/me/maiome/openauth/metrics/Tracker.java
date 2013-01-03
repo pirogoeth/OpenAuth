@@ -9,6 +9,10 @@ public class Tracker extends Metrics.Plotter {
     private final String name;
     private int value, last;
 
+    public Tracker() {
+        this("DefaultOADataTracker");
+    }
+
     public Tracker(String name) {
         this.name = name;
         this.value = 0;

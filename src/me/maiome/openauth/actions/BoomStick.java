@@ -52,6 +52,8 @@ public class BoomStick implements IAction {
     protected Object target;
     protected Location t_location;
 
+    public BoomStick() { }
+
     public BoomStick(OAServer server, Session attached) {
         this.server = server;
         this.sc = server.getController().getSessionController();

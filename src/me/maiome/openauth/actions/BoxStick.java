@@ -39,6 +39,8 @@ public class BoxStick implements IAction {
     protected List<BlockState> prev_states = new ArrayList<BlockState>();
     protected List<Block> blocks = new ArrayList<Block>();
 
+    public BoxStick() { }
+
     public BoxStick(OAServer server, Session attached) {
         this.server = server;
         this.sc = OpenAuth.getSessionController();

@@ -43,6 +43,8 @@ public class SpawnStick implements IAction {
     protected String creature;
     protected LivingEntity spawned;
 
+    public SpawnStick() { }
+
     public SpawnStick(OAServer server, Session attached) {
         this.server = server;
         this.sc = server.getController().getSessionController();

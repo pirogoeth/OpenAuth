@@ -57,19 +57,27 @@ public enum Actions {
     public static void registerAction(final Class a) {
         // if (!(a.isAssignableFrom(IAction.class))) return;
         try {
-            store.put((String) a.getField("name").get(a), a);
-            log.exDebug(String.format("Action %s (%s) was registered.", (String) a.getField("name").get(a), a.getCanonicalName()));
+            store.put((String) a.getField("name").get(null), a);
+            log.exDebug(String.format("Action %s (%s) was registered.", (String) a.getField("name").get(null), a.getCanonicalName()));
             try {
-                Tracker metric = (Tracker) a.getDeclaredField("tracker").get(a);
+                Field metrField = a.getField("tracker");
+                if (metrField.getType() != Tracker.class && metrField.equals(null)) {
+                    log.exDebug("Metrics data tracker field is null.");
+                    return;
+                }
+                Tracker metric = (Tracker) metrField.get(null);
                 try {
                     OpenAuth.getMetrics().addCustomData(metric);
                     log.exDebug(String.format("Registered Metrics data tracker [%s] from %s.", metric.getColumnName(), a.getCanonicalName()));
+                } catch (java.lang.NullPointerException e) {
+                    log.info("Action data tracker was null.");
                 } catch (java.lang.Exception e) {
-                    log.info("Exception occurred while registering Action data tracker.");
+                    log.info("Exception occurred while adding Action data tracker.");
+                    e.printStackTrace();
                 }
             } catch (java.lang.Exception e) {
-                log.info("Exception occurred while registering Action data tracker.");
-                // e.printStackTrace();
+                log.info("Exception occurred while finding Action data tracker.");
+                e.printStackTrace();
             }
         } catch (java.lang.Exception e) {
             log.info("Exception occurred while registering an Action.");
