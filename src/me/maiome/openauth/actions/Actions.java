@@ -60,12 +60,7 @@ public enum Actions {
             store.put((String) a.getField("name").get(null), a);
             log.exDebug(String.format("Action %s (%s) was registered.", (String) a.getField("name").get(null), a.getCanonicalName()));
             try {
-                Field metrField = a.getField("tracker");
-                if (metrField.getType() != Tracker.class && metrField.equals(null)) {
-                    log.exDebug("Metrics data tracker field is null.");
-                    return;
-                }
-                Tracker metric = (Tracker) metrField.get(null);
+                Tracker metric = (Tracker) a.getField("tracker").get(null);
                 try {
                     OpenAuth.getMetrics().addCustomData(metric);
                     log.exDebug(String.format("Registered Metrics data tracker [%s] from %s.", metric.getColumnName(), a.getCanonicalName()));

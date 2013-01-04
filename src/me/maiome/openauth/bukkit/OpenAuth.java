@@ -226,9 +226,6 @@ public class OpenAuth extends JavaPlugin {
         // generate sessions for all users
         sc.createAll();
 
-        // initialise the Actions enum.
-        Actions.init();
-
         // setup PluginMetrics
         if (ConfigInventory.MAIN.getConfig().getBoolean("metrics-enabled", true) == true) {
             if (ConfigInventory.MAIN.getConfig().getBoolean("show-metrics-notice", true) == true) {
@@ -249,6 +246,9 @@ public class OpenAuth extends JavaPlugin {
                 e.printStackTrace();
             }
         }
+
+        // initialise the Actions enum.
+        Actions.init();
 
         // initialise the JSONAPI call handler
         try {
