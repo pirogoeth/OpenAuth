@@ -127,13 +127,13 @@ public class OAListener implements Listener {
      */
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerLogin(PlayerLoginEvent event) {
+        if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) return; // derp, totally forgot. causes problems with sk89q's hostkeys.
+        OAPlayer player = (OAPlayer.getPlayer(event));
         LockdownManager lck = LockdownManager.getInstance();
-        if (lck.isLocked()) {
+        if (lck.isLocked() && !(player.hasPermission("openauth.lockdown.exempt"))) {
             event.disallow(PlayerLoginEvent.Result.KICK_OTHER, lck.getLockReason());
             return;
         }
-        if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) return; // derp, totally forgot. causes problems with sk89q's hostkeys.
-        OAPlayer player = (OAPlayer.getPlayer(event));
         this.controller.getOAServer().getWhitelistHandler().processPlayerJoin(event, player);
         if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) return;
         this.controller.getOAServer().getLoginHandler().processPlayerLogin(event, player);

@@ -113,11 +113,17 @@ public class OACommands {
              flags = "su")
     @CommandPermissions({"openauth.admin.lock"})
     public static void lock(CommandContext args, CommandSender sender) throws CommandException {
-        String reason = ((args.getString(0) != null && args.getString(0) != "") ? args.getString(0) : LockdownManager.getInstance().getDefaultLockReason());
+        String reason;
+        try {
+            reason = args.getJoinedStrings(0);
+        } catch (java.lang.Exception e) {
+            reason = LockdownManager.getInstance().getDefaultLockReason();
+        }
         if (args.hasFlag('s')) {
             for (Player player : Bukkit.getServer().getOnlinePlayers()) {
-                if (!(player.hasPermission("openauth.lockdown.exempt"))) {
-                    player.kickPlayer(reason);
+                OAPlayer oplayer = OAPlayer.getPlayer(player);
+                if (!(oplayer.hasPermission("openauth.lockdown.exempt"))) {
+                    player.kickPlayer("Server is locking down: " + reason);
                 }
             }
             LockdownManager lck = LockdownManager.getInstance();
@@ -128,8 +134,11 @@ public class OACommands {
         } else if (args.hasFlag('u')) {
             LockdownManager lck = LockdownManager.getInstance();
             lck.setLocked(false);
+            sender.sendMessage(ChatColor.BLUE + "The server is unlocked.");
             return;
         }
+        sender.sendMessage("Usage: /oa lock <-s|-u> [reason{if -s}]");
+        return;
     }
 
     @Command(aliases = {"change-pass"}, usage = "<oldpass> <newpass>", desc = "Change your current password.",
