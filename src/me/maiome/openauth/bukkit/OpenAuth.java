@@ -43,7 +43,6 @@ import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.Permission;
 import me.maiome.openauth.util.Config;
 import me.maiome.openauth.util.ConfigInventory;
-import me.maiome.openauth.util.LocationSerialisable;
 import me.maiome.openauth.util.LogHandler;
 
 // bundled imports
@@ -57,10 +56,6 @@ import com.sk89q.minecraft.util.commands.*; // command framework
  * @author pirogoeth
  */
 public class OpenAuth extends JavaPlugin {
-
-    static {
-        ConfigurationSerialization.registerClass(LocationSerialisable.class);
-    }
 
     /**
      * Static instance holder.

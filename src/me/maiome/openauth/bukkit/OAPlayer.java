@@ -33,7 +33,6 @@ import me.maiome.openauth.bukkit.events.*;
 import me.maiome.openauth.database.DBPlayer;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.ConfigInventory;
-import me.maiome.openauth.util.LocationSerialisable;
 import me.maiome.openauth.util.LogHandler;
 import me.maiome.openauth.util.LoginStatus;
 import me.maiome.openauth.util.Permission;
