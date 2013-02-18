@@ -9,10 +9,10 @@ import java.util.Set;
 
 // internal imports
 import me.maiome.openauth.bukkit.*;
-import me.maiome.openauth.cl.*;
 import me.maiome.openauth.metrics.*;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.ConfigInventory;
+import me.maiome.openauth.util.GenericClassLoader;
 import me.maiome.openauth.util.LogHandler;
 
 public enum Actions {
@@ -33,7 +33,7 @@ public enum Actions {
     private final static LogHandler log = new LogHandler();
     private final static Class[] action_cons_types = {OAServer.class, Session.class};
     private static final Map<String, Class> store = new HashMap<String, Class>();
-    private static final GenericURIClassLoader<IAction> classLoader = new GenericURIClassLoader<IAction>("plugins/OpenAuth/actions/", IAction.class);
+    private static final GenericClassLoader<IAction> classLoader = new GenericClassLoader<IAction>("plugins/OpenAuth/actions/", IAction.class);
 
     Actions(final Class action) {
         this.action = action;

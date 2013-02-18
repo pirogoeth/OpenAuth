@@ -37,7 +37,6 @@ import me.maiome.openauth.event.*;
 import me.maiome.openauth.jsonapi.*;
 import me.maiome.openauth.metrics.*;
 import me.maiome.openauth.mixins.*;
-import me.maiome.openauth.policies.*;
 import me.maiome.openauth.security.*;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.Permission;
@@ -84,11 +83,6 @@ public class OpenAuth extends JavaPlugin {
     private static Metrics metrics = null;
 
     /**
-     * Mixin Manager.
-     */
-    private static MixinManager mixinManager;
-
-    /**
      * Holds an OAServer instance.
      */
     private static OAServer oaserver;
@@ -122,11 +116,6 @@ public class OpenAuth extends JavaPlugin {
      * Dynamically registers commands.
      */
     private CommandsManagerRegistration dynamicCommandRegistry;
-
-    /**
-     * Contains the GameModePolicy instance.
-     */
-    private GameModePolicy gmPolicy;
 
     /**
      * Lock for the database to prevent persistence errors.
@@ -166,7 +155,7 @@ public class OpenAuth extends JavaPlugin {
         new SessionController(this);
 
         // initialise the mixin manager, which instantiates the generic class loader.
-        this.mixinManager = new MixinManager();
+        new MixinManager();
 
         // check if we need to override.
         if (ConfigInventory.MAIN.getConfig().getBoolean("override", false) == true) {
@@ -206,11 +195,6 @@ public class OpenAuth extends JavaPlugin {
         // register listener(s)
         this.registerEvents(new OAListener(this));
         this.registerEvents(new OAExplosionListener(this));
-
-        // check if the game mode policy is enabled
-        if (ConfigInventory.MAIN.getConfig().getBoolean("policies.gamemode", false) == true) {
-            this.gmPolicy = new GameModePolicy();
-        }
 
         // register base command class.
         this.dynamicCommandRegistry.register(OACommands.OAParentCommand.class);
@@ -265,7 +249,7 @@ public class OpenAuth extends JavaPlugin {
         }
 
         // make the mixin manager load all mixins.
-        this.mixinManager.load();
+        MixinManager.getInstance().load();
 
         // loaded.
         log.info("Enabled version [" + version + "b" + hashtag + "].");
@@ -281,7 +265,7 @@ public class OpenAuth extends JavaPlugin {
             ((OAPlayer) entry.getValue()).setOffline();
         }
         // unload mixins
-        this.mixinManager.unload();
+        MixinManager.getInstance().unload();
         // save the whitelist
         oaserver.getWhitelistHandler().saveWhitelist();
         // shutdown all OA tasks

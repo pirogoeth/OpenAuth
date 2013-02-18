@@ -1,4 +1,4 @@
-package me.maiome.openauth.cl;
+package me.maiome.openauth.util;
 
 import java.io.File;
 import java.net.*;
@@ -14,12 +14,12 @@ import me.maiome.openauth.util.LogHandler;
  *
  * Usage:
  *
- *  GenericURIClassLoader<T> loader = new GenericURIClassLoader<T>(String abstractPathToClasses, Class clazz);
+ *   GenericClassLoader<T> loader = new GenericClassLoader<T>(String abstractPathToClasses, Class clazz);
  *
- *   GenericURIClassLoader<IMixin> loader = new GenericURIClassLoader<IMixin>("mixins", IMixin.class);
+ *   GenericClassLoader<IMixin> loader = new GenericClassLoader<IMixin>("mixins", IMixin.class);
  *   List<IMixin> mixins = loader.load().getInstances();
  *     ==OR==
- *   GenericURIClassLoader<IMixin> loader = new GenericURIClassLoader<IMixin>("mixins", IMixin.class);
+ *   GenericClassLoader<IMixin> loader = new GenericClassLoader<IMixin>("mixins", IMixin.class);
  *   List<Class> mixinClasses = loader.load().getClasses();
  *
  * Caveats:
@@ -27,7 +27,7 @@ import me.maiome.openauth.util.LogHandler;
  *  Class must have a constructor that accepts no arguments to be instantiated.
  *
  */
-public class GenericURIClassLoader<T> {
+public class GenericClassLoader<T> {
 
     // log handler, obviously
     private static final LogHandler log = new LogHandler();
@@ -47,21 +47,16 @@ public class GenericURIClassLoader<T> {
      * Takes two arguments.
      * Directory to load from, and target class, which should be an interface or an abstract class.
      */
-    public GenericURIClassLoader(String directory, Class clazz) {
+    public GenericClassLoader(String directory, Class clazz) {
         this.directory = directory;
         // this is the class all files we're loading SHOULD extend or implement.
         this.clazz = clazz;
     }
 
     /**
-     * One particle of unobtainium reacts with the flux capacitor,
-     * changing its isotope to a radioactive spider.
-     *
-     * Fuck you Science.
-     *
      * Class loading logic is performed here.
      */
-    public GenericURIClassLoader load() {
+    public GenericClassLoader load() {
         List<T> classes = new ArrayList<T>();
         File dir = new File(directory);
 
@@ -117,6 +112,18 @@ public class GenericURIClassLoader<T> {
             }
         }
         return this;
+    }
+
+    /**
+     * Unloads a class from the the class loaders internals.
+     */
+    public void unload(Object obj) {
+        Class clazz = obj.getClass();
+        String name = clazz.getName() + ".java";
+        File file = new File(directory + name);
+        this.instances.remove(obj);
+        this.classes.remove(clazz);
+        this.files.remove(file);
     }
 
     /**

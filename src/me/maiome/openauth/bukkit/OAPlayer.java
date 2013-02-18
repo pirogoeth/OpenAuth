@@ -11,12 +11,6 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
 import org.bukkit.inventory.ItemStack;
 
-// minecraft server imports
-import net.minecraft.server.Packet;
-
-// craftbukkit imports
-import org.bukkit.craftbukkit.entity.CraftPlayer;
-
 // java imports
 import java.lang.Math;
 import java.net.InetAddress;
@@ -124,7 +118,6 @@ public class OAPlayer {
     private final SessionController sc;
     private DBPlayer data = null;
     private Player player;
-    private CraftPlayer craftplayer;
     private String name = null;
     private Session session = null;
     private PlayerState state = PlayerState.UNKNOWN;
@@ -181,10 +174,6 @@ public class OAPlayer {
 
     public String toString() {
         return String.format("OAPlayer{name=%s,ip=%s,state=%s}", this.getName(), this.player_ip, this.state.toString());
-    }
-
-    public int hashCode() {
-        return (int) Math.abs(((this.factor) + (this.name.hashCode() + this.server.hashCode() + this.player.hashCode() + this.serial)));
     }
 
     public boolean equals(Object obj) {
@@ -254,19 +243,7 @@ public class OAPlayer {
     }
 
     public int getEntityId() {
-        return ((CraftPlayer) this.player).getEntityId();
-    }
-
-    public int getPing() {
-        return ((CraftPlayer) this.player).getHandle().ping;
-    }
-
-    public CraftPlayer getCraftPlayer() {
-        return ((CraftPlayer) this.player);
-    }
-
-    public void sendPacket(final Packet packet) {
-        ((CraftPlayer) this.player).getHandle().netServerHandler.sendPacket(packet);
+        return this.player.getEntityId();
     }
 
     public Player getPlayer() {
@@ -335,10 +312,10 @@ public class OAPlayer {
     public void fixLocation() {
         if (this.getLocation().getWorld().getBlockAt(this.getLocation()).getTypeId() != 0) {
             Location loc = this.getLocation();
-            int block_id = 1;
-            while (block_id != 0) {
+            int blockId = -1;
+            while (blockId != 0) {
                 loc = new Location(loc.getWorld(), loc.getX(), loc.getY() + 1, loc.getZ());
-                block_id = loc.getWorld().getBlockAt(loc).getTypeId();
+                blockId = loc.getWorld().getBlockAt(loc).getTypeId();
             }
             this.setLocation(loc);
         }
@@ -373,31 +350,10 @@ public class OAPlayer {
         this.player.teleport(location);
     }
 
-    public void setLocation(Location location, double pitch, double yaw) {
-        float _pitch = Float.parseFloat(Double.toString(pitch)), _yaw = Float.parseFloat(Double.toString(yaw));
-        this.setLocation(location, _pitch, _yaw);
-    }
-
     public void setLocation(Location location, float pitch, float yaw) {
         location.setPitch(pitch);
         location.setYaw(yaw);
         this.setLocation(location);
-    }
-
-    public void setLocation(float x, float y, float z) {
-        Location location = new Location(this.getWorld(), x, y, z);
-        location.setPitch(this.getPitch());
-        location.setYaw(this.getYaw());
-        this.setLocation(location);
-    }
-
-    public void setLocation(float x, float y, float z, double pitch, double yaw) {
-        float _pitch = Float.parseFloat(Double.toString(pitch)), _yaw = Float.parseFloat(Double.toString(yaw));
-        this.setLocation(x, y, z, _pitch, _yaw);
-    }
-
-    public void setLocation(float x, float y, float z, float pitch, float yaw) {
-        this.setLocation(this.getWorld(), x, y, z, pitch, yaw);
     }
 
     public void setLocation(World w, float x, float y, float z) {

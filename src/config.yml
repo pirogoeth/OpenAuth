@@ -63,8 +63,6 @@
 #   hounds - settings for the hellhounds action
 #     attack-delay - how long to wait before releasing the hounds on the player [default: 60]
 #     removal-delay - how long before the hounds are marked for removal [default: 600]
-# policies:
-#   gamemode - whether or not the gamemode policies are enabled. [default: false]
 # misc:
 #   catch-moving-too-quickly-kick - prevents players from getting kicked for moving too quickly [default: false]
 
