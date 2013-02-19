@@ -40,7 +40,7 @@ public class GenericClassLoader<T> {
     // list of class objects
     private final List<Class> classes = new ArrayList<Class>();
     // list of files loaded
-    private final List<File> files = new ArrayList<File>();
+    private final Map<Class, File> files = new HashMap<Class, File>();
 
     /**
      * Obviously this is a constructor.
@@ -81,7 +81,7 @@ public class GenericClassLoader<T> {
             if (!(f.getName().endsWith(".class"))) { // we only want to load .class files
                 continue;
             }
-            if (this.files.contains(f)) {
+            if (this.files.containsValue(f)) {
                 // this file has already been loaded...
                 continue;
             }
@@ -105,7 +105,7 @@ public class GenericClassLoader<T> {
                 classes.add(clazzz);
                 this.classes.add(clazz); // class object
                 this.instances.add(clazzz); // object instance
-                this.files.add(f); // file instance
+                this.files.put(clazz, f); // file instance
             } catch (java.lang.Exception e) {
                 log.exDebug("Error loading " + fname + ".");
                 e.printStackTrace();
@@ -119,11 +119,11 @@ public class GenericClassLoader<T> {
      */
     public void unload(Object obj) {
         Class clazz = obj.getClass();
-        String name = clazz.getName() + ".java";
-        File file = new File(directory + name);
+        String filePath = directory + clazz.getName() + ".java";
+        File file = new File(filePath);
         this.instances.remove(obj);
         this.classes.remove(clazz);
-        this.files.remove(file);
+        this.files.remove(clazz);
     }
 
     /**
@@ -143,7 +143,7 @@ public class GenericClassLoader<T> {
     /**
      * Returns all files that have been loaded by the loader.
      */
-    public List<File> getFiles() {
-        return this.files;
+    public Collection<File> getFiles() {
+        return this.files.values();
     }
 }

@@ -52,6 +52,18 @@ public abstract class AbstractMixin implements IMixin, Listener {
     };
 
     /**
+     * Uses reflection to get the command map currently being used by Bukkit.
+     */
+    private CommandMap getCommandMap() {
+        CommandMap commandMap = ReflectionUtil.getField(Bukkit.getServer().getPluginManager(), "commandMap");
+        if (commandMap == null) {
+            this.log.warning("Was not able to fetch server command map, using a fallback instead!");
+            commandMap = new SimpleCommandMap(Bukkit.getServer());
+        }
+        return commandMap;
+    }
+
+    /**
      * A shorter way to register the class as a command handler.
      */
     protected void registerCommands() {
@@ -69,7 +81,7 @@ public abstract class AbstractMixin implements IMixin, Listener {
      * Checks if the class has any methods annotated with @Command, meaning that there are command processors
      * in the class.
      */
-    protected boolean hasCommandMethods() {
+    private boolean hasCommandMethods() {
         for (Method method : this.getClass().getMethods()) {
             com.sk89q.minecraft.util.commands.Command cmdAnno = method.getAnnotation(com.sk89q.minecraft.util.commands.Command.class);
             if (cmdAnno != null) {
@@ -82,7 +94,7 @@ public abstract class AbstractMixin implements IMixin, Listener {
     /**
      * Checks if the class has any methods annotated with @EventHandler, meaning that there are listeners here.
      */
-    protected boolean hasListenerMethods() {
+    private boolean hasListenerMethods() {
         for (Method method : this.getClass().getMethods()) {
             EventHandler evhAnno = method.getAnnotation(EventHandler.class);
             if (evhAnno != null) {
@@ -95,7 +107,9 @@ public abstract class AbstractMixin implements IMixin, Listener {
     /**
      * Deregisters all command handlers.
      */
-    protected void unregisterCommands() {
+    private void unregisterCommands() {
+        CommandMap commandMap = this.getCommandMap();
+        Map<String, org.bukkit.command.Command> knownCommands = ReflectionUtil.getField(commandMap, "knownCommands");
         List<String> found = new ArrayList<String>();
         for (Method method : this.getClass().getMethods()) {
             com.sk89q.minecraft.util.commands.Command cmdAnno = method.getAnnotation(com.sk89q.minecraft.util.commands.Command.class);
@@ -114,8 +128,11 @@ public abstract class AbstractMixin implements IMixin, Listener {
                 toRemove.add(cmd);
             }
         }
-        for (String rem : toRemove) {
-            map.remove(rem);
+        for (String cmd : toRemove) {
+            if (knownCommands.containsKey(cmd)) {
+                knownCommands.remove(cmd);
+            }
+            map.remove(cmd);
         }
         commands.put(null, map);
     }
@@ -123,7 +140,7 @@ public abstract class AbstractMixin implements IMixin, Listener {
     /**
      * Deregisters all listeners.
      */
-    protected void unregisterListeners() {
+    private void unregisterListeners() {
         HandlerList.unregisterAll(this);
     }
 }

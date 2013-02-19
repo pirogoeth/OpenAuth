@@ -17,7 +17,7 @@ import org.bukkit.command.SimpleCommandMap;
 public class MixinManager {
 
     private GenericClassLoader<IMixin> loader;
-    private final List<IMixin> mixins = new ArrayList<IMixin>();
+    private final Map<String, IMixin> mixins = new HashMap<String, IMixin>();
     private static MixinManager instance;
     private static final LogHandler log = new LogHandler();
     private static final String directory = "plugins/OpenAuth/mixins/";
@@ -36,10 +36,10 @@ public class MixinManager {
     public void load() {
         List<IMixin> newMixins = this.loader.load().getInstances();
         for (IMixin mixin : newMixins) {
-            if (this.mixins.contains(mixin)) {
+            if (this.mixins.containsValue(mixin)) {
                 continue;
             }
-            this.mixins.add(mixin);
+            this.mixins.put(mixin.getName(), mixin);
             log.info("Loaded mixin: " + mixin.getName());
             mixin.onInit();
         }
@@ -52,9 +52,9 @@ public class MixinManager {
     }
 
     public void unload() {
-        for (IMixin mixin : this.mixins) {
+        for (IMixin mixin : this.mixins.values()) {
             mixin.onTeardown();
-            this.loader.unload(mixin);
+            this.loader.unload(this.mixins.get(mixin.getName()));
             log.info("Unloaded mixin: " + mixin.getName());
         }
         this.mixins.clear();
@@ -62,16 +62,8 @@ public class MixinManager {
 
     public void unload(IMixin obj) {
         obj.onTeardown();
-        this.loader.unload(obj);
+        this.loader.unload(this.mixins.get(obj.getName()));
+        this.mixins.remove(obj.getName());
         log.info("Unloaded mixin: " + obj.getName());
-        this.mixins.remove(obj);
-    }
-
-    protected CommandMap getCommandMap() {
-        CommandMap commandMap = ReflectionUtil.getField(OpenAuth.getOAServer().getServer().getPluginManager(), "commandMap");
-        if (commandMap == null) {
-            commandMap = new SimpleCommandMap(OpenAuth.getOAServer().getServer());
-        }
-        return commandMap;
     }
 }
