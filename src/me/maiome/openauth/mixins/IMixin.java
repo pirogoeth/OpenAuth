@@ -8,6 +8,7 @@ public interface IMixin {
      * Displayable name of the mixin.
      */
     String name = "";
+
     /**
      * Instance of the controller.
      */
