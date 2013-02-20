@@ -30,7 +30,8 @@ public class MixinLibraryLoader {
     }
 
     private void load() {
-        for (IMixinLibraryProvider library : this.loader.load().getInstances()) {
+        List<IMixinLibraryProvider> libraries = this.loader.load().getInstances();
+        for (IMixinLibraryProvider library : libraries) {
             this.libraries.put(library.getName(), library);
             log.info("Loaded library: " + library.getName());
         }

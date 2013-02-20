@@ -31,6 +31,7 @@ public class MixinManager {
         this.loader = new GenericClassLoader<IMixin>(directory, IMixin.class);
         File parent = new File(directory);
         parent.mkdir();
+        new MixinLibraryLoader();
     }
 
     public void load() {

@@ -88,8 +88,9 @@ database:
     username: captain
     password: narwhals
     isolation: SERIALIZABLE
-    logging: false
-    rebuild: true
+    advanced:
+        logging: true
+        rebuild: false
 whitelisting:
     broadcast-failures: true
     print-on-load: true

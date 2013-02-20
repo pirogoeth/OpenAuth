@@ -21,13 +21,10 @@ import org.bukkit.Server;
 import com.avaje.ebean.EbeanServer;
 
 // java imports
-import java.io.File;
+import java.io.*;
 import java.lang.reflect.Method;
+import java.util.*;
 import java.util.logging.Logger;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 // core imports
 import me.maiome.openauth.actions.*;
@@ -76,6 +73,11 @@ public class OpenAuth extends JavaPlugin {
      * This holds OpenAuth's version.
      */
     public String version;
+
+    /**
+     * Holds the hashtag.
+     */
+    private String hashtag;
 
     /**
      * Metrics-typed container.
@@ -130,7 +132,11 @@ public class OpenAuth extends JavaPlugin {
         OpenAuth.setInstance(this);
 
         // load the build hashtag.
-        String hashtag = (YamlConfiguration.loadConfiguration(this.getResource("plugin.yml"))).getString("hashtag", "nobuild");
+        try {
+            this.hashtag = (new Scanner(this.getClass().getResourceAsStream("hashtag"))).nextLine();
+        } catch (java.lang.Exception e) {
+            this.hashtag = "nobuild";
+        }
 
         // initialise the configuration
         this.configurationManager.initialise();
@@ -140,7 +146,7 @@ public class OpenAuth extends JavaPlugin {
         this.initialiseDatabase();
 
         // warn about ebean's rebuild
-        if (ConfigInventory.MAIN.getConfig().getBoolean("database.rebuild", true) == true) {
+        if (ConfigInventory.MAIN.getConfig().getBoolean("database.advanced.rebuild", false) == true) {
             log.info(" - [WARNING] The 'database.rebuild' option in your config.yml is set to true!");
             log.info(" - [WARNING] This means that your database will be recreated every time the server starts and your data will be lost!");
             log.info(" - [WARNING] If this is not what you want, stop the server and change the entry to false.");
@@ -327,8 +333,8 @@ public class OpenAuth extends JavaPlugin {
             config.getString("database.username", "captain"),
             config.getString("database.password", "narwhal"),
             config.getString("database.isolation", "SERIALIZABLE"),
-            config.getBoolean("database.logging", false),
-            config.getBoolean("database.rebuild", true)
+            config.getBoolean("database.advanced.logging", true),
+            config.getBoolean("database.advanced.rebuild", false)
         );
 
         this.getDatabase().createSqlQuery("PRAGMA journal_mode=WAL;");
@@ -367,6 +373,13 @@ public class OpenAuth extends JavaPlugin {
      */
     public File getFolder() {
         return new File("plugins" + File.separator + "OpenAuth");
+    }
+
+    /**
+     * Returns the hashtag.
+     */
+    public String getHashtag() {
+        return this.hashtag;
     }
 
     /**
