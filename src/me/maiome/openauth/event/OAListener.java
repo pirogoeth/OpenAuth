@@ -133,6 +133,9 @@ public class OAListener implements Listener {
         if (lck.isLocked() && !(player.hasPermission("openauth.lockdown.exempt"))) {
             event.disallow(PlayerLoginEvent.Result.KICK_OTHER, lck.getLockReason());
             return;
+        } else if (lck.isLocked() && player.hasPermission("openauth.lockdown.exempt")) {
+            player.sendMessage(ChatColor.RED + "Warning! Server lockdown is still active! Reason: " + lck.getLockReason());
+            return;
         }
         this.controller.getOAServer().getWhitelistHandler().processPlayerJoin(event, player);
         if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) return;
