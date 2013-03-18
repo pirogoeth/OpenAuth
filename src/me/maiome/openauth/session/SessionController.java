@@ -109,13 +109,13 @@ public class SessionController {
     }
 
     private Session create(Player player) {
-        Session session = new Session(this, this.controller.wrap(player));
+        Session session = new Session(this, OAPlayer.getPlayer(player));
         this.remember(session);
         return session;
     }
 
     private Session create(String player) {
-        Session session = new Session(this, this.controller.wrap(player));
+        Session session = new Session(this, OAPlayer.getPlayer(player));
         this.remember(session);
         return session;
     }
@@ -156,12 +156,12 @@ public class SessionController {
     }
 
     public Session get(String player) {
-        OAPlayer _player = this.controller.wrap(player);
+        OAPlayer _player = OAPlayer.getPlayer(player);
         return this.get(_player);
     }
 
     public Session get(Player player) {
-        OAPlayer _player = this.controller.wrap(player);
+        OAPlayer _player = OAPlayer.getPlayer(player);
         return this.get(_player);
     }
 }

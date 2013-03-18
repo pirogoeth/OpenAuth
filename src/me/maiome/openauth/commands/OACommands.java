@@ -67,9 +67,8 @@ public class OACommands {
 
     @Command(aliases = {"version"}, usage = "", desc = "OpenAuth version information", min = 0, max = 0)
     public static void version(CommandContext args, CommandSender sender) throws CommandException {
-        String hashtag = (YamlConfiguration.loadConfiguration(controller.getResource("plugin.yml"))).getString("hashtag", "nobuild");
         sender.sendMessage(ChatColor.GREEN + String.format(
-            "%s-%s", controller.getDescription().getFullName(), hashtag));
+            "%s-%s", controller.getDescription().getFullName(), controller.getHashtag()));
     }
 
     @Command(aliases = {"login"}, usage = "<password>", desc = "Login to the server.",

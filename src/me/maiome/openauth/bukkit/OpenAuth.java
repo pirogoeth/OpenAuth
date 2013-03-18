@@ -131,9 +131,14 @@ public class OpenAuth extends JavaPlugin {
         // set our instance
         OpenAuth.setInstance(this);
 
+        // set version number
+        this.version = this.getDescription().getVersion();
+
         // load the build hashtag.
         try {
-            this.hashtag = (new Scanner(this.getClass().getResourceAsStream("hashtag"))).nextLine();
+            Scanner sc = new Scanner(this.getResource("hashtag"));
+            this.hashtag = sc.nextLine();
+            sc.close();
         } catch (java.lang.Exception e) {
             this.hashtag = "nobuild";
         }
@@ -167,15 +172,12 @@ public class OpenAuth extends JavaPlugin {
         if (ConfigInventory.MAIN.getConfig().getBoolean("override", false) == true) {
             if (this.getServer().hasWhitelist() == true) { // override the whitelisting in Bukkit for mine?
                 this.getServer().setWhitelist(false);
-                log.info(" => Bukkit whitelisting is now OFF!");
+                log.info(" - Bukkit whitelisting is now OFF!");
             }
         }
 
         // initialise permissions manager and config manager as well as dynamic command registration
         this.permissionsManager = new Permission(this);
-
-        // set version number
-        this.version = this.getDescription().getVersion();
 
         // start scheduler tasks
         oaserver.startSchedulerTasks();
@@ -215,10 +217,10 @@ public class OpenAuth extends JavaPlugin {
         if (ConfigInventory.MAIN.getConfig().getBoolean("metrics-enabled", true) == true) {
             if (ConfigInventory.MAIN.getConfig().getBoolean("show-metrics-notice", true) == true) {
                 String[] metrics_warning = {
-                    "NOTICE: You have chosen to OPT-IN to PluginMetrics for this plugin!",
-                    "PluginMetrics will anonymously collect statistical data about the server and this plugin to send back to the plugin author.",
-                    "The data collected will only be used for statistic gathering to keep track of certain aspects of the plugin and its development.",
-                    "If you'd prefer to disable PluginMetrics and keep it from loading in this plugin, open the config.yml for this plugin and change metrics-enabled to false and reload your server."
+                    " - NOTICE: You have chosen to OPT-IN to PluginMetrics for this plugin!",
+                    " -   PluginMetrics will anonymously collect statistical data about the server and this plugin to send back to the plugin author.",
+                    " -   The data collected will only be used for statistic gathering to keep track of certain aspects of the plugin and its development.",
+                    " -   If you'd prefer to disable PluginMetrics and keep it from loading in this plugin, open the config.yml for this plugin and change metrics-enabled to false and restart your server."
                 };
                 for (String line : metrics_warning) {
                     log.info(line);
@@ -258,7 +260,7 @@ public class OpenAuth extends JavaPlugin {
         MixinManager.getInstance().load();
 
         // loaded.
-        log.info("Enabled version [" + version + "b" + hashtag + "].");
+        log.info("Enabled OpenAuth [" + this.version + "-" + this.hashtag + "].");
     };
 
     /**
@@ -267,8 +269,8 @@ public class OpenAuth extends JavaPlugin {
     @Override
     public void onDisable() {
         // set each player offline before shutting down
-        for (Map.Entry<String, OAPlayer> entry : OAPlayer.players.entrySet()) {
-            ((OAPlayer) entry.getValue()).setOffline();
+        for (OAPlayer player : OAPlayer.players.values()) {
+            player.setOffline();
         }
         // unload mixins
         MixinManager.getInstance().unload();
@@ -279,7 +281,7 @@ public class OpenAuth extends JavaPlugin {
         // destroy all living sessions in case this is a reload
         sc.destroyAll();
 
-        log.info("Disabled v" + version + ".");
+        log.info("Disabled OpenAuth" + this.version + "-" + this.hashtag + ".");
     }
 
     /**
@@ -338,6 +340,7 @@ public class OpenAuth extends JavaPlugin {
         );
 
         this.getDatabase().createSqlQuery("PRAGMA journal_mode=WAL;");
+        DatabaseUpdater.runUpdates();
     }
 
     // various support methods
@@ -521,21 +524,5 @@ public class OpenAuth extends JavaPlugin {
      */
     public void registerCommandClass(Class<?> clazz) {
         this.dynamicCommandRegistry.register(clazz);
-    }
-
-    /**
-     * Whether or not a player can be easily wrapped.
-     */
-    public boolean wrappable(Object obj) {
-        log.warning("DEPRECATED: SOMETHING USED OpenAuth.wrappable()!");
-        return OAPlayer.hasPlayer(obj);
-    }
-
-    /**
-     * Wraps a player into an OAPlayer instance.
-     */
-    public OAPlayer wrap(Object obj) {
-        log.warning("DEPRECATED: SOMETHING USED OpenAuth.wrap()!");
-        return OAPlayer.getPlayer(obj);
     }
 }

@@ -52,7 +52,7 @@ public class Config {
     public void initialise() {
         if (loaded) return;
 
-        log.info("Initialising configurations...");
+        log.info("Initialising configuration...");
         // create all config file objects
         try {
             mainf = this.getFile("config");

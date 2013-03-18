@@ -40,7 +40,7 @@ public class OAPlayerUnwhitelistedEvent extends Event implements Cancellable {
 
     public OAPlayer attemptPlayerWrap() {
         try {
-            OAPlayer p = OpenAuth.getOAServer().getController().wrap(this.player);
+            OAPlayer p = OAPlayer.getPlayer(this.player);
             return ((p != null) ? p : null);
         } catch (java.lang.Exception e) {
             return null;
