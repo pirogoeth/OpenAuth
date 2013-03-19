@@ -43,6 +43,11 @@ public class DBPlayer {
     private String password = null;
 
     /**
+     * User's HKAuth id.
+     */
+    private String hkey = null;
+
+    /**
      * OAPlayer transient for use later.
      */
     @Transient
@@ -124,6 +129,11 @@ public class DBPlayer {
         }
     }
 
+    @Transient
+    public OAPlayer getPlayer() {
+        return OAPlayer.getPlayer(this.getName());
+    }
+
     public String getName() {
         return this.name;
     }
@@ -138,6 +148,10 @@ public class DBPlayer {
         if (update == true) this.update();
     }
 
+    public String getPassword() {
+        return this.password;
+    }
+
     public void setPassword(final String password) {
         this.password = password;
     }
@@ -148,7 +162,17 @@ public class DBPlayer {
         if (update == true) this.update();
     }
 
-    public String getPassword() {
-        return this.password;
+    public String getHkey() {
+        return this.hkey;
+    }
+
+    public void setHkey(String hkey) {
+        this.hkey = hkey;
+    }
+
+    @Transient
+    public void setHkey(String hkey, final boolean update) {
+        this.setHkey(hkey);
+        if (update == true) this.update();
     }
 }

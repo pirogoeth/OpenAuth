@@ -184,6 +184,9 @@ public class Localisation implements ILocalisation {
             if (line.trim().equals("")) {
                 continue;
             }
+            if (line.charAt(0) == '#') { //check for comment lines.
+                continue;
+            }
             if (line.charAt(0) == '@') { // check for data points.
                 if (line.substring(0, line.indexOf(' ')).equals("@localisation:")) { // localisation name
                     String givenTransName = line.substring(line.indexOf(' ')).trim();
