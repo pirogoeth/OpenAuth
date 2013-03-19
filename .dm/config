@@ -30,7 +30,7 @@ depsource="http://maio.me/dm"
 manifest="manifest.txt"
 # this is the command that the build system will run to perform tests. if any tests fail,
 # the build will stop before packaging
-testcmd=""
+testcmd='cp ${PACKAGE} ${basedir}/test/plugins; pushd ${basedir}/test/; ./run-spigot.sh; popd'
 
 # dependency configuration ENDS
 # ==============================================================================================================
