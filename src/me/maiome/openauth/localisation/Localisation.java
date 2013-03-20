@@ -207,9 +207,6 @@ public class Localisation implements ILocalisation {
                     continue;
                 }
             }
-        } // time to check the translation count
-        if (this.foundTranslationCount != this.expectedTranslationCount) {
-            throw new Exception(String.format("Translation counts do not match up; expected %d, got %d.", this.expectedTranslationCount, this.foundTranslationCount));
         }
     }
 

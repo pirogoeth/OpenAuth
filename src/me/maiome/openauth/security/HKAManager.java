@@ -103,9 +103,9 @@ public class HKAManager extends Reloadable {
      */
     private void broadcastHKAFailure(OAPlayer player) {
         String message = String.format("Player %s has failed their host key autentication!", player.getName());
-        for (OAPlayer player : OAPlayer.getOnlinePlayers()) {
-            if (player.hasPermission("openauth.admin.hkabroadcast")) {
-                player.sendMessage(message);
+        for (OAPlayer target : OAPlayer.getOnlinePlayers()) {
+            if (target.hasPermission("openauth.admin.hkabroadcast")) {
+                target.sendMessage(message);
             }
         }
     }
