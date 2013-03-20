@@ -6,7 +6,7 @@ source ${dmcore}/config/global
 # general configurable options
 
 name="OpenAuth"
-basedir="/home/pirogoeth/OpenAuth"
+basedir="`dirlocate .dm /`/.."
 srcdir="${basedir}/src"
 incdir="${basedir}/inc"
 targetdir="${basedir}/target"
@@ -16,6 +16,8 @@ javac_includes="inc/craftbukkit.jar:inc/permissions.jar:inc/bukkit.jar:inc/world
 javac_src="src/me/maiome/openauth/*/*.java src/me/maiome/openauth/*/*/*.java src/net/eisental/common/*/*.java mixin/*.java"
 
 hashtag_file="${resdir}/hashtag"
+
+plugin_file="${resdir}/plugin.yml"
 
 # upstream resources to run compile first to get an UPDATED resource.
 # this will read a resourcelist located at ~/.bcs-resources
