@@ -93,7 +93,20 @@ public class HKAManager extends Reloadable {
         } else if ((playerData.getHkey() + this.hkBaseDomain).equals(hostname)) {
             return true;
         } else {
+            this.broadcastHKAFailure(player);
             return false;
+        }
+    }
+
+    /**
+     * Broadcasts a failure to admins (players with openauth.admin.hkabroadcast).
+     */
+    private void broadcastHKAFailure(OAPlayer player) {
+        String message = String.format("Player %s has failed their host key autentication!", player.getName());
+        for (OAPlayer player : OAPlayer.getOnlinePlayers()) {
+            if (player.hasPermission("openauth.admin.hkabroadcast")) {
+                player.sendMessage(message);
+            }
         }
     }
 }

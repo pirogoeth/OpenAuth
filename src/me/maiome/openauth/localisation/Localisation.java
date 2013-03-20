@@ -55,10 +55,6 @@ public class Localisation implements ILocalisation {
      */
     private String translationName = "";
     /**
-     * Number of expected translation strings. Not required, but recommended.
-     */
-    private int expectedTranslationCount = 0;
-    /**
      * Number of found translation strings.
      */
     private int foundTranslationCount = 0;
@@ -165,7 +161,6 @@ public class Localisation implements ILocalisation {
      * Reads the data from the localisation file found by requestTranslation(String name). Localisation files should look like this:
      *
      * @localisation: en_US
-     * @expectation: 2
      * translation.string.node => Translation string
      * welcome.message => Hi, %p, welcome to %w!
      *
@@ -194,11 +189,6 @@ public class Localisation implements ILocalisation {
                         throw new Exception(String.format("Translation filename and data point name do not match: [%s <=> %s]", translationFilename, givenTransName));
                     }
                     this.translationName = givenTransName;
-                    continue;
-                } else if (line.substring(0, line.indexOf(' ')).equals("@expectation:")) { // translation expectation
-                    String expectedCount = line.substring(line.indexOf(' ')).trim();
-                    int expCount = Integer.valueOf(expectedCount);
-                    this.expectedTranslationCount = expCount;
                     continue;
                 } else { // invalid data point
                     continue;

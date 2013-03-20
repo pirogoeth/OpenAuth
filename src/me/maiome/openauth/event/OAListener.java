@@ -137,6 +137,10 @@ public class OAListener implements Listener {
             player.sendMessage(ChatColor.RED + "Warning! Server lockdown is still active! Reason: " + lck.getLockReason());
             return;
         }
+        if (HKAManager.getInstance().verifyHKey(player, event.getHostname()) == false) {
+            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "Your host key is incorrect.");
+            return;
+        }
         this.controller.getOAServer().getWhitelistHandler().processPlayerJoin(event, player);
         if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) return;
         this.controller.getOAServer().getLoginHandler().processPlayerLogin(event, player);

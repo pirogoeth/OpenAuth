@@ -1,0 +1,84 @@
+# en_US translation.
+# Revision: r1-I.
+
+@localisation: en_US
+
+# Actions.java
+
+action.register.success => Action %s (%s) was registered.
+action.register.metrics.success => Registered Metrics data tracker [%s] from %s.
+action.register.metrics.null => Action data tracker was null.
+action.register.metrics.failure => Exception occurred while adding Action data tracker.
+action.register.not-found => Exception occurred while finding Action data tracker.
+action.register.failure => Exception occurred while registering an Action.
+action.purge.success => Action %s (%s) was purged.
+action.purge.failure => Exception occurred while purging an Action.
+action.init.fail => Exception occurred while initialising Actions enumerator.
+action.init.cast-fail => Exception occurred while casting up external Action.
+action.init.reg-fail => Exception occurred while registering external Action.
+action.getbyname.fail => Exception caught while attaching an action.
+action.getinst.fail => Exception caught while instantiating an action.
+
+# BanStick.java
+
+banstick.reason.default => No reason given.
+
+# BoomStick.java
+
+boomstick.blocks-changed => %d blocks have been changed.
+boomstick.no-tamed-error => You can't blow up a tamed animal.
+boomstick.animal-cruelty => You can't blow up an animal mob.
+boomstick.golem-cruelty => You can't blow up a golem.
+boomstick.undo-error => The explosion could not be reversed.
+
+# FreezeStick.java
+
+freezestick.freeze => You have been frozen by %s.
+freezestick.unfreeze => You have been unfrozen.
+
+# SpawnStick.java
+
+spawnstick.unknown-mob => The mob you have specified does not exist. The following are available:
+
+# OAPlayer.java
+
+oaplayer.ip-changed => WARNING! %s may not be who they claim! Their IP has changed from %s to %s, resetting session!
+oaplayer.session.update-fail => Something has gone wrong with the session update!
+oaplayer.action.unid-moved => You must first identify to move.
+oaplayer.action.frozen => You have been frozen.
+oaplayer.session.forced => Forced a session for online player %s.
+oaplayer.session.reset => Resetting session for player %s.
+
+# OAServer.java
+
+oaserver.player-db.skip-pruning => Skipping user table pruning, server is not empty.
+oaserver.player.kick-reason => No reason.
+oaserver.player.kick-string => Kicked player: %s
+oaserver.player.kicked-string => Kicked player: %s; reason: %s
+oaserver.bansys.error => There has been an error in the ban system. Please contact the server administrator.
+
+# OpenAuth.java
+
+openauth.init-db => NOTE: Initialising database, this *MAY* take a while...
+openauth.db-rebuild.warning => [WARNING] The 'database.rebuild' option in your config.yml is set to true!
+openauth.db-rebuild.explanation => [WARNING] This means that your database will be recreated every time the server starts and your data will be lost!
+openauth.db-rebuild.fix => [WARNING] If this is not what you want, stop the server and change the `database.advanced.rebuild` entry to false.
+openauth.bukkit-wl-disable => Bukkit whitelisting is now OFF!
+openauth.pm.opt-in-notice => NOTICE: You have chosen to OPT-IN to PluginMetrics for this plugin!
+openauth.pm.warn => PluginMetrics will anonymously collect statistical data about the server and this plugin to send back to the plugin author.
+openauth.pm.explanation => The data collected will only be used for statistic gathering to keep track of certain aspects of the plugin and its development.
+openauth.pm.fix => If you'd prefer to disable PluginMetrics and keep it from loading in this plugin, open the config.yml for this plugin and change metrics-enabled to false and restart your server.
+openauth.pm.load-error => Could not load PluginMetrics!
+openauth.jsonapi.not-found => JSONAPI call handler could not be loaded -- is JSONAPI loaded?
+openauth.jsonapi.load-error => An exception was caught while loading the JSONAPI call handler -- is JSONAPI loaded?
+openauth.enabled => Enabled OpenAuth [ %s - %s ].
+openauth.disbled => Disabled OpenAuth [ %s - %s ].
+openauth.command.no-perms => You don't have permission.
+openauth.command.number-err => Number expected, string received.
+openauth.command.cmd-err => An error has occurred. See console.
+openauth.instances.oa-serv => Cannot redefine a OAServer instance.
+openauth.instances.java-pl => Cannot redefine a JavaPlugin instance.
+openauth.instances.sess-cont => Cannot redefine a SessionController instance.
+openauth.instances.json-ch => Cannot redefine a OAJSONAPICallHandler instance.
+
+# Incomplete.

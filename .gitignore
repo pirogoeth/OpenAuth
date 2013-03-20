@@ -12,3 +12,6 @@ symbols.txt
 OpenAuth-*.jar
 OpenAuth.jar
 compile_mixins.sh
+src/hashtag
+test
+test/*

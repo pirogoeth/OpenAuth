@@ -89,6 +89,16 @@ public class OAPlayer {
         return null;
     }
 
+    public static List<OAPlayer> getOnlinePlayers() {
+        List<OAPlayer> onlineList = new ArrayList<OAPlayer>();
+        for (OAPlayer player : players.values()) {
+            if (player.isOnline()) {
+                onlineList.add(player);
+            }
+        }
+        return onlineList;
+    }
+
     public static boolean hasPlayer(Object obj) {
         if (obj == null) return false;
         OAPlayer player = null;

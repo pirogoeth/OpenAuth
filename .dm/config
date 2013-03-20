@@ -9,11 +9,13 @@ name="OpenAuth"
 basedir="/home/pirogoeth/OpenAuth"
 srcdir="${basedir}/src"
 incdir="${basedir}/inc"
+targetdir="${basedir}/target"
+resdir="${basedir}/resources"
 jvmv="6"
 javac_includes="inc/craftbukkit.jar:inc/permissions.jar:inc/bukkit.jar:inc/worldedit.jar:inc/pex.jar:inc/JSONAPI.jar"
 javac_src="src/me/maiome/openauth/*/*.java src/me/maiome/openauth/*/*/*.java src/net/eisental/common/*/*.java mixin/*.java"
 
-hashtag_file="${srcdir}/hashtag"
+hashtag_file="${resdir}/hashtag"
 
 # upstream resources to run compile first to get an UPDATED resource.
 # this will read a resourcelist located at ~/.bcs-resources

@@ -52,10 +52,6 @@ public interface ILocalisation {
      */
     String translationName = "";
     /**
-     * Number of expected translation strings. Not required, but recommended.
-     */
-    int expectedTranslationCount = 0;
-    /**
      * Number of found translation strings.
      */
     int foundTranslationCount = 0;
@@ -89,7 +85,6 @@ public interface ILocalisation {
      * Reads the data from the localisation file found by requestTranslation(String name). Localisation files should look like this:
      *
      * @localisation: en_US
-     * @expectation: 2
      * translation.string.node => Translation string
      * welcome.message => Hi, %p, welcome to %w!
      *
