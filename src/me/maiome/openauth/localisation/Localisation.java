@@ -1,3 +1,5 @@
+package me.maiome.openauth.localisation;
+
 import java.io.*;
 import java.util.*;
 import java.util.regex.*;
