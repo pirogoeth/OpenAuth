@@ -61,7 +61,7 @@ public class OACommands {
                  flags = "", min = 1)
         @NestedCommand({ OACommands.class, OAActionCommands.ActionParentCommand.class, OABanCommands.BanParentCommand.class,
                          OAUserCommands.UserParentCommand.class, OAWhitelistCommands.WhitelistParentCommand.class,
-                         OAPageCommands.PageParentCommand.class })
+                         OAPageCommands.PageParentCommand.class, OAHKAuthManagementCommands.OAHKAManagementParentCommand.class })
         public static void openAuth() {}
     }
 

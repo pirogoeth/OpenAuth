@@ -16,6 +16,7 @@ public class DatabaseUpdater {
     };
 
     public static void runUpdates() {
+        log.debug(" - Running database updates..");
         for (int i = 0; i < sqlStatements.length; i++) {
             SqlUpdate update = OpenAuth.getInstance().getDatabase().createSqlUpdate(sqlStatements[i]);
             try {

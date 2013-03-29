@@ -36,6 +36,13 @@ public class HKAManager extends Reloadable {
     }
 
     /**
+     * Returns the base domain to connect to.
+     */
+    public String getHKABaseDomain() {
+        return this.hkBaseDomain;
+    }
+
+    /**
      * Random key generation algorithm. At a 24 character length, there were no collisions with 100000 iterations of the function.
      */
     private String generateHKey() {
@@ -81,6 +88,18 @@ public class HKAManager extends Reloadable {
     }
 
     /**
+     * Deallocates an hkey.
+     */
+    public void deallocateHKey(OAPlayer player) {
+        DBPlayer playerData;
+        synchronized(OpenAuth.databaseLock) {
+            playerData = OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player.getName());
+        }
+        playerData.setHkey(null);
+        playerData.update();
+    }
+
+    /**
      * Verify the connecting hostname of a player.
      */
     public boolean verifyHKey(OAPlayer player, String hostname) {
@@ -88,9 +107,11 @@ public class HKAManager extends Reloadable {
         synchronized(OpenAuth.databaseLock) {
             playerData = OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player.getName());
         }
-        if (playerData.getHkey() == null || this.hkAllowed == false) {
+        String hostKey = playerData.getHkey() + this.hkBaseDomain;
+        hostname = hostname.split("\\:")[0];
+        if ((playerData.getHkey() == null || playerData.getHkey().equals("")) || this.hkAllowed == false) {
             return true; // HKA is disabled or the user has no HK -- allow them in.
-        } else if ((playerData.getHkey() + this.hkBaseDomain).equals(hostname)) {
+        } else if ((hostKey).equals(hostname)) {
             return true;
         } else {
             this.broadcastHKAFailure(player);

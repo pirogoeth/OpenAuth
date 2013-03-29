@@ -160,6 +160,9 @@ public class OpenAuth extends JavaPlugin {
         // set logging level
         log.setExtraneousDebugging((ConfigInventory.MAIN.getConfig().getBoolean("debug", false) == false) ? false : true);
 
+        // run database updates
+        DatabaseUpdater.runUpdates();
+
         // initialise the OAServer
         new OAServer(this, this.getServer());
         // initialise out session controller
@@ -340,7 +343,6 @@ public class OpenAuth extends JavaPlugin {
         );
 
         this.getDatabase().createSqlQuery("PRAGMA journal_mode=WAL;");
-        DatabaseUpdater.runUpdates();
     }
 
     // various support methods
