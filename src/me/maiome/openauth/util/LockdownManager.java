@@ -4,7 +4,7 @@ import me.maiome.openauth.bukkit.*;
 import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.*;
 
-public class LockdownManager {
+public class LockdownManager extends Reloadable {
 
     public String lockdownMessage;
     public String defaultLockdownMessage;
@@ -14,8 +14,13 @@ public class LockdownManager {
     private static LockdownManager instance = null;
 
     public LockdownManager() {
-        this.lockdownMessage = this.defaultLockdownMessage = ConfigInventory.MAIN.getConfig().getString("server.lockdown-reason", "The server is currently locked down for maintenance.");
+        this.reload();
         instance = this;
+        this.setReloadable(this);
+    }
+
+    protected void reload() {
+        this.lockdownMessage = this.defaultLockdownMessage = Config.getConfig().getString("server.lockdown-reason", "The server is currently locked down for maintenance.");
     }
 
     public static LockdownManager getInstance() {

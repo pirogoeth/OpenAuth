@@ -21,9 +21,6 @@ import me.maiome.openauth.util.LoginStatus;
 
 public interface OALoginHandler {
 
-    void setEnabled(boolean b);
-    boolean isEnabled();
-
     /**
      * Generate MD5 string hash of a specified password.
      */
@@ -60,7 +57,6 @@ public interface OALoginHandler {
      * Processes player identification tries.
      */
     boolean processPlayerIdentification(OAPlayer player, String password);
-    boolean processDirectIdentification(OAPlayer player, String password); // this takes auth from the client negotiator.
 
     /**
      * Processes player registration.

@@ -10,32 +10,27 @@ public class LogHandler {
     public final static Logger log = Logger.getLogger("Minecraft");
     public final static String prefix = "OpenAuth";
     // dynamic
-    protected static boolean ex_debug = false;
+    protected static boolean debug = Config.getConfig().getBoolean("debug", false);;
 
-    // construct
     public LogHandler() {
-        // now handling logs.
     }
 
-    // extraneous debug methods
-
-    public static boolean getExtraneousDebugging() {
-        return ex_debug;
+    public static boolean getDebugging() {
+        return debug;
     }
 
-    public static void setExtraneousDebugging(boolean b) {
-        ex_debug = b;
-        info(String.format("Extraneous debug is set to %s.", Boolean.toString(ex_debug)));
+    public static void setDebugging(boolean b) {
+        debug = b;
+        info(String.format("Debugging is set to %s.", Boolean.toString(debug)));
     }
 
+    @Deprecated
     public static void exDebug(String message) {
-        if (!getExtraneousDebugging()) return;
-        String logged = String.format("[%s-debug] %s", prefix, message);
-        log.info(logged);
+        debug(message);
     }
 
     public static void debug(String message) {
-        if (!getExtraneousDebugging()) return;
+        if (!getDebugging()) return;
         String logged = String.format("[%s-debug] %s", prefix, message);
         log.info(logged);
     }

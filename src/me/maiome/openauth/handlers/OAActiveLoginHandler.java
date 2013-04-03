@@ -17,21 +17,17 @@ import me.maiome.openauth.bukkit.*;
 import me.maiome.openauth.bukkit.events.*;
 import me.maiome.openauth.security.*;
 import me.maiome.openauth.database.DBPlayer;
-import me.maiome.openauth.util.Config;
-import me.maiome.openauth.util.ConfigInventory;
-import me.maiome.openauth.util.Permission;
-import me.maiome.openauth.util.LogHandler;
-import me.maiome.openauth.util.LoginStatus;
+import me.maiome.openauth.util.*;
 
 public class OAActiveLoginHandler implements OALoginHandler {
 
     private List<OAPlayer> active = new ArrayList<OAPlayer>();
-    private OpenAuth controller;
+    private final OpenAuth controller;
     private LogHandler log = new LogHandler();
     protected boolean enabled = false;
 
-    public OAActiveLoginHandler(OpenAuth controller) {
-        this.controller = controller;
+    public OAActiveLoginHandler() {
+        this.controller = OpenAuth.getInstance();
     }
 
     public String toString() {
@@ -88,23 +84,23 @@ public class OAActiveLoginHandler implements OALoginHandler {
     public void processPlayerLogin(PlayerLoginEvent event, OAPlayer player) {
         if (!(this.isEnabled())) return;
         OAPlayerLoginEvent _event = new OAPlayerLoginEvent(player);
-        this.controller.getOAServer().callEvent(_event);
+        OAServer.getInstance().callEvent(_event);
         if (_event.isCancelled()) {
             event.disallow(PlayerLoginEvent.Result.KICK_OTHER, _event.getCancelReason());
             return;
         }
         player.setOnline();
-        if (this.controller.getOAServer().hasNameBan(player.getName())) {
-            event.disallow(PlayerLoginEvent.Result.KICK_BANNED, this.controller.getOAServer().getNameBanReason(player.getName()));
+        if (OAServer.getInstance().hasNameBan(player.getName())) {
+            event.disallow(PlayerLoginEvent.Result.KICK_BANNED, OAServer.getInstance().getNameBanReason(player.getName()));
             return;
         } else {
-            this.log.exDebug(String.format("%s matched no name bans!", player.getName()));
+            this.log.debug(String.format("%s matched no name bans!", player.getName()));
         }
-        if (this.controller.getOAServer().hasIPBan(player.getIP())) {
-            event.disallow(PlayerLoginEvent.Result.KICK_BANNED, this.controller.getOAServer().getIPBanReason(player.getIP()));
+        if (OAServer.getInstance().hasIPBan(player.getIP())) {
+            event.disallow(PlayerLoginEvent.Result.KICK_BANNED, OAServer.getInstance().getIPBanReason(player.getIP()));
             return;
         } else {
-            this.log.exDebug(String.format("%s (%s) matched no IP bans!", player.getIP(), player.getName()));
+            this.log.debug(String.format("%s (%s) matched no IP bans!", player.getIP(), player.getName()));
         }
         event.allow();
         this.active.add(player);
@@ -124,11 +120,11 @@ public class OAActiveLoginHandler implements OALoginHandler {
         }
         String match = OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player.getName()).getPassword();
         boolean success = ((this.getStringHash(password)).equals(match)) ? true : false;
-        if (ConfigInventory.MAIN.getConfig().getBoolean("auth.hide-inventory", false) && success) {
+        if (player.getSession().hasHiddenInventory() && success) {
             player.getSession().unhideInventory();
         }
         OAPlayerAttemptedLoginEvent e = new OAPlayerAttemptedLoginEvent(player, success);
-        this.controller.getOAServer().callEvent(e);
+        OAServer.getInstance().callEvent(e);
         return success;
     }
 
@@ -139,7 +135,7 @@ public class OAActiveLoginHandler implements OALoginHandler {
         String match = OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player.getName()).getPassword();
         boolean success = ((this.getStringHash(password)).equals(match)) ? true : false;
         OAPlayerAttemptedLoginEvent e = new OAPlayerAttemptedLoginEvent(player, success);
-        this.controller.getOAServer().callEvent(e);
+        OAServer.getInstance().callEvent(e);
         return success;
     }
 
@@ -150,7 +146,7 @@ public class OAActiveLoginHandler implements OALoginHandler {
     public void processPlayerRegistration(String player, String password) {
         if (!(this.isEnabled())) return;
         OAPlayerRegistrationEvent event = new OAPlayerRegistrationEvent(player);
-        OpenAuth.getOAServer().callEvent(event);
+        OAServer.getInstance().callEvent(event);
         DBPlayer data = OpenAuth.getInstance().getDatabase().find(DBPlayer.class, player);
         if (password == null) { // this is a password reset/account removal
             data.setPassword(null);

@@ -36,10 +36,7 @@ import me.maiome.openauth.metrics.*;
 import me.maiome.openauth.mixins.*;
 import me.maiome.openauth.security.*;
 import me.maiome.openauth.session.*;
-import me.maiome.openauth.util.Permission;
-import me.maiome.openauth.util.Config;
-import me.maiome.openauth.util.ConfigInventory;
-import me.maiome.openauth.util.LogHandler;
+import me.maiome.openauth.util.*;
 
 // bundled imports
 import com.sk89q.bukkit.util.*; // dynamic command registry
@@ -56,12 +53,7 @@ public class OpenAuth extends JavaPlugin {
     /**
      * Static instance holder.
      */
-    public static JavaPlugin plugin;
-
-    /**
-     * Initialises configurations and writes defaults.
-     */
-    private Config configurationManager = new Config(this, false);
+    public static OpenAuth instance;
 
     /**
      * Logger for everything that might need to be spilled
@@ -85,29 +77,9 @@ public class OpenAuth extends JavaPlugin {
     private static Metrics metrics = null;
 
     /**
-     * Holds an OAServer instance.
-     */
-    private static OAServer oaserver;
-
-    /**
      * Holds our ebean database object.
      */
     private ExtendedDB database;
-
-    /**
-     * Session controller.
-     */
-    private static SessionController sc;
-
-    /**
-     * JSONAPI Call handler.
-     */
-    private static OAJSONAPICallHandler jsch = null;
-
-    /**
-     * Holds the gateway to all permission verification.
-     */
-    private Permission permissionsManager;
 
     /**
      * Manages commands.
@@ -129,7 +101,10 @@ public class OpenAuth extends JavaPlugin {
      */
     public void onEnable() {
         // set our instance
-        OpenAuth.setInstance(this);
+        instance = this;
+
+        // perform config setup.
+        new Config(false);
 
         // set version number
         this.version = this.getDescription().getVersion();
@@ -144,47 +119,47 @@ public class OpenAuth extends JavaPlugin {
         }
 
         // initialise the configuration
-        this.configurationManager.initialise();
+        Config.getInstance().initialise();
+
+        // search for permissions.
+        Permission.search();
 
         // initialise the database
         log.info("NOTE: Initialising database, this *MAY* take a while...");
         this.initialiseDatabase();
 
         // warn about ebean's rebuild
-        if (ConfigInventory.MAIN.getConfig().getBoolean("database.advanced.rebuild", false) == true) {
+        if (Config.getConfig().getBoolean("database.advanced.rebuild", false) == true) {
             log.info(" - [WARNING] The 'database.rebuild' option in your config.yml is set to true!");
             log.info(" - [WARNING] This means that your database will be recreated every time the server starts and your data will be lost!");
             log.info(" - [WARNING] If this is not what you want, stop the server and change the entry to false.");
         }
 
         // set logging level
-        log.setExtraneousDebugging((ConfigInventory.MAIN.getConfig().getBoolean("debug", false) == false) ? false : true);
+        log.setDebugging((Config.getConfig().getBoolean("debug", false) == false) ? false : true);
 
         // run database updates
         DatabaseUpdater.runUpdates();
 
         // initialise the OAServer
-        new OAServer(this, this.getServer());
+        new OAServer();
         // initialise out session controller
-        new SessionController(this);
+        new SessionController();
 
         // initialise the mixin manager, which instantiates the generic class loader.
         new MixinManager();
 
         // check if we need to override.
-        if (ConfigInventory.MAIN.getConfig().getBoolean("override", false) == true) {
+        if (Config.getConfig().getBoolean("override", false) == true) {
             if (this.getServer().hasWhitelist() == true) { // override the whitelisting in Bukkit for mine?
                 this.getServer().setWhitelist(false);
                 log.info(" - Bukkit whitelisting is now OFF!");
             }
         }
 
-        // initialise permissions manager and config manager as well as dynamic command registration
-        this.permissionsManager = new Permission(this);
-
         // start scheduler tasks
-        oaserver.startSchedulerTasks();
-        sc.startSchedulerTasks();
+        OAServer.getInstance().startSchedulerTasks();
+        SessionController.getInstance().startSchedulerTasks();
 
         // register our command manager.
         this.commands = new CommandsManager<CommandSender>() {
@@ -204,8 +179,8 @@ public class OpenAuth extends JavaPlugin {
         this.commands.setInjector(new SimpleInjector(this));
 
         // register listener(s)
-        this.registerEvents(new OAListener(this));
-        this.registerEvents(new OAExplosionListener(this));
+        this.registerEvents(new OAListener());
+        this.registerEvents(new OAExplosionListener());
 
         // register base command class.
         this.dynamicCommandRegistry.register(OACommands.OAParentCommand.class);
@@ -213,12 +188,12 @@ public class OpenAuth extends JavaPlugin {
         this.dynamicCommandRegistry.register(OARootAliasCommands.LogoutRootAliasCommand.class);
         this.dynamicCommandRegistry.register(OARootAliasCommands.RegisterRootAliasCommand.class);
 
-        // generate sessions for all users
-        sc.createAll();
+        // generate sessions for all users (in the case of a reload...
+        SessionController.getInstance().createAll();
 
         // setup PluginMetrics
-        if (ConfigInventory.MAIN.getConfig().getBoolean("metrics-enabled", true) == true) {
-            if (ConfigInventory.MAIN.getConfig().getBoolean("show-metrics-notice", true) == true) {
+        if (Config.getConfig().getBoolean("metrics-enabled", true) == true) {
+            if (Config.getConfig().getBoolean("show-metrics-notice", true) == true) {
                 String[] metrics_warning = {
                     " - NOTICE: You have chosen to OPT-IN to PluginMetrics for this plugin!",
                     " -   PluginMetrics will anonymously collect statistical data about the server and this plugin to send back to the plugin author.",
@@ -242,9 +217,9 @@ public class OpenAuth extends JavaPlugin {
 
         // initialise the JSONAPI call handler
         try {
-            new OAJSONAPICallHandler(this);
+            new OAJSONAPICallHandler();
             OAJSONAPINativeMethods.load();
-            this.metrics.addCustomData(OpenAuth.getJSONAPICallHandler().tracker); // add metrics data tracker
+            this.metrics.addCustomData(OAJSONAPICallHandler.getInstance().tracker); // add metrics data tracker
         } catch (java.lang.NoClassDefFoundError e) {
             log.warning("JSONAPI call handler could not be loaded -- is JSONAPI loaded?");
         } catch (java.lang.Exception e) {
@@ -278,11 +253,11 @@ public class OpenAuth extends JavaPlugin {
         // unload mixins
         MixinManager.getInstance().unload();
         // save the whitelist
-        oaserver.getWhitelistHandler().saveWhitelist();
+        OAServer.getInstance().getWhitelistHandler().saveWhitelist();
         // shutdown all OA tasks
-        oaserver.cancelAllOATasks();
-        // destroy all living sessions in case this is a reload
-        sc.destroyAll();
+        OAServer.getInstance().cancelAllOATasks();
+        // destroy all living sessions (in the case of a reload)
+        SessionController.getInstance().destroyAll();
 
         log.info("Disabled OpenAuth" + this.version + "-" + this.hashtag + ".");
     }
@@ -328,7 +303,7 @@ public class OpenAuth extends JavaPlugin {
     };
 
     private void initialiseDatabase() {
-        Configuration config = ConfigInventory.MAIN.getConfig();
+        Configuration config = Config.getConfig();
 
         this.database = new ExtendedDB(OpenAuth.getInstance());
 
@@ -403,91 +378,17 @@ public class OpenAuth extends JavaPlugin {
     }
 
     /**
-     * Returns the server instance that we are using.
+     * Returns myself (should be able to cast down to JavaPlugin...
      */
-    public static OAServer getOAServer() {
-        return oaserver;
+    public static OpenAuth getInstance() {
+        return instance;
     }
 
     /**
-     * Sets the server instance that we will be using.
-     *
-     * This *CANNOT* be used if the server is already set.
+     * Casts +instance+ down to a JavaPlugin and returns it.
      */
-    public static void setOAServer(OAServer oaserver) {
-        if (OpenAuth.oaserver != null) {
-            throw new UnsupportedOperationException("Cannot redefine a OAServer instance.");
-        }
-
-        OpenAuth.oaserver = oaserver;
-    }
-
-    /**
-     * Returns the JavaPlugin instance that we are using.
-     */
-    public static JavaPlugin getInstance() {
-        return plugin;
-    }
-
-    /**
-     * Sets the javaPlugin instance that we will be using.
-     *
-     * This *CANNOT* be used if the plugin is already set.
-     */
-    public static void setInstance(JavaPlugin plugin) {
-        if (OpenAuth.plugin != null) {
-            throw new UnsupportedOperationException("Cannot redefine a JavaPlugin instance.");
-        }
-
-        OpenAuth.plugin = plugin;
-    }
-
-    /**
-     * Returns the session controller instance.
-     */
-    public static SessionController getSessionController() {
-        return sc;
-    }
-
-    /**
-     * Sets the SessionController instance that we will be using.
-     *
-     * This *CANNOT* be reset if the controller is already set.
-     */
-    public static void setSessionController(SessionController sc) {
-        if (OpenAuth.sc != null) {
-            throw new UnsupportedOperationException("Cannot redefine a SessionController instance.");
-        }
-
-        OpenAuth.sc = sc;
-    }
-
-    /**
-     * Returns the JSONAPI call handler instance.
-     */
-    public static OAJSONAPICallHandler getJSONAPICallHandler() {
-        return jsch;
-    }
-
-    /**
-     * Sets the OAJSONAPICallHandler instance that we will be using.
-     *
-     * This *CANNOT* be reset if the handler is set and not null.
-     */
-    public static void setJSONAPICallHandler(OAJSONAPICallHandler jsch) {
-        if (OpenAuth.jsch != null) {
-            throw new UnsupportedOperationException("Cannot redefine a OAJSONAPICallHandler instance.");
-        }
-
-        OpenAuth.jsch = jsch;
-    }
-
-
-    /**
-     * Returns the active password security validator.
-     */
-    public static IPasswordSecurity getActivePWSecurityValidator() {
-        return OAPasswordSecurity.getActiveSecurityValidator();
+    public static JavaPlugin getJavaPlugin() {
+        return (JavaPlugin) instance;
     }
 
     /**
@@ -505,13 +406,11 @@ public class OpenAuth extends JavaPlugin {
     }
 
     /**
-     * Shorthand to register an event listener.
+     * DEPRECATED: Shorthand to register an event listener.
      */
+    @Deprecated
     public void registerEvents(Listener listener) {
-        this.getServer().getPluginManager().registerEvents(
-            listener,
-            (Plugin) this);
-        return;
+        OAServer.getInstance().registerEvents(listener);
     }
 
     /**

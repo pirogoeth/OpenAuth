@@ -1,12 +1,9 @@
 package me.maiome.openauth.commands;
 
 // internal imports
-import me.maiome.openauth.bukkit.OpenAuth;
-import me.maiome.openauth.bukkit.OAPlayer;
+import me.maiome.openauth.bukkit.*;
 import me.maiome.openauth.bukkit.events.*;
-import me.maiome.openauth.util.Config;
-import me.maiome.openauth.util.LogHandler;
-import me.maiome.openauth.util.ConfigInventory;
+import me.maiome.openauth.util.*;
 
 // command framework imports
 import com.sk89q.minecraft.util.commands.*;
@@ -61,14 +58,14 @@ public class OAWhitelistCommands {
              min = 1, max = 1)
     @CommandPermissions({ "openauth.whitelist.add" })
     public static void whitelistadd(CommandContext args, CommandSender sender) throws CommandException {
-        if (controller.getOAServer().getWhitelistHandler().isEnabled()) {
+        if (OAServer.getInstance().getWhitelistHandler().isEnabled()) {
             OAPlayerWhitelistedEvent event = new OAPlayerWhitelistedEvent(args.getString(0));
-            OpenAuth.getOAServer().callEvent(event);
+            OAServer.getInstance().callEvent(event);
             if (event.isCancelled()) {
                 sender.sendMessage(ChatColor.BLUE + String.format("Player %s is not able to be whitelisted.", args.getString(0)));
                 return;
             }
-            controller.getOAServer().getWhitelistHandler().whitelistPlayer(args.getString(0));
+            OAServer.getInstance().getWhitelistHandler().whitelistPlayer(args.getString(0));
             sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been whitelisted.", args.getString(0)));
             return;
         }
@@ -82,9 +79,9 @@ public class OAWhitelistCommands {
     @CommandPermissions({ "openauth.whitelist.show" })
     public static void whitelistshow(CommandContext args, CommandSender sender) throws CommandException {
         StringBuilder list = new StringBuilder();
-        if (controller.getOAServer().getWhitelistHandler().isEnabled()) {
+        if (OAServer.getInstance().getWhitelistHandler().isEnabled()) {
             sender.sendMessage(ChatColor.BLUE + "Whitelist:");
-            for (String name : controller.getOAServer().getWhitelistHandler().getWhitelist()) {
+            for (String name : OAServer.getInstance().getWhitelistHandler().getWhitelist()) {
                 list.append(ChatColor.BLUE + String.format(" - %s\n", name));
             }
             if (list.length() == 0) {
@@ -104,14 +101,14 @@ public class OAWhitelistCommands {
              min = 1, max = 1)
     @CommandPermissions({ "openauth.whitelist.remove" })
     public static void whitelistremove(CommandContext args, CommandSender sender) throws CommandException {
-        if (controller.getOAServer().getWhitelistHandler().isEnabled()) {
+        if (OAServer.getInstance().getWhitelistHandler().isEnabled()) {
             OAPlayerUnwhitelistedEvent event = new OAPlayerUnwhitelistedEvent(args.getString(0));
-            OpenAuth.getOAServer().callEvent(event);
+            OAServer.getInstance().callEvent(event);
             if (event.isCancelled()) {
                 sender.sendMessage(ChatColor.BLUE + String.format("Player %s is not able to be unwhitelisted.", args.getString(0)));
                 return;
             }
-            controller.getOAServer().getWhitelistHandler().unwhitelistPlayer(args.getString(0));
+            OAServer.getInstance().getWhitelistHandler().unwhitelistPlayer(args.getString(0));
             sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been unwhitelisted.", args.getString(0)));
             return;
         }

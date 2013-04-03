@@ -28,13 +28,13 @@ public class HellHounds implements IAction {
     public static final Tracker tracker = new Tracker("HellHounds");
     public static List<OAPlayer> attacking = new ArrayList<OAPlayer>();
 
-    private Session attached;
-    private SessionController sc;
+    private final SessionController sc = SessionController.getInstance();
     private final LogHandler log = new LogHandler();
     private final String permissible = "openauth.action.fetch-me-their-souls";
-    private final long attack_delay = ConfigInventory.MAIN.getConfig().getLong("actions.hounds.attack-delay", 60L);
-    private final long removal_delay = ConfigInventory.MAIN.getConfig().getLong("actions.hounds.removal-delay", 600L);
-    private OAServer server;
+    private final long attack_delay = Config.getConfig().getLong("actions.hounds.attack-delay", 60L);
+    private final long removal_delay = Config.getConfig().getLong("actions.hounds.removal-delay", 600L);
+    private final OAServer server = OAServer.getInstance();
+    private Session attached;
     private int attack_taskid;
     private int destruction_taskid;
     private boolean used = false;
@@ -48,9 +48,7 @@ public class HellHounds implements IAction {
 
     public HellHounds() { }
 
-    public HellHounds(OAServer server, Session attached) {
-        this.server = server;
-        this.sc = server.getController().getSessionController();
+    public HellHounds(Session attached) {
         this.attached = attached;
         this.setSender(this.attached.getPlayer());
     }

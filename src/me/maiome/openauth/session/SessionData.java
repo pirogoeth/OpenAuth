@@ -26,6 +26,11 @@ public class SessionData<E> {
     public SessionData(String name, Session attach_to) {
         this.data_name = name;
         instances.put(name, this);
+        this.attach(attach_to);
+    }
+
+    public void attach(Session session) {
+        session.attachSessionData(this);
     }
 
     public String getName() {
@@ -52,8 +57,8 @@ public class SessionData<E> {
         return this.data.size();
     }
 
-    public void putAll(Map<String, ? extends E> m) {
-        for (Map.Entry<String, ? extends E> entry : m.entrySet()) {
+    public void putAll(Map<String, E> m) {
+        for (Map.Entry<String, E> entry : m.entrySet()) {
             this.put(entry.getKey(), entry.getValue());
         }
     }

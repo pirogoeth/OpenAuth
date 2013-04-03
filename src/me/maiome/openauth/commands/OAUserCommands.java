@@ -1,11 +1,9 @@
 package me.maiome.openauth.commands;
 
 // internal imports
-import me.maiome.openauth.bukkit.OpenAuth;
-import me.maiome.openauth.bukkit.OAPlayer;
+import me.maiome.openauth.bukkit.*;
 import me.maiome.openauth.bukkit.events.*;
-import me.maiome.openauth.util.LogHandler;
-import me.maiome.openauth.util.ConfigInventory;
+import me.maiome.openauth.util.*;
 
 // command framework imports
 import com.sk89q.minecraft.util.commands.*;
@@ -94,7 +92,7 @@ public class OAUserCommands {
     public static void destroyact(CommandContext args, CommandSender sender) throws CommandException {
         String user = args.getString(0);
         String nullstring = null;
-        if (!(OpenAuth.getOAServer().getLoginHandler().isRegistered(user))) {
+        if (!(OAServer.getInstance().getLoginHandler().isRegistered(user))) {
             sender.sendMessage(ChatColor.BLUE + "Account " + user + " does not exist.");
             return;
         }
@@ -103,7 +101,7 @@ public class OAUserCommands {
             player.sendMessage("Your account has been forcibly deleted by an admin, so you have been logged out.");
             player.getSession().setIdentified(false, true);
         }
-        controller.getOAServer().getLoginHandler().processPlayerRegistration(args.getString(0), nullstring);
+        OAServer.getInstance().getLoginHandler().processPlayerRegistration(args.getString(0), nullstring);
         sender.sendMessage(ChatColor.BLUE + "[" + args.getString(0) + "] has been reset!");
     }
 }

@@ -85,10 +85,10 @@ public class DBWorldRecord {
             try {
                 OpenAuth.getInstance().getDatabase().update(this);
             } catch (java.lang.Exception e) {
-                LogHandler.exDebug("Error updating DBWorldRecord [" + this.name + "]: " + e.getMessage());
+                LogHandler.debug("Error updating DBWorldRecord [" + this.name + "]: " + e.getMessage());
                 return;
             }
-            LogHandler.exDebug("Successfully updated DBWorldRecord [" + this.name + "].");
+            LogHandler.debug("Successfully updated DBWorldRecord [" + this.name + "].");
         }
     }
 

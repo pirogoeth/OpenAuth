@@ -5,12 +5,12 @@ import me.maiome.openauth.bukkit.OpenAuth;
 public interface IMixinLibraryProvider {
 
     /**
-     * Displayable name of the mixin.
+     * Displayable name of the mixin library.
      */
     String name = "";
 
     /**
-     * Returns the name of the mixin.
+     * Returns the name of the mixin library.
      */
     String getName();
 

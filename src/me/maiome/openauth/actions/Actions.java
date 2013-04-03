@@ -21,7 +21,7 @@ public enum Actions {
     BOOM(BoomStick.class),
     BOX(BoxStick.class),
     FREEZE(FreezeStick.class),
-    HOUNDS(HellHounds.class),
+    // HOUNDS(HellHounds.class),
     SPAWN(SpawnStick.class);
 
     static {
@@ -31,7 +31,7 @@ public enum Actions {
 
     public final Class action;
     private final static LogHandler log = new LogHandler();
-    private final static Class[] action_cons_types = {OAServer.class, Session.class};
+    private final static Class[] action_cons_types = {Session.class};
     private static final Map<String, Class> store = new HashMap<String, Class>();
     private static final GenericClassLoader<IAction> classLoader = new GenericClassLoader<IAction>("plugins/OpenAuth/actions/", IAction.class);
 
@@ -58,12 +58,12 @@ public enum Actions {
         // if (!(a.isAssignableFrom(IAction.class))) return;
         try {
             store.put((String) a.getField("name").get(null), a);
-            log.exDebug(String.format("Action %s (%s) was registered.", (String) a.getField("name").get(null), a.getCanonicalName()));
+            log.debug(String.format("Action %s (%s) was registered.", (String) a.getField("name").get(null), a.getCanonicalName()));
             try {
                 Tracker metric = (Tracker) a.getField("tracker").get(null);
                 try {
                     OpenAuth.getMetrics().addCustomData(metric);
-                    log.exDebug(String.format("Registered Metrics data tracker [%s] from %s.", metric.getColumnName(), a.getCanonicalName()));
+                    log.debug(String.format("Registered Metrics data tracker [%s] from %s.", metric.getColumnName(), a.getCanonicalName()));
                 } catch (java.lang.NullPointerException e) {
                     log.info("Action data tracker was null.");
                 } catch (java.lang.Exception e) {
@@ -92,7 +92,7 @@ public enum Actions {
         if (!(a.isAssignableFrom(IAction.class))) return;
         try {
             store.remove((String) a.getField("name").get(a));
-            log.exDebug(String.format("Action %s (%s) was purged.", (String) a.getField("name").get(a), a.getCanonicalName()));
+            log.debug(String.format("Action %s (%s) was purged.", (String) a.getField("name").get(a), a.getCanonicalName()));
         } catch (java.lang.Exception e) {
             log.info("Exception occurred while purging an Action.");
             e.printStackTrace();
@@ -134,7 +134,7 @@ public enum Actions {
         try {
             if (store.get(name) != null) {
                 Constructor c = (store.get(name)).getConstructor(action_cons_types);
-                a = (IAction) c.newInstance(attachable.getServer(), attachable);
+                a = (IAction) c.newInstance(attachable);
             } else {
                 return null;
             }
@@ -152,7 +152,7 @@ public enum Actions {
     public IAction getInstance(Session attachable) {
         try {
             Constructor c = this.action.getConstructor(action_cons_types);
-            return (IAction) c.newInstance(attachable.getServer(), attachable);
+            return (IAction) c.newInstance(attachable);
         } catch (java.lang.Exception e) {
             log.info("Exception caught while instantiating an action.");
             e.printStackTrace();
@@ -168,7 +168,7 @@ public enum Actions {
     }
 
     /**
-     * Returns a full list of registered Actions.
+     * Returns a full list of registered Actions (names).
      */
     public static Set<String> getActions() {
         return (Set<String>) store.keySet();

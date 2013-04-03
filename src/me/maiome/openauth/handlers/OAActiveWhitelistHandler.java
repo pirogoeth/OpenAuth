@@ -14,22 +14,26 @@ import org.bukkit.event.player.PlayerLoginEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-public class OAActiveWhitelistHandler implements OAWhitelistHandler {
+public class OAActiveWhitelistHandler extends Reloadable implements OAWhitelistHandler {
 
     private OpenAuth controller;
     private List<String> whitelist = new ArrayList<String>();
     private final LogHandler log = new LogHandler();
     protected boolean enabled = false;
 
-    public OAActiveWhitelistHandler(OpenAuth controller) {
-        this.controller = controller;
+    private String denialMessage;
+    private boolean broadcastFailures;
+
+    public OAActiveWhitelistHandler() {
+        this.reload();
+        this.controller = OpenAuth.getInstance();
         this.loadWhitelist();
-        if (ConfigInventory.MAIN.getConfig().getBoolean("whitelisting.print-on-load", true) == true) {
-            log.exDebug("Whitelist:");
-            for (String name : this.whitelist) {
-                log.exDebug(" => " + name);
-            }
-        }
+        this.setReloadable(this);
+    }
+
+    protected void reload() {
+        this.denialMessage = Config.getConfig().getString("whitelisting.denial-message", "You are not whitelisted on this server!");
+        this.broadcastFailures = Config.getConfig().getBoolean("whitelisting.broadcast-failures", false);
     }
 
     public String toString() {
@@ -64,12 +68,11 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
     public void processPlayerJoin(PlayerLoginEvent event, OAPlayer player) {
         if (this.isEnabled() == false) return;
         if (!(this.isWhitelisted(player))) {
-            String denialMessage = ConfigInventory.MAIN.getConfig().getString("whitelisting.denial-message", "You are not whitelisted on this server!");
-            if (ConfigInventory.MAIN.getConfig().getBoolean("whitelisting.broadcast-failures", false) == true) {
-                this.controller.getOAServer().getServer().broadcastMessage(ChatColor.GREEN + String.format(
+            if (this.broadcastFailures) {
+                OAServer.getInstance().getServer().broadcastMessage(ChatColor.GREEN + String.format(
                     "Player %s has tried to join the server, but is not whitelisted!", player.getName()));
             }
-            event.disallow(PlayerLoginEvent.Result.KICK_WHITELIST, denialMessage);
+            event.disallow(PlayerLoginEvent.Result.KICK_WHITELIST, this.denialMessage);
             return;
         }
         event.allow();
@@ -100,7 +103,6 @@ public class OAActiveWhitelistHandler implements OAWhitelistHandler {
                     wl.setWhitelisted(true, true);
                 }
             } catch (java.lang.Exception e) {
-                e.printStackTrace(); // debug
                 // just say nothing -_-
             }
         }

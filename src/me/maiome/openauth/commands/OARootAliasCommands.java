@@ -1,13 +1,9 @@
 package me.maiome.openauth.commands;
 
 // internal imports
-import me.maiome.openauth.bukkit.OpenAuth;
-import me.maiome.openauth.bukkit.OAPlayer;
-import me.maiome.openauth.bukkit.OAPlayer.Direction;
+import me.maiome.openauth.bukkit.*;
 import me.maiome.openauth.mixins.MixinManager;
-import me.maiome.openauth.util.Config;
-import me.maiome.openauth.util.LogHandler;
-import me.maiome.openauth.util.ConfigInventory;
+import me.maiome.openauth.util.*;
 
 // command framework imports
 import com.sk89q.minecraft.util.commands.*;

@@ -109,10 +109,10 @@ public class DBBanRecord {
             try {
                 OpenAuth.getInstance().getDatabase().update(this);
             } catch (java.lang.Exception e) {
-                LogHandler.exDebug("Error while updating DBBanRecord [" + this.getName() + "]: " + e.getMessage());
+                LogHandler.debug("Error while updating DBBanRecord [" + this.getName() + "]: " + e.getMessage());
                 return;
             }
-            LogHandler.exDebug("Successfully updated DBBanRecord [" + this.getName() + "]!");
+            LogHandler.debug("Successfully updated DBBanRecord [" + this.getName() + "]!");
         }
     }
 
@@ -122,10 +122,10 @@ public class DBBanRecord {
             try {
                 OpenAuth.getInstance().getDatabase().delete(this);
             } catch (java.lang.Exception e) {
-                LogHandler.exDebug("Error while deleting DBBanRecord [" + this.getName() + "]: " + e.getMessage());
+                LogHandler.debug("Error while deleting DBBanRecord [" + this.getName() + "]: " + e.getMessage());
                 return;
             }
-            LogHandler.exDebug("Successfully deleted DBBanRecord [" + this.getName() + "]!");
+            LogHandler.debug("Successfully deleted DBBanRecord [" + this.getName() + "]!");
         }
     }
 

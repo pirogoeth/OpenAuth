@@ -2,11 +2,8 @@ package me.maiome.openauth.commands;
 
 // internal imports
 import me.maiome.openauth.actions.*;
-import me.maiome.openauth.bukkit.OpenAuth;
-import me.maiome.openauth.bukkit.OAPlayer;
-import me.maiome.openauth.util.Config;
-import me.maiome.openauth.util.LogHandler;
-import me.maiome.openauth.util.ConfigInventory;
+import me.maiome.openauth.bukkit.*;
+import me.maiome.openauth.util.*;
 
 // command framework imports
 import com.sk89q.minecraft.util.commands.*;
@@ -42,7 +39,7 @@ public class OAActionCommands {
         public static void actions() {}
     }
 
-    public OAActionCommands (OpenAuth openauth) {
+    public OAActionCommands(OpenAuth openauth) {
         controller = openauth;
     }
 
@@ -128,7 +125,7 @@ public class OAActionCommands {
     public static void listaction(CommandContext args, CommandSender sender) {
         String list = new String();
         for (Actions a : Actions.values()) {
-            if (ConfigInventory.MAIN.getConfig().getBoolean("actions.verbose-list", false) == true) {
+            if (Config.getConfig().getBoolean("actions.verbose-list", false) == true) {
                 list += String.format(" - %s (%s)\n", a.toString().toLowerCase(), a.getAction().getCanonicalName());
             } else {
                 list += String.format(" - %s\n", a.toString().toLowerCase());

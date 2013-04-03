@@ -11,35 +11,42 @@ import java.util.Iterator;
 import org.bukkit.entity.Player;
 
 // internal imports
-import me.maiome.openauth.bukkit.OpenAuth;
-import me.maiome.openauth.bukkit.OAPlayer;
-import me.maiome.openauth.bukkit.OAServer;
-import me.maiome.openauth.session.Session;
-import me.maiome.openauth.util.Config;
-import me.maiome.openauth.util.ConfigInventory;
-import me.maiome.openauth.util.LogHandler;
-import me.maiome.openauth.util.Permission;
+import me.maiome.openauth.bukkit.*;
+import me.maiome.openauth.util.*;
 
-public class SessionController {
+public class SessionController extends Reloadable {
 
     private Map<OAPlayer, Session> session_bag = new HashMap<OAPlayer, Session>();
     private LogHandler log = new LogHandler();
-    private OpenAuth controller;
-    private OAServer server = OpenAuth.getOAServer();
     private boolean started_tasks = false;
+    private int taskId;
+    private static SessionController instance = null;
 
     // task fields
-    private final long prune_delay = ConfigInventory.MAIN.getConfig().getLong("session-prune-delay", 6000L);
-    private final long prune_period = ConfigInventory.MAIN.getConfig().getLong("session-prune-period", 12000L);
-    private final int prune_epsilon = ConfigInventory.MAIN.getConfig().getInt("session-prune-epsilon", 3);
+    private long prune_delay;
+    private long prune_period;
+    private int prune_epsilon;
 
-    public SessionController (OpenAuth controller) {
-        this.controller = controller;
-        log.exDebug(String.format("Session Pruning: {DELAY: %s, PERIOD: %s, EPSILON: %s}",
-            Long.toString(prune_delay), Long.toString(prune_period), Integer.toString(prune_epsilon)));
+    public static SessionController getInstance() {
+        if (instance == null) {
+            new SessionController();
+        }
+        return instance;
+    }
 
-        // register the SessionController instance.
-        OpenAuth.setSessionController(this);
+    public SessionController () {
+        this.reload();
+        this.setReloadable(this);
+        instance = this;
+    }
+
+    protected void reload() {
+        this.prune_delay = Config.getConfig().getLong("session-prune-delay", 6000L);
+        this.prune_period = Config.getConfig().getLong("session-prune-period", 12000L);
+        this.prune_epsilon = Config.getConfig().getInt("session-prune-epsilon", 3);
+        OAServer.getInstance().cancelTask(this.taskId);
+        this.started_tasks = false;
+        this.startSchedulerTasks();
     }
 
     public String toString() {
@@ -50,7 +57,7 @@ public class SessionController {
         if (this.started_tasks == true) return;
         this.started_tasks = true;
         // run scheduler tasks
-        this.server.scheduleAsynchronousRepeatingTask(this.prune_delay, this.prune_period, this.pruning_task);
+        this.taskId = OAServer.getInstance().scheduleAsynchronousRepeatingTask(this.prune_delay, this.prune_period, this.pruning_task);
     }
 
     // scheduler tasks
@@ -74,17 +81,13 @@ public class SessionController {
                 forget(pruner.next());
             }
 
-            log.exDebug(String.format("Pruned %d sessions.", pruning.size()));
+            log.debug(String.format("Pruned %d sessions.", pruning.size()));
         }
     };
 
-    public OpenAuth getController() {
-        return this.controller;
-    }
-
     public void createAll() {
         int session_count = 0;
-        for (Player player : this.server.getServer().getOnlinePlayers()) {
+        for (Player player : OAServer.getInstance().getServer().getOnlinePlayers()) {
             OAPlayer.getPlayer(player);
             session_count++;
         }
@@ -99,29 +102,29 @@ public class SessionController {
         for (OAPlayer player : players) {
             player.destroySession();
         }
-        if (players.size() >= 1) log.exDebug(String.format("[SessionController] Destroyed %d sessions.", players.size()));
+        if (players.size() >= 1) log.debug(String.format("[SessionController] Destroyed %d sessions.", players.size()));
     }
 
     private Session create(OAPlayer player) {
-        Session session = new Session(this, player);
+        Session session = new Session(player);
         this.remember(session);
         return session;
     }
 
     private Session create(Player player) {
-        Session session = new Session(this, OAPlayer.getPlayer(player));
+        Session session = new Session(OAPlayer.getPlayer(player));
         this.remember(session);
         return session;
     }
 
     private Session create(String player) {
-        Session session = new Session(this, OAPlayer.getPlayer(player));
+        Session session = new Session(OAPlayer.getPlayer(player));
         this.remember(session);
         return session;
     }
 
     public Session createTemp(OAPlayer player) {
-        return new Session(this, player);
+        return new Session(player);
     }
 
     public void remember(Session session) {
@@ -150,7 +153,7 @@ public class SessionController {
         if (this.session_bag.containsKey(player)) {
             return this.session_bag.get(player);
         } else {
-            log.exDebug(String.format("[SessionController] Creating session for OAPlayer %s.", player.getName()));
+            log.debug(String.format("[SessionController] Creating session for OAPlayer %s.", player.getName()));
             return this.create(player);
         }
     }

@@ -15,20 +15,18 @@ import me.maiome.openauth.bukkit.OAServer;
 import me.maiome.openauth.metrics.Tracker;
 import me.maiome.openauth.session.Session;
 import me.maiome.openauth.session.SessionController;
-import me.maiome.openauth.util.ConfigInventory;
-import me.maiome.openauth.util.LogHandler;
-import me.maiome.openauth.util.Permission;
+import me.maiome.openauth.util.*;
 
 public class BanStick implements IAction {
 
     public static final String name = "ban";
     public static final Tracker tracker = new Tracker("BanStick");
 
+    private final SessionController sc = SessionController.getInstance();
+    private final String permissible = "openauth.action.ban";
+    private final OAServer server = OAServer.getInstance();
     private String[] args = null;
     private Session attached;
-    private SessionController sc;
-    private final String permissible = "openauth.action.ban";
-    private OAServer server;
     private boolean used = false;
 
     protected OAPlayer target;
@@ -36,9 +34,7 @@ public class BanStick implements IAction {
 
     public BanStick() { }
 
-    public BanStick(OAServer server, Session attached) {
-        this.server = server;
-        this.sc = server.getController().getSessionController();
+    public BanStick(Session attached) {
         this.attached = attached;
         this.setSender(this.attached.getPlayer());
     }
@@ -96,10 +92,10 @@ public class BanStick implements IAction {
         tracker.increment();
         if (this.args != null) {
             this.server.banPlayer(player, 1, this.sender.getName(), StringUtil.joinString(this.args, " "));
-            this.server.kickPlayer(player, StringUtil.joinString(this.args, " "));
+            player.kickPlayer(StringUtil.joinString(this.args, " "));
         } else {
             this.server.banPlayer(player, 1, this.sender.getName(), "No reason given.");
-            this.server.kickPlayer(player);
+            player.kickPlayer();
         }
         this.used = true;
     }

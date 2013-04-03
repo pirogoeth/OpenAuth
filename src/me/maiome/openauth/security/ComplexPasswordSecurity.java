@@ -6,33 +6,34 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import me.maiome.openauth.bukkit.*;
-import me.maiome.openauth.util.ConfigInventory;
-import me.maiome.openauth.util.LogHandler;
+import me.maiome.openauth.util.*;
 
-public class ComplexPasswordSecurity implements IPasswordSecurity {
+public class ComplexPasswordSecurity extends Reloadable implements IPasswordSecurity {
 
     public static final String name = "complex";
-    public static final int rank = 500;
 
     // this pattern makes your password require a capital letter, lowercase letter, and one digit.
     protected final static Pattern pattern = Pattern.compile("(?=.*?[0-9_])(?=.*?[A-Z])(?=.*?[a-z])\\w+");
     protected OAServer server;
 
-    public ComplexPasswordSecurity(OAServer server) {
-        this.server = server;
+    private boolean active;
+
+    public ComplexPasswordSecurity() {
+        this.reload();
+        this.server = OAServer.getInstance();
+        this.setReloadable(this);
+    }
+
+    protected void reload() {
+        this.active = ((Config.getConfig().getString("auth.password-security", "basic").equalsIgnoreCase(this.name)) ? true : false);
     }
 
     public boolean isActive() {
-        String sectype = ConfigInventory.MAIN.getConfig().getString("auth.password-security", "complex");
-        return (sectype.equalsIgnoreCase(this.name) ? true : false);
+        return this.active;
     }
 
     public String getName() {
         return this.name;
-    }
-
-    public int getRank() {
-        return this.rank;
     }
 
     public String explain() {

@@ -31,8 +31,8 @@ public class HKAManager extends Reloadable {
      * Implementation of Reloadable; also loads the values when instantiated.
      */
     protected void reload() {
-        this.hkAllowed = ConfigInventory.MAIN.getConfig().getBoolean("hkauth.allowed", false);
-        this.hkBaseDomain = ConfigInventory.MAIN.getConfig().getString("hkauth.basedomain", null);
+        this.hkAllowed = Config.getConfig().getBoolean("hkauth.allowed", false);
+        this.hkBaseDomain = Config.getConfig().getString("hkauth.basedomain", null);
     }
 
     /**

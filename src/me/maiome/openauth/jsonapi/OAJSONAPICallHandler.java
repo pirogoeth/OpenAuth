@@ -17,10 +17,9 @@ public class OAJSONAPICallHandler {
 
     public static boolean usable = (Permission.packageExists("com.alecgorge.minecraft.jsonapi.JSONAPI") ? true : false);
     public static Tracker tracker = new Tracker("JSONAPI Call Handler");
+    public static OAJSONAPICallHandler instance = null;
 
     private final LogHandler log = new LogHandler();
-    private OpenAuth controller;
-    private OAServer server = OpenAuth.getOAServer();
     // this is a map of method call names to methods to run for said names.
     private Map<String, Method> mmap = new HashMap<String, Method>();
     // this is the runnable task to register the call handlers
@@ -30,13 +29,21 @@ public class OAJSONAPICallHandler {
         }
     };
 
-    public OAJSONAPICallHandler(OpenAuth controller) {
-        this.controller = controller;
+    public static OAJSONAPICallHandler getInstance() {
+        if (instance == null) {
+            new OAJSONAPICallHandler();
+        }
+        return instance;
+    }
+
+    public OAJSONAPICallHandler() {
         try {
             if (this.usable) {
                 log.info("[OAJSONAPICallHandler] Waiting ten seconds to give the server a chance to finish loading..");
-                OpenAuth.getOAServer().scheduleSyncDelayedTask(100L, this.registration_task);
-                OpenAuth.setJSONAPICallHandler(this);
+                OAServer.getInstance().scheduleSyncDelayedTask(100L, this.registration_task);
+                instance = this;
+            } else {
+                instance = null;
             }
         } catch (java.lang.NoClassDefFoundError e) {
             log.warning("JSONAPI call handler could not be loaded -- is JSONAPI loaded?");
@@ -48,7 +55,7 @@ public class OAJSONAPICallHandler {
 
     // register this class with JSONAPI for method handling.
     protected void registerHandler() {
-        JSONAPI jsonapi = (JSONAPI) this.server.getServer().getPluginManager().getPlugin("JSONAPI");
+        JSONAPI jsonapi = (JSONAPI) OAServer.getInstance().getServer().getPluginManager().getPlugin("JSONAPI");
         try {
             jsonapi.registerAPICallHandler(new CallHandler());
             log.info(String.format(
@@ -83,7 +90,7 @@ public class OAJSONAPICallHandler {
             }
         }
         if (registered > 0) {
-            log.exDebug(String.format("[OAJSONAPICallHandler] Registered %d methods from class %s.", registered, clazz.getCanonicalName()));
+            log.debug(String.format("[OAJSONAPICallHandler] Registered %d methods from class %s.", registered, clazz.getCanonicalName()));
         }
     }
 

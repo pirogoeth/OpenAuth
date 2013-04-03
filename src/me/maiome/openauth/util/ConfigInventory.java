@@ -13,7 +13,9 @@ import java.util.HashMap;
 import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.util.Config;
 
+@Deprecated
 public enum ConfigInventory {
+
     MAIN(Config.main, Config.mainf);
 
     public final YamlConfiguration config;

@@ -27,25 +27,23 @@ import me.maiome.openauth.event.OAExplosionListener;
 import me.maiome.openauth.metrics.Tracker;
 import me.maiome.openauth.session.Session;
 import me.maiome.openauth.session.SessionController;
-import me.maiome.openauth.util.ConfigInventory;
-import me.maiome.openauth.util.LogHandler;
-import me.maiome.openauth.util.Permission;
+import me.maiome.openauth.util.*;
 
 public class BoomStick implements IAction {
 
     public static final String name = "boom";
     public static final Tracker tracker = new Tracker("BoomStick");
 
-    private String[] args = null;
-    private Session attached;
-    private SessionController sc;
+    private final boolean fire = Config.getConfig().getBoolean("actions.boom.fire", false);
+    private final boolean acruelty = Config.getConfig().getBoolean("actions.boom.animal-cruelty", false);
+    private final boolean gcruelty = Config.getConfig().getBoolean("actions.boom.golem-cruelty", false);
+    private final OAServer server = OAServer.getInstance();
+    private final SessionController sc = SessionController.getInstance();
     private final LogHandler log = new LogHandler();
     private final String permissible = "openauth.action.boom";
-    private float power = (float) ConfigInventory.MAIN.getConfig().getDouble("actions.boom.power", 2.0D);
-    private final boolean fire = ConfigInventory.MAIN.getConfig().getBoolean("actions.boom.fire", false);
-    private final boolean acruelty = ConfigInventory.MAIN.getConfig().getBoolean("actions.boom.animal-cruelty", false);
-    private final boolean gcruelty = ConfigInventory.MAIN.getConfig().getBoolean("actions.boom.golem-cruelty", false);
-    private OAServer server;
+    private String[] args = null;
+    private Session attached;
+    private float power = (float) Config.getConfig().getDouble("actions.boom.power", 2.0D);
     private boolean used = false;
 
     protected OAPlayer sender;
@@ -54,9 +52,7 @@ public class BoomStick implements IAction {
 
     public BoomStick() { }
 
-    public BoomStick(OAServer server, Session attached) {
-        this.server = server;
-        this.sc = server.getController().getSessionController();
+    public BoomStick(Session attached) {
         this.attached = attached;
         this.setSender(this.attached.getPlayer());
     }

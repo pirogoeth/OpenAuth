@@ -62,7 +62,7 @@ public class GenericClassLoader<T> {
 
         // make sure the directory is there.
         if (!(dir.exists())) {
-            log.exDebug("{CL} Directory " + this.directory + " does not exist.");
+            log.debug("{CL} Directory " + this.directory + " does not exist.");
             return null;
         }
 
@@ -71,7 +71,7 @@ public class GenericClassLoader<T> {
         try {
             loader = new URLClassLoader(new URL[] { dir.toURI().toURL() }, this.clazz.getClassLoader());
         } catch (java.lang.Exception e) {
-            log.exDebug("{CL} Encountered an error while initialising the class loader.");
+            log.debug("{CL} Encountered an error while initialising the class loader.");
             e.printStackTrace();
             return null;
         }
@@ -94,10 +94,10 @@ public class GenericClassLoader<T> {
                 try {
                     this.clazz.cast(ob);
                 } catch (java.lang.ClassCastException e) {
-                    log.exDebug(clazz.getSimpleName() + " is not a class that extends or implements " + this.clazz.getCanonicalName());
+                    log.debug(clazz.getSimpleName() + " is not a class that extends or implements " + this.clazz.getCanonicalName());
                     continue;
                 } catch (java.lang.Exception e) {
-                    log.exDebug("Encountered an error while trying to cast " + clazz.getSimpleName() + " to " + this.clazz.getSimpleName() + ".");
+                    log.debug("Encountered an error while trying to cast " + clazz.getSimpleName() + " to " + this.clazz.getSimpleName() + ".");
                     e.printStackTrace();
                     continue;
                 }
@@ -107,7 +107,7 @@ public class GenericClassLoader<T> {
                 this.instances.add(clazzz); // object instance
                 this.files.put(clazz, f); // file instance
             } catch (java.lang.Exception e) {
-                log.exDebug("Error loading " + fname + ".");
+                log.debug("Error loading " + fname + ".");
                 e.printStackTrace();
             }
         }

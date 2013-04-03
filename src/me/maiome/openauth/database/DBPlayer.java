@@ -67,9 +67,9 @@ public class DBPlayer {
             // but doesn't work here for some reason.
             //
             // SqlQuery query = OpenAuth.getInstance().getDatabase().createSqlQuery("delete from users where password is null or password = '';");
-            LogHandler.exDebug("[DB] Purged user table of " + affected.size() + " rows.");
+            LogHandler.debug("[DB] Purged user table of " + affected.size() + " rows.");
         } catch (java.lang.Exception e) {
-            LogHandler.exDebug("Error occurred while purging user table.");
+            LogHandler.debug("Error occurred while purging user table.");
             e.printStackTrace();
         }
     }
@@ -109,10 +109,10 @@ public class DBPlayer {
             try {
                 OpenAuth.getInstance().getDatabase().update(this);
             } catch (java.lang.Exception e) {
-                LogHandler.exDebug("Error updating DBPlayer [" + this.name + "]: " + e.getMessage());
+                LogHandler.debug("Error updating DBPlayer [" + this.name + "]: " + e.getMessage());
                 return;
             }
-            LogHandler.exDebug("Successfully updated DBPlayer [" + this.name + "].");
+            LogHandler.debug("Successfully updated DBPlayer [" + this.name + "].");
         }
     }
 
@@ -122,10 +122,10 @@ public class DBPlayer {
             try {
                 OpenAuth.getInstance().getDatabase().delete(this);
             } catch (java.lang.Exception e) {
-                LogHandler.exDebug("Error deleting DBPlayer [" + this.name + "]: " + e.getMessage());
+                LogHandler.debug("Error deleting DBPlayer [" + this.name + "]: " + e.getMessage());
                 return;
             }
-            LogHandler.exDebug("Successfully deleted DBPlayer [" + this.name + "].");
+            LogHandler.debug("Successfully deleted DBPlayer [" + this.name + "].");
         }
     }
 

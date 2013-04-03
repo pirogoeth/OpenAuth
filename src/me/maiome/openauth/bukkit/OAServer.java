@@ -5,49 +5,50 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.HashMap;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
 
 // bukkit imports
 import org.bukkit.Bukkit;
 import org.bukkit.Server;
 import org.bukkit.World;
-import org.bukkit.configuration.MemorySection;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.event.Listener;
 
 // internal imports
 import me.maiome.openauth.bukkit.events.*;
 import me.maiome.openauth.database.*;
 import me.maiome.openauth.handlers.*;
 import me.maiome.openauth.session.*;
-import me.maiome.openauth.util.Permission;
-import me.maiome.openauth.util.Config;
-import me.maiome.openauth.util.ConfigInventory;
-import me.maiome.openauth.util.LogHandler;
-import me.maiome.openauth.util.LoginStatus;
-import me.maiome.openauth.util.WhitelistStatus;
+import me.maiome.openauth.util.*;
 
-public class OAServer {
+public class OAServer extends Reloadable {
 
-    private OpenAuth controller;
-    private Server server;
+    private static OAServer instance;
+
+    private final Server serverInst;
     private LogHandler log = new LogHandler();
     private OALoginHandler loginHandler;
     private OAWhitelistHandler whitelistHandler;
-    private boolean started_tasks = false;
+    private boolean startedTasks = false;
 
     // setup of fields for handlers
-    private final boolean wh_enabled = ConfigInventory.MAIN.getConfig().getBoolean("whitelist-handler", false);
+    private boolean wh_enabled;
 
     // time variables for scheduler tasks
-    public final long wlsave_delay = ConfigInventory.MAIN.getConfig().getLong("save-whitelist-delay", 2700L);
-    public final long wlsave_period = ConfigInventory.MAIN.getConfig().getLong("save-whitelist-period", 10800L);
+    public long wlsave_delay;
+    public long wlsave_period;
+
+    // holds local-class task ids.
+    private final List<Integer> taskIds = new ArrayList<Integer>();
+
+    public static OAServer getInstance() {
+        return ((instance != null) ? instance : new OAServer());
+    }
 
     private final Runnable dbUserCleanerTask = new Runnable() {
         public void run() {
-            if (server.getOnlinePlayers().length != 0) {
-                log.exDebug("[DB] Skipping user table pruning, server is not empty.");
+            if (serverInst.getOnlinePlayers().length != 0) {
+                log.debug("[DB] Skipping user table pruning, server is not empty.");
                 return;
             }
             synchronized (OpenAuth.databaseLock) {
@@ -56,45 +57,57 @@ public class OAServer {
         }
     };
 
-    public OAServer(OpenAuth controller, Server server) {
-        this.controller = controller;
-        this.server = server;
-        this.loginHandler = new OAActiveLoginHandler(this.controller);
-        this.whitelistHandler = new OAActiveWhitelistHandler(this.controller);
-        this.loginHandler.setEnabled(true);
+    public OAServer() {
+        this.reload();
+        this.serverInst = Bukkit.getServer();
+        this.loginHandler = new OAActiveLoginHandler();
+        this.whitelistHandler = new OAActiveWhitelistHandler();
         this.whitelistHandler.setEnabled(this.wh_enabled);
-        // debugging information
-        log.exDebug(String.format("WhitelistSave: {DELAY: %s, PERIOD: %s}", Long.toString(wlsave_delay), Long.toString(wlsave_period)));
-        log.exDebug(String.format("WhitelistHandler: {ENABLED: %s}", Boolean.toString(wh_enabled)));
+        this.setReloadable(this);
 
-        // register the OAServer instance.
-        OpenAuth.setOAServer(this);
+        instance = this;
     }
 
     public String toString() {
         return String.format("OAServer{wlsave_delay=%d,wlsave_period=%d}", this.wlsave_delay, this.wlsave_period);
     }
 
+    protected void reload() {
+        // cancel current local-class tasks
+        for (int id : this.taskIds) {
+            this.cancelTask(id);
+        }
+        this.taskIds.clear();
+        // reload the configuration values
+        this.wh_enabled = Config.getConfig().getBoolean("whitelist-handler", false);
+        this.wlsave_delay = Config.getConfig().getLong("save-whitelist-delay", 2700L);
+        this.wlsave_period = Config.getConfig().getLong("save-whitelist-period", 10800L);
+        // reset the marker value
+        this.startedTasks = false;
+        // restart the scheduler tasks.
+        this.startSchedulerTasks();
+    }
+
     // scheduling
 
     public void startSchedulerTasks() {
-        if (this.started_tasks == true) return;
-        this.started_tasks = true;
+        if (this.startedTasks == true) return;
+        this.startedTasks = true;
         // runs scheduler tasks
-        this.scheduleAsynchronousRepeatingTask(this.wlsave_delay, this.wlsave_period, this.whitelistsave_task);
-        this.scheduleAsynchronousRepeatingTask(12000L, 36000L, this.dbUserCleanerTask);
+        this.taskIds.add(this.scheduleAsynchronousRepeatingTask(this.wlsave_delay, this.wlsave_period, this.whitelistsaveTask));
+        this.taskIds.add(this.scheduleAsynchronousRepeatingTask(12000L, 36000L, this.dbUserCleanerTask));
     }
 
     public int scheduleSyncRepetitiveTask(long delay, long period, Runnable task) {
-        return Bukkit.getScheduler().scheduleSyncRepeatingTask(this.controller, task, delay, period);
+        return Bukkit.getScheduler().scheduleSyncRepeatingTask(OpenAuth.getInstance(), task, delay, period);
     }
 
     public int scheduleSyncDelayedTask(long delay, Runnable task) {
-        return Bukkit.getScheduler().scheduleSyncDelayedTask(this.controller, task, delay);
+        return Bukkit.getScheduler().scheduleSyncDelayedTask(OpenAuth.getInstance(), task, delay);
     }
 
     public int scheduleAsynchronousRepeatingTask(long delay, long period, Runnable task) {
-        return Bukkit.getScheduler().scheduleAsyncRepeatingTask(this.controller, task, delay, period);
+        return Bukkit.getScheduler().scheduleAsyncRepeatingTask(OpenAuth.getInstance(), task, delay, period);
     }
 
     public void cancelTask(final int id) {
@@ -102,40 +115,38 @@ public class OAServer {
     }
 
     public void cancelAllOATasks() {
-        Bukkit.getScheduler().cancelTasks(this.controller);
+        Bukkit.getScheduler().cancelTasks(OpenAuth.getJavaPlugin());
     }
 
     // support
 
     public Server getServer() {
-        return this.server;
+        return this.serverInst;
     }
 
-    public OpenAuth getController() {
-        return this.controller;
+    /**
+     * Shorthand to register an event listener.
+     */
+    public void registerEvents(Listener listener) {
+        this.serverInst.getPluginManager().registerEvents(listener, OpenAuth.getJavaPlugin());
     }
 
+    /**
+     * Shorthand to call an event.
+     */
     public void callEvent(Event e) {
-        this.server.getPluginManager().callEvent(e);
-    }
-
-    public SessionController getSessionController() {
-        return this.controller.getSessionController();
+        this.serverInst.getPluginManager().callEvent(e);
     }
 
     // scheduled tasks.
 
-    private Runnable whitelistsave_task = new Runnable () {
+    private Runnable whitelistsaveTask = new Runnable () {
         public void run() {
             whitelistHandler.saveWhitelist();
         }
     };
 
     // setup of handlers
-
-    public void setLoginHandler(OALoginHandler lh) {
-        this.loginHandler = lh;
-    }
 
     public OALoginHandler getLoginHandler() {
         return this.loginHandler;
@@ -145,27 +156,11 @@ public class OAServer {
         return this.wh_enabled;
     }
 
-    public void setWhitelistHandler(OAWhitelistHandler wh) {
-        this.whitelistHandler = wh;
-    }
-
     public OAWhitelistHandler getWhitelistHandler() {
         return this.whitelistHandler;
     }
 
     // player-management methods
-
-    public void kickPlayer(OAPlayer player) {
-        player.kickPlayer("No reason.");
-        log.info("Kicked player: " + player.getName());
-        player.setOffline();
-    }
-
-    public void kickPlayer(OAPlayer player, final String reason) {
-        player.getPlayer().kickPlayer(reason);
-        log.info("Kicked player: " + player.getName() + ", reason: " + reason);
-        player.setOffline();
-    }
 
     public boolean banPlayer(final OAPlayer banned, final int type, final String banner, final String reason) {
         try {

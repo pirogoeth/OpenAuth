@@ -1,13 +1,10 @@
 package me.maiome.openauth.commands;
 
 // internal imports
-import me.maiome.openauth.bukkit.OpenAuth;
-import me.maiome.openauth.bukkit.OAPlayer;
+import me.maiome.openauth.bukkit.*;
 import me.maiome.openauth.bukkit.OAPlayer.Direction;
 import me.maiome.openauth.database.DBBanRecord;
-import me.maiome.openauth.util.Config;
-import me.maiome.openauth.util.LogHandler;
-import me.maiome.openauth.util.ConfigInventory;
+import me.maiome.openauth.util.*;
 
 // command framework imports
 import com.sk89q.minecraft.util.commands.*;
@@ -75,8 +72,8 @@ public class OABanCommands {
             sender.sendMessage(ChatColor.BLUE + "Please provide a valid player to ban.");
             return;
         }
-        controller.getOAServer().banPlayer(OAPlayer.getPlayer(args.getString(0)), type, sender.getName(), reason);
-        controller.getOAServer().kickPlayer(OAPlayer.getPlayer(args.getString(0)), reason);
+        OAServer.getInstance().banPlayer(OAPlayer.getPlayer(args.getString(0)), type, sender.getName(), reason);
+        OAPlayer.getPlayer(args.getString(0)).kickPlayer(reason);
         sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been banned.", args.getString(0)));
     }
 
@@ -119,7 +116,7 @@ public class OABanCommands {
     @CommandPermissions({ "openauth.unban" })
     public static void unbanIP(CommandContext args, CommandSender sender) throws CommandException {
         OAPlayer player = OAPlayer.getPlayer(args.getString(0));
-        if (controller.getOAServer().unbanPlayer(args.getString(0)) == true) {
+        if (OAServer.getInstance().unbanPlayer(args.getString(0)) == true) {
             sender.sendMessage(ChatColor.BLUE + String.format("Player %s has been unbanned.", player.getName(), player.getIP()));
             try {
                 log.info(String.format("%s(%s) was unbanned! [Reason: %s]", player.getName(), player.getIP(), args.getJoinedStrings(1)));

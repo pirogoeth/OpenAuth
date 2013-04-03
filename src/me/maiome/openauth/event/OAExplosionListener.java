@@ -14,7 +14,6 @@ import org.bukkit.Location;
 
 // internal imports
 import me.maiome.openauth.bukkit.OpenAuth;
-import me.maiome.openauth.util.ConfigInventory;
 import me.maiome.openauth.util.LogHandler;
 
 // java imports
@@ -27,13 +26,10 @@ import java.util.Collections;
 
 public class OAExplosionListener implements Listener {
 
-    private final OpenAuth controller;
-    private final LogHandler log = new LogHandler();
     private static List<Location> oa_origin = new ArrayList<Location>();
     private static Map<Location, List<BlockState>> explosions = new HashMap<Location, List<BlockState>>();
 
-    public OAExplosionListener(OpenAuth controller) {
-        this.controller = controller;
+    public OAExplosionListener() {
     }
 
     public static List<BlockState> getExplosion(Location loc) {
@@ -68,7 +64,7 @@ public class OAExplosionListener implements Listener {
     }
 
     /**
-     * This will watch for intently for explosions and provide a SAFE
+     * This will watch for explosions and provide a SAFE
      * and FAST way to undo said explosion from the BoomStick action.
      */
     @EventHandler(priority = EventPriority.HIGHEST)

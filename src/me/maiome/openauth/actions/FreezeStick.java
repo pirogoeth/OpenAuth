@@ -12,21 +12,19 @@ import me.maiome.openauth.bukkit.OAServer;
 import me.maiome.openauth.metrics.Tracker;
 import me.maiome.openauth.session.Session;
 import me.maiome.openauth.session.SessionController;
-import me.maiome.openauth.util.ConfigInventory;
-import me.maiome.openauth.util.LogHandler;
-import me.maiome.openauth.util.Permission;
+import me.maiome.openauth.util.*;
 
 public class FreezeStick implements IAction {
 
     public static final String name = "freeze";
     public static final Tracker tracker = new Tracker("FreezeStick");
 
-    private String[] args = null;
-    private Session attached;
-    private SessionController sc;
+    private final SessionController sc = SessionController.getInstance();
     private final LogHandler log = new LogHandler();
     private final String permissible = "openauth.action.freeze";
-    private OAServer server;
+    private final OAServer server = OAServer.getInstance();
+    private String[] args = null;
+    private Session attached;
     private boolean used = false;
 
     protected OAPlayer sender;
@@ -34,9 +32,7 @@ public class FreezeStick implements IAction {
 
     public FreezeStick() { }
 
-    public FreezeStick(OAServer server, Session attached) {
-        this.server = server;
-        this.sc = server.getController().getSessionController();
+    public FreezeStick(Session attached) {
         this.attached = attached;
         this.setSender(this.attached.getPlayer());
     }

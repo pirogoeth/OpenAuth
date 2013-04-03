@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 
-import me.maiome.openauth.localisation.TranslationFilenameFilter;
+import me.maiome.openauth.util.Reloadable;
 
 public class Localisation implements ILocalisation {
 
@@ -69,25 +69,28 @@ public class Localisation implements ILocalisation {
      * Returns an ILocalisation instance.
      */
     public static ILocalisation getInstance() {
-        if (instance == null) {
-            instance = new Localisation();
-        }
-
-        return instance;
+        return ((instance != null) ? instance : new Localisation());
     }
 
     /**
      * Shorthand for getLocalisedString(String nodeName).
      */
-    public static String get(String nodeName) {
+    public static String getString(String nodeName) {
         return Localisation.getInstance().getLocalisedString(nodeName);
     }
 
     /**
      * Shorthand for getLocalisedString(String nodeName, Map<String, String> replacements).
      */
-    public static String get(String nodeName, Map<String, String> replacements) {
+    public static String getString(String nodeName, Map<String, String> replacements) {
         return Localisation.getInstance().getLocalisedString(nodeName, replacements);
+    }
+
+    /**
+     * Simple constructor.
+     */
+    private Localisation() {
+        instance = this;
     }
 
     /**

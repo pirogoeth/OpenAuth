@@ -1,8 +1,7 @@
 package me.maiome.openauth.commands;
 
 // internal imports
-import me.maiome.openauth.bukkit.OpenAuth;
-import me.maiome.openauth.bukkit.OAPlayer;
+import me.maiome.openauth.bukkit.*;
 import me.maiome.openauth.security.HKAManager;
 import me.maiome.openauth.util.LogHandler;
 

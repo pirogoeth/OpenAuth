@@ -26,11 +26,7 @@ import me.maiome.openauth.bukkit.OAServer;
 import me.maiome.openauth.bukkit.events.*;
 import me.maiome.openauth.database.DBPlayer;
 import me.maiome.openauth.session.*;
-import me.maiome.openauth.util.ConfigInventory;
-import me.maiome.openauth.util.LogHandler;
-import me.maiome.openauth.util.LoginStatus;
-import me.maiome.openauth.util.Permission;
-import me.maiome.openauth.util.WhitelistStatus;
+import me.maiome.openauth.util.*;
 
 public class OAPlayer {
 
@@ -54,7 +50,7 @@ public class OAPlayer {
             players.put(bplayer.getName(), pl);
             return players.get(bplayer.getName());
         } else if (obj instanceof String) {
-            Player bplayer = OpenAuth.getOAServer().getServer().getPlayer((String) obj);
+            Player bplayer = OAServer.getInstance().getServer().getPlayer((String) obj);
             players.put(bplayer.getName(), new OAPlayer(bplayer));
             return players.get(bplayer.getName());
         } else {
@@ -171,9 +167,9 @@ public class OAPlayer {
                 this.data = new DBPlayer(this.name);
             }
         }
-        this.server = OpenAuth.getOAServer();
+        this.server = OAServer.getInstance();
         this.state = PlayerState.UNKNOWN;
-        this.sc = OpenAuth.getSessionController();
+        this.sc = SessionController.getInstance();
         this.session = this.getSession();
     }
 
@@ -272,6 +268,11 @@ public class OAPlayer {
         this.player.sendMessage(message);
     }
 
+    public void kickPlayer() {
+        this.player.kickPlayer("No reason given.");
+        this.setOffline();
+    }
+
     public void kickPlayer(String reason) {
         this.player.kickPlayer(reason);
         this.setOffline();
@@ -304,7 +305,7 @@ public class OAPlayer {
     // this is called whenever the player moves.
     public void moved(PlayerMoveEvent event) {
         if (this.getSession().isIdentified() == false
-            && ConfigInventory.MAIN.getConfig().getBoolean("auth.freeze-actions.movement", true) == true) {
+            && Config.getConfig().getBoolean("auth.freeze-actions.movement", true) == true) {
 
             this.sendMessage(ChatColor.RED + "You must first identify to move.");
             event.setCancelled(true);
@@ -472,10 +473,10 @@ public class OAPlayer {
     public Session getSession() {
         if (this.session == null && this.state == PlayerState.ONLINE) {
             this.initSession();
-            log.exDebug(String.format("Forced a session for online player %s.", this.getName()));
+            log.debug(String.format("Forced a session for online player %s.", this.getName()));
         } else if (this.session != this.sc.get(this) && this.session != null) {
             this.initSession();
-            log.exDebug(String.format("Resetting session for player %s.", this.getName()));
+            log.debug(String.format("Resetting session for player %s.", this.getName()));
         }
         return this.session;
     }

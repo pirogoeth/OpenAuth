@@ -20,14 +20,11 @@ import me.maiome.openauth.util.LogHandler;
 
 public class Permission {
 
-    private static OpenAuth plugin;
     private static HandlerType handler = HandlerType.NONE;
     private static Plugin permissions;
 
-    public Permission(OpenAuth instance) {
-        plugin = instance;
-        LogHandler log = new LogHandler();
-        log.info("Searching for a suitable permissions plugin.");
+    public static void search() {
+        LogHandler.info("Searching for a suitable permissions plugin.");
         Plugin permissions = null;
         // check for a permissions method
         if (packageExists("ru.tehkode.permissions.bukkit.PermissionsEx")) {
@@ -45,27 +42,27 @@ public class Permission {
         // notify to what we are using
         switch (handler) {
             case PERMISSIONS:
-                log.info("Using [" + permissions.getDescription().getFullName() + "] for Permissions.");
+                LogHandler.info("Using [" + permissions.getDescription().getFullName() + "] for Permissions.");
                 break;
             case PERMISSIONS_EX:
-                log.info("Using [PermissionsEx " + permissions.getDescription().getVersion() + "] for Permissions.");
+                LogHandler.info("Using [PermissionsEx " + permissions.getDescription().getVersion() + "] for Permissions.");
                 break;
             case SUPERPERMS:
-                log.info("Using Bukkit SuperPerms for Permissions.");
-                log.info("SuperPerms provider: [" + permissions.getDescription().getFullName() + "].");
+                LogHandler.info("Using Bukkit SuperPerms for Permissions.");
+                LogHandler.info("SuperPerms provider: [" + permissions.getDescription().getFullName() + "].");
                 break;
             case OP:
-                log.info("Using OP system for Permissions.");
+                LogHandler.info("Using OP system for Permissions.");
                 break;
         }
     }
 
     private static boolean isPluginEnabled(String pluginname) {
-        return plugin.getServer().getPluginManager().isPluginEnabled(pluginname);
+        return OpenAuth.getInstance().getServer().getPluginManager().isPluginEnabled(pluginname);
     }
 
     private static Plugin getPlugin(String pluginname) {
-        return (Plugin) plugin.getServer().getPluginManager().getPlugin(pluginname);
+        return (Plugin) OpenAuth.getInstance().getServer().getPluginManager().getPlugin(pluginname);
     }
 
     public static boolean packageExists(String pkg) {
@@ -85,7 +82,7 @@ public class Permission {
         SUPERPERMS
     }
 
-    public static boolean has (Player player, String node) {
+    public static boolean has(Player player, String node) {
         switch (handler) {
             case PERMISSIONS:
                 return ((Permissions) permissions).getHandler().has(player, node);
@@ -99,7 +96,7 @@ public class Permission {
         return true;
     }
 
-    public static boolean has (Player player, String node, boolean def) {
+    public static boolean has(Player player, String node, boolean def) {
         switch (handler) {
             case PERMISSIONS:
                 return ((Permissions) permissions).getHandler().has(player, node);

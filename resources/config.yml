@@ -26,7 +26,6 @@
 #   decides whether the respective handler is enabled or disabled [default: true]
 # whitelisting:
 #   broadcast-failures - when an unwhitelisted player attempts to join, broadcast it to all players [default: true]
-#   print-on-load - print the whitelist when the whitelisting handler loads [default: true]
 #   denial-message - what message to kick the unwhitelisted players with [default: You are not whitelisted on this server!]
 # hkauth:
 #   allowed - whether or not users will be able to activate HKA on their accounts [default: false]
@@ -49,8 +48,10 @@
 #     block-break - freeze all block breaks? [default: true]
 #     movement - freeze all player movement? [default: false]
 #     teleport - freeze player teleportation? [default: true]
+#     entity-interact - freeze all player-to-entity interactions? [default: true]
+#     block-interact - freeze all player-to-block interactions? [default: true]
 # actions:
-#   verbose-list - shows extra in /oa action list [default: false]
+#   verbose-list - shows full names of loaded classes in /oa action list [default: false]
 #   ban - settings for the ban action
 #     kick - whether or not to kick the user when the ban action is used [default: true]
 #   boom - settings for the boom action
@@ -96,7 +97,6 @@ database:
         rebuild: false
 whitelisting:
     broadcast-failures: true
-    print-on-load: true
     denial-message: You are not whitelisted on this server!
 hkauth:
     allowed: false
@@ -116,6 +116,8 @@ auth:
         block-break: true
         movement: false
         teleport: true
+        entity-interact: true
+        block-interact: true
 actions:
     verbose-list: false
     ban:

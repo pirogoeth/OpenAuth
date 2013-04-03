@@ -16,3 +16,4 @@ resources/hashtag
 test
 test/*
 .dm/config
+*.java~

@@ -24,44 +24,34 @@ import me.maiome.openauth.bukkit.OpenAuth;
 import me.maiome.openauth.bukkit.OAPlayer;
 import me.maiome.openauth.bukkit.OAServer;
 import me.maiome.openauth.bukkit.events.*;
-import me.maiome.openauth.util.Config;
-import me.maiome.openauth.util.ConfigInventory;
-import me.maiome.openauth.util.LogHandler;
-import me.maiome.openauth.util.Permission;
+import me.maiome.openauth.util.*;
 
 public class Session {
 
     public long spawn_time;
     private LogHandler log = new LogHandler();
-    private OpenAuth controller;
-    private SessionController sc;
     private OAPlayer player;
-    private OAServer server;
     private IAction action = null;
-    private boolean freeze = (ConfigInventory.MAIN.getConfig().getBoolean("auth.require", false) == true) ? true : false;
+    private boolean freeze = (Config.getConfig().getBoolean("auth.require", false) == true) ? true : false;
     private boolean frozen;
     private boolean identified = false;
     private List<IAction> actions = new ArrayList<IAction>();
     private Map<String, SessionData<?>> session_data = new HashMap<String, SessionData<?>>();
     private Location lloc;
-    private boolean hidden = false;
     private String ip;
     private ItemStack[] inventory = new ItemStack[] { };
 
-    protected final int wand_id = ConfigInventory.MAIN.getConfig().getInt("wand-id");
+    protected final int wand_id = Config.getConfig().getInt("wand-id");
 
-    public Session(SessionController sc, OAPlayer player) {
-        this.controller = sc.getController();
-        this.server = player.getServer();
+    public Session(OAPlayer player) {
         this.spawn_time = System.currentTimeMillis();
-        this.sc = sc;
         this.player = player;
         if (this.freeze) {
             this.setFrozen(true);
             this.player.sendMessage(ChatColor.RED + "You must identify to continue.");
         }
         this.ip = (player.getIP() != null ? player.getIP() : "");
-        OpenAuth.getOAServer().callEvent(new OASessionCreateEvent(this));
+        OAServer.getInstance().callEvent(new OASessionCreateEvent(this));
     }
 
     @Override
@@ -91,10 +81,6 @@ public class Session {
 
     public OAPlayer getPlayer() {
         return this.player;
-    }
-
-    public OAServer getServer() {
-        return this.server;
     }
 
     public boolean isOnline() {
@@ -140,10 +126,6 @@ public class Session {
         this.frozen = (this.identified == true) ? false : true;
     }
 
-    public boolean isHidden() {
-        return this.hidden;
-    }
-
     // wand methods
 
     public void giveWand() {
@@ -152,7 +134,7 @@ public class Session {
             HashMap<Integer, ItemStack> unfitted = inv.addItem(new ItemStack(this.wand_id));
             if (unfitted.size() != 0) {
                 // couldn't fit the wand into the users inventory.
-                this.player.sendMessage(ChatColor.RED + "There's no more room in your inventory for the OAWand, sorry :/");
+                this.player.sendMessage(ChatColor.RED + "There's no more room in your inventory for the wand.");
                 return;
             }
         } else if (inv.contains(new ItemStack(this.wand_id))) {
@@ -168,6 +150,10 @@ public class Session {
     }
 
     // inventory operations
+    public boolean hasHiddenInventory() {
+        return ((this.inventory.equals(new ItemStack[] { })) ? false : true);
+    }
+
     public void hideInventory() {
         Inventory playerInv = this.player.getPlayer().getInventory();
         this.inventory = playerInv.getContents();

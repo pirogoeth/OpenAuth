@@ -8,12 +8,11 @@ import java.util.*;
 
 public class OAJSONAPINativeMethods {
 
-    private static OAJSONAPICallHandler callhandler;
     private static final LogHandler log = new LogHandler();
 
     public static void load() {
         try {
-            OpenAuth.getJSONAPICallHandler().registerClass(OAJSONAPINativeMethods.class);
+            OAJSONAPICallHandler.getInstance().registerClass(OAJSONAPINativeMethods.class);
         } catch (java.lang.Exception e) {
             log.info("[OAJSONAPINativeMethods] Error registering class with JSONAPI call handler -- is JSONAPI loaded?");
             e.printStackTrace();
@@ -27,7 +26,7 @@ public class OAJSONAPINativeMethods {
     @OAJSONAPIMethod(name = "oa-getWhitelist")
     public static String getWhitelist(Object[] args) {
         StringBuilder s = new StringBuilder();
-        List<String> whitelist = OpenAuth.getOAServer().getWhitelistHandler().getWhitelist();
+        List<String> whitelist = OAServer.getInstance().getWhitelistHandler().getWhitelist();
         for (String name : whitelist) {
             s.append(name + ",");
         }
@@ -42,11 +41,11 @@ public class OAJSONAPINativeMethods {
         } catch (Exception e) {
             throw e;
         }
-        OpenAuth.getOAServer().getWhitelistHandler().whitelistPlayer(name);
+        OAServer.getInstance().getWhitelistHandler().whitelistPlayer(name);
         // verify that the user was in fact added to the whitelist
-        OpenAuth.getOAServer().getWhitelistHandler().saveWhitelist();
-        OpenAuth.getOAServer().getWhitelistHandler().loadWhitelist();
-        List<String> whitelist = OpenAuth.getOAServer().getWhitelistHandler().getWhitelist();
+        OAServer.getInstance().getWhitelistHandler().saveWhitelist();
+        OAServer.getInstance().getWhitelistHandler().loadWhitelist();
+        List<String> whitelist = OAServer.getInstance().getWhitelistHandler().getWhitelist();
         if (whitelist.contains(name)) {
             return "true";
         }
@@ -61,11 +60,11 @@ public class OAJSONAPINativeMethods {
         } catch (Exception e) {
             throw e;
         }
-        OpenAuth.getOAServer().getWhitelistHandler().unwhitelistPlayer(name);
+        OAServer.getInstance().getWhitelistHandler().unwhitelistPlayer(name);
         // verify that the user was in fact removed from the whitelist
-        OpenAuth.getOAServer().getWhitelistHandler().saveWhitelist();
-        OpenAuth.getOAServer().getWhitelistHandler().loadWhitelist();
-        List<String> whitelist = OpenAuth.getOAServer().getWhitelistHandler().getWhitelist();
+        OAServer.getInstance().getWhitelistHandler().saveWhitelist();
+        OAServer.getInstance().getWhitelistHandler().loadWhitelist();
+        List<String> whitelist = OAServer.getInstance().getWhitelistHandler().getWhitelist();
         if (whitelist.contains(name)) {
             return "false";
         }

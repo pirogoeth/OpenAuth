@@ -24,15 +24,15 @@ public class BoxStick implements IAction {
     public static String name = "box";
     public static final Tracker tracker = new Tracker("BoxStick");
 
-    private String[] args = null;
-    private Session attached;
-    private SessionController sc;
+    private final SessionController sc = SessionController.getInstance();
     private final LogHandler log = new LogHandler();
     private final String permissible = "openauth.action.box";
-    private OAServer server;
+    private final OAServer server = OAServer.getInstance();
+    private String[] args = null;
+    private Session attached;
     private boolean used = false;
-    private int box_material = ConfigInventory.MAIN.getConfig().getInt("actions.box.material-id", 1);
-    private boolean add_torch = ConfigInventory.MAIN.getConfig().getBoolean("actions.box.torch", true);
+    private int box_material = Config.getConfig().getInt("actions.box.material-id", 1);
+    private boolean add_torch = Config.getConfig().getBoolean("actions.box.torch", true);
 
     protected OAPlayer sender;
     protected LivingEntity target;
@@ -41,9 +41,7 @@ public class BoxStick implements IAction {
 
     public BoxStick() { }
 
-    public BoxStick(OAServer server, Session attached) {
-        this.server = server;
-        this.sc = OpenAuth.getSessionController();
+    public BoxStick(Session attached) {
         this.attached = attached;
         this.setSender(this.attached.getPlayer());
     }

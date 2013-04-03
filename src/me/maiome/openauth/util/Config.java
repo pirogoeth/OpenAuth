@@ -10,27 +10,31 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 // internal imports
 import me.maiome.openauth.bukkit.OpenAuth;
-import me.maiome.openauth.util.ConfigInventory;
-import me.maiome.openauth.util.LogHandler;
+import me.maiome.openauth.util.*;
 
 public class Config {
 
-    // main
-    private static OpenAuth controller;
+    private static final LogHandler log = new LogHandler();
+    private static Config instance = null;
+
+    public static final String plugindir = "plugins" + File.separator + "OpenAuth";
     public static String version;
-    private final static LogHandler log = new LogHandler();
-    public final static String plugindir = "plugins" + File.separator + "OpenAuth";
-    // dynamic
     public static String extension = ".yml";
     public static boolean loaded = false;
-    // configuration
-    public static YamlConfiguration main;
-    // files
-    public static File mainf;
+
+    protected static YamlConfiguration main = null;
+    protected static File mainf = null;
+
+    public static Config getInstance() {
+        return instance;
+    }
+
+    public static YamlConfiguration getConfig() {
+        return main;
+    }
 
     // construct
-    public Config(OpenAuth instance, boolean initialise) {
-        this.controller = instance;
+    public Config(boolean initialise) {
         // create the plugin directory if it does not already exist
         new File(this.plugindir).mkdir();
         // check for .usetxt for assumed clanforge support
@@ -64,13 +68,13 @@ public class Config {
         // load the configurations
         try {
             main.load(mainf);
-            main.addDefaults(YamlConfiguration.loadConfiguration(this.controller.getResource("config.yml")));
+            main.addDefaults(YamlConfiguration.loadConfiguration(OpenAuth.getInstance().getResource("config.yml")));
             main.options().copyDefaults(true);
             main.save(mainf);
         } catch (java.io.FileNotFoundException e) {
             log.info("Configuration files do not exist, creating them.");
             try {
-                this.controller.saveResource("config.yml", true);
+                OpenAuth.getInstance().saveResource("config.yml", true);
                 initialise();
                 return;
             } catch (java.lang.Exception ex) {
@@ -95,7 +99,7 @@ public class Config {
             e.printStackTrace();
             return;
         }
-        log.exDebug("Saved configurations.");
+        log.debug("Saved configurations.");
         return;
     }
 }
