@@ -184,10 +184,10 @@ public class Localisation implements ILocalisation {
             if (line.trim().equals("")) {
                 continue;
             }
-            if (line.charAt(0) == '#') { //check for comment lines.
+            if (line.charAt(0) == '#') { // check for comment lines.
                 continue;
             }
-            if (line.charAt(0) == '@') { // check for data points.
+            if (line.charAt(0) == '@') { // check for data markers
                 if (line.substring(0, line.indexOf(' ')).equals("@localisation:")) { // localisation name
                     String givenTransName = line.substring(line.indexOf(' ')).trim();
                     if (!(givenTransName.equals(translationFilename))) {

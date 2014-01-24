@@ -12,11 +12,11 @@ public class DatabaseUpdater {
     private static LogHandler log = new LogHandler();
 
     public static String[] sqlStatements = {
-        "ALTER TABLE users ADD COLUMN hkey TEXT;", // 0: Adds a new column to the DBPlayer table that allows for host key storage.
+        "ALTER TABLE users ADD COLUMN hkey TEXT;", // 0|1.1: Adds a new column to the DBPlayer table that allows for host key storage.
     };
 
     public static void runUpdates() {
-        log.debug(" - Running database updates..");
+        log.debug(" - Running database updates, errors may occur if database is up-to-date.");
         for (int i = 0; i < sqlStatements.length; i++) {
             SqlUpdate update = OpenAuth.getInstance().getDatabase().createSqlUpdate(sqlStatements[i]);
             try {
@@ -25,7 +25,7 @@ public class DatabaseUpdater {
                 log.warning(String.format(" - Error while running query %d: %s", i, e.getMessage()));
                 continue;
             }
-            log.debug(String.format(" - Database query #%d succeeded!", i));
+            log.debug(String.format(" - Database update #%d succeeded!", i));
         }
     }
 }

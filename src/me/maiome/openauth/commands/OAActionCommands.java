@@ -65,7 +65,7 @@ public class OAActionCommands {
                     player.getSession().getAction().setArgs((args.getJoinedStrings(1)).split(" "));
                 }
             } else if (args.argsLength() == 1 && player.getSession().getAction().requiresArgs()) {
-                player.sendMessage(ChatColor.BLUE + "This action requires arguments. Please set them with /oa set-args.");
+                player.sendMessage(ChatColor.BLUE + "This action requires arguments. Please set them with /oa action args.");
                 return;
             }
             player.sendMessage(ChatColor.BLUE + String.format("Action %s has been activated.", args.getString(0).toLowerCase()));
@@ -117,7 +117,6 @@ public class OAActionCommands {
         }
 
         player.getSession().undoLastAction();
-        player.sendMessage(ChatColor.BLUE + "Action has been undone.");
     }
 
     @Command(aliases = {"list"}, usage = "", max = 0,

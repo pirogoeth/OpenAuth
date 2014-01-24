@@ -30,10 +30,6 @@ import me.maiome.openauth.util.*;
 
 public class OAPlayer {
 
-    // class internal identification
-    protected transient final int factor = (17 * 5);
-    protected transient final int serial = 101;
-
     // static player getter/storage and implementation
     public static final Map<String, OAPlayer> players = new HashMap<String, OAPlayer>();
 
@@ -471,13 +467,11 @@ public class OAPlayer {
     }
 
     public Session getSession() {
-        if (this.session == null && this.state == PlayerState.ONLINE) {
+        if (this.session == null) {
             this.initSession();
-            log.debug(String.format("Forced a session for online player %s.", this.getName()));
-        } else if (this.session != this.sc.get(this) && this.session != null) {
-            this.initSession();
-            log.debug(String.format("Resetting session for player %s.", this.getName()));
+            log.info(String.format("Forced a session for player %s", this.toString()));
         }
+
         return this.session;
     }
 

@@ -10,9 +10,13 @@ public class LogHandler {
     public final static Logger log = Logger.getLogger("Minecraft");
     public final static String prefix = "OpenAuth";
     // dynamic
-    protected static boolean debug = Config.getConfig().getBoolean("debug", false);;
+    protected static boolean debug;
 
     public LogHandler() {
+    }
+
+    public static void loadDebugValue() {
+        debug = Config.getConfig().getBoolean("debug", false);
     }
 
     public static boolean getDebugging() {

@@ -20,9 +20,7 @@ import org.bukkit.inventory.PlayerInventory;
 
 // internal imports
 import me.maiome.openauth.actions.*;
-import me.maiome.openauth.bukkit.OpenAuth;
-import me.maiome.openauth.bukkit.OAPlayer;
-import me.maiome.openauth.bukkit.OAServer;
+import me.maiome.openauth.bukkit.*;
 import me.maiome.openauth.bukkit.events.*;
 import me.maiome.openauth.util.*;
 
@@ -278,6 +276,7 @@ public class Session {
         }
         this.actions.get(0).undo();
         this.actions.remove(0);
+        this.player.sendMessage("Your last action has been undone.");
     }
 
     public void undoLastActions(int i) {

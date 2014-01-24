@@ -59,7 +59,7 @@ public class OpenAuth extends JavaPlugin {
      * Logger for everything that might need to be spilled
      * into the console.
      */
-    public static final LogHandler log = new LogHandler();
+    public LogHandler log;
 
     /**
      * This holds OpenAuth's version.
@@ -106,6 +106,9 @@ public class OpenAuth extends JavaPlugin {
         // perform config setup.
         new Config(false);
 
+        // set up the log handler
+        this.log = new LogHandler();
+
         // set version number
         this.version = this.getDescription().getVersion();
 
@@ -125,18 +128,18 @@ public class OpenAuth extends JavaPlugin {
         Permission.search();
 
         // initialise the database
-        log.info("NOTE: Initialising database, this *MAY* take a while...");
+        this.log.info("NOTE: Initialising database, this *MAY* take a while...");
         this.initialiseDatabase();
 
         // warn about ebean's rebuild
         if (Config.getConfig().getBoolean("database.advanced.rebuild", false) == true) {
-            log.info(" - [WARNING] The 'database.rebuild' option in your config.yml is set to true!");
-            log.info(" - [WARNING] This means that your database will be recreated every time the server starts and your data will be lost!");
-            log.info(" - [WARNING] If this is not what you want, stop the server and change the entry to false.");
+            this.log.info(" - [WARNING] The 'database.rebuild' option in your config.yml is set to true!");
+            this.log.info(" - [WARNING] This means that your database will be recreated every time the server starts and your data will be lost!");
+            this.log.info(" - [WARNING] If this is not what you want, stop the server and change the entry to false.");
         }
 
         // set logging level
-        log.setDebugging((Config.getConfig().getBoolean("debug", false) == false) ? false : true);
+        this.log.setDebugging((Config.getConfig().getBoolean("debug", false) == false) ? false : true);
 
         // run database updates
         DatabaseUpdater.runUpdates();
@@ -153,7 +156,7 @@ public class OpenAuth extends JavaPlugin {
         if (Config.getConfig().getBoolean("override", false) == true) {
             if (this.getServer().hasWhitelist() == true) { // override the whitelisting in Bukkit for mine?
                 this.getServer().setWhitelist(false);
-                log.info(" - Bukkit whitelisting is now OFF!");
+                this.log.info(" - Bukkit whitelisting is now OFF!");
             }
         }
 
@@ -188,7 +191,7 @@ public class OpenAuth extends JavaPlugin {
         this.dynamicCommandRegistry.register(OARootAliasCommands.LogoutRootAliasCommand.class);
         this.dynamicCommandRegistry.register(OARootAliasCommands.RegisterRootAliasCommand.class);
 
-        // generate sessions for all users (in the case of a reload...
+        // generate sessions for all users (in the case of a reload...)
         SessionController.getInstance().createAll();
 
         // setup PluginMetrics
@@ -201,13 +204,13 @@ public class OpenAuth extends JavaPlugin {
                     " -   If you'd prefer to disable PluginMetrics and keep it from loading in this plugin, open the config.yml for this plugin and change metrics-enabled to false and restart your server."
                 };
                 for (String line : metrics_warning) {
-                    log.info(line);
+                    this.log.info(line);
                 }
             }
             try {
                 this.metrics = new Metrics(this);
             } catch (java.lang.Exception e) {
-                log.warning("Could not load PluginMetrics!");
+                this.log.warning("Could not load PluginMetrics!");
                 e.printStackTrace();
             }
         }
@@ -221,16 +224,16 @@ public class OpenAuth extends JavaPlugin {
             OAJSONAPINativeMethods.load();
             this.metrics.addCustomData(OAJSONAPICallHandler.getInstance().tracker); // add metrics data tracker
         } catch (java.lang.NoClassDefFoundError e) {
-            log.warning("JSONAPI call handler could not be loaded -- is JSONAPI loaded?");
+            this.log.warning("JSONAPI call handler could not be loaded -- is JSONAPI loaded?");
         } catch (java.lang.Exception e) {
-            log.warning("An exception was caught while loading the JSONAPI call handler -- is JSONAPI loaded?");
+            this.log.warning("An exception was caught while loading the JSONAPI call handler -- is JSONAPI loaded?");
         }
 
         // enable metrics.
         try {
             this.metrics.enable();
         } catch (java.lang.Exception e) {
-            log.warning("Could not load PluginMetrics!");
+            this.log.warning("Could not load PluginMetrics!");
             e.printStackTrace();
         }
 
@@ -238,7 +241,7 @@ public class OpenAuth extends JavaPlugin {
         MixinManager.getInstance().load();
 
         // loaded.
-        log.info("Enabled OpenAuth [" + this.version + "-" + this.hashtag + "].");
+        this.log.info("Enabled OpenAuth [" + this.version + "-" + this.hashtag + "].");
     };
 
     /**
@@ -259,7 +262,7 @@ public class OpenAuth extends JavaPlugin {
         // destroy all living sessions (in the case of a reload)
         SessionController.getInstance().destroyAll();
 
-        log.info("Disabled OpenAuth" + this.version + "-" + this.hashtag + ".");
+        this.log.info("Disabled OpenAuth" + this.version + "-" + this.hashtag + ".");
     }
 
     /**
@@ -341,7 +344,7 @@ public class OpenAuth extends JavaPlugin {
     }
 
     /**
-     * Allows us to publically hand out our File instance.
+     * Allows us to publically hand out our File instance (probably not good).
      */
     @Override
     public File getFile() {

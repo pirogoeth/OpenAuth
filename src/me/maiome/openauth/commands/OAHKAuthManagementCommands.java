@@ -36,11 +36,11 @@ public class OAHKAuthManagementCommands {
         public static void hka() {}
     }
 
-    @Command(aliases = {"activate"}, desc = "Allocate a host key to yourself.",
+    @Command(aliases = {"activate"}, desc = "Activate a host key for yourself.",
              max = 0)
-    public static void allocateHKA(CommandContext args, CommandSender sender) throws CommandException {
+    public static void activateHKA(CommandContext args, CommandSender sender) throws CommandException {
         if (sender instanceof org.bukkit.command.ConsoleCommandSender) {
-            sender.sendMessage("You must allocate your host key as a player, you may not do it on the console.");
+            sender.sendMessage("You must activate your host key as a player, you may not do it on the console.");
             return;
         }
         OAPlayer player = OAPlayer.getPlayer((Player) sender);
@@ -50,9 +50,9 @@ public class OAHKAuthManagementCommands {
         player.sendMessage(ChatColor.GREEN + "Your host key is: " + ChatColor.RED + connectUrl);
     }
 
-    @Command(aliases = {"deactivate"}, desc = "Deallocate your host key.",
+    @Command(aliases = {"deactivate"}, desc = "Deactivate your host key.",
              max = 1, flags = "f")
-    public static void deallocateHKA(CommandContext args, CommandSender sender) throws CommandException {
+    public static void deactivateHKA(CommandContext args, CommandSender sender) throws CommandException {
         if ((sender instanceof org.bukkit.command.ConsoleCommandSender) || (args.hasFlag('f') && sender.hasPermission("openauth.admin.drop-user-hkey"))) {
             String playerName;
             try {

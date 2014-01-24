@@ -105,19 +105,19 @@ public class SessionController extends Reloadable {
         if (players.size() >= 1) log.debug(String.format("[SessionController] Destroyed %d sessions.", players.size()));
     }
 
-    private Session create(OAPlayer player) {
+    public Session create(OAPlayer player) {
         Session session = new Session(player);
         this.remember(session);
         return session;
     }
 
-    private Session create(Player player) {
+    public Session create(Player player) {
         Session session = new Session(OAPlayer.getPlayer(player));
         this.remember(session);
         return session;
     }
 
-    private Session create(String player) {
+    public Session create(String player) {
         Session session = new Session(OAPlayer.getPlayer(player));
         this.remember(session);
         return session;

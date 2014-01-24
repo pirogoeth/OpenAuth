@@ -157,7 +157,7 @@ public class OACommands {
         }
     }
 
-    @Command(aliases = {"register"}, usage = "<password>", desc = "Login to the server.",
+    @Command(aliases = {"register"}, usage = "<password>", desc = "Register with OA.",
              min = 1, max = 1)
     public static void register(CommandContext args, CommandSender sender) throws CommandException {
         OAPlayer player = OAPlayer.getPlayer((Player) sender);
@@ -165,13 +165,12 @@ public class OACommands {
         if (!(OAServer.getInstance().getLoginHandler().isRegistered(player))) {
             OAServer.getInstance().getLoginHandler().processPlayerRegistration(player, password);
             player.getSession().setIdentified(true, true);
-            // notification is taken care of in processPlayerRegistration now
-            // player.sendMessage(ChatColor.BLUE + "You have been registered and logged in as '" + player.getName() + "'.");
             return;
         } else if (OAServer.getInstance().getLoginHandler().isRegistered(player)) {
             player.sendMessage(ChatColor.RED + "This player account is already registered.");
             return;
         }
+        player.sendMessage(ChatColor.BLUE + "You have been registered and identified!");
     }
 
     @Command(aliases = {"wand"}, usage = "", desc = "Gives the player a wand.",

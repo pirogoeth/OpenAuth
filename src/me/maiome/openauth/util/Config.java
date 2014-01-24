@@ -14,7 +14,6 @@ import me.maiome.openauth.util.*;
 
 public class Config {
 
-    private static final LogHandler log = new LogHandler();
     private static Config instance = null;
 
     public static final String plugindir = "plugins" + File.separator + "OpenAuth";
@@ -25,7 +24,13 @@ public class Config {
     protected static YamlConfiguration main = null;
     protected static File mainf = null;
 
+    private static final LogHandler log = new LogHandler();
+
     public static Config getInstance() {
+        if (instance == null) {
+            return new Config(false);
+        }
+
         return instance;
     }
 
@@ -44,6 +49,8 @@ public class Config {
         }
         // initialise our configurations here
         if (initialise) this.initialise();
+
+        instance = this;
     }
 
     // (convenience) File instantiator

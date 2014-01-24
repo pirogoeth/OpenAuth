@@ -35,6 +35,7 @@ import org.bukkit.event.player.PlayerTeleportEvent;
 import me.maiome.openauth.bukkit.*;
 import me.maiome.openauth.bukkit.events.*;
 import me.maiome.openauth.security.*;
+import me.maiome.openauth.session.*;
 import me.maiome.openauth.util.*;
 
 public class OAListener extends Reloadable implements Listener {
@@ -171,8 +172,19 @@ public class OAListener extends Reloadable implements Listener {
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onPlayerLogin(PlayerLoginEvent event) {
         if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) return; // derp, totally forgot. causes problems with sk89q's hostkeys.
-        OAPlayer player = (OAPlayer.getPlayer(event));
+        OAPlayer player = OAPlayer.getPlayer(event);
+
+        try {
+            Session ts = SessionController.getInstance().get(player);
+            if (ts == null) {
+                throw new Exception("Session was null.");
+            }
+        } catch (Exception e) {
+            SessionController.getInstance().create(player);
+        }
+
         LockdownManager lck = LockdownManager.getInstance();
+
         if (lck.isLocked() && !(player.hasPermission("openauth.lockdown.exempt"))) {
             event.disallow(PlayerLoginEvent.Result.KICK_OTHER, lck.getLockReason());
             return;
@@ -180,10 +192,13 @@ public class OAListener extends Reloadable implements Listener {
             player.sendMessage(ChatColor.RED + "Warning! Server lockdown is still active! Reason: " + lck.getLockReason());
             return;
         }
+
         if (HKAManager.getInstance().verifyHKey(player, event.getHostname()) == false) {
             event.disallow(PlayerLoginEvent.Result.KICK_OTHER, "Your host key is incorrect.");
             return;
         }
+
+
         OAServer.getInstance().getWhitelistHandler().processPlayerJoin(event, player);
         if (event.getResult() != PlayerLoginEvent.Result.ALLOWED) return;
         OAServer.getInstance().getLoginHandler().processPlayerLogin(event, player);
