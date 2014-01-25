@@ -6,13 +6,13 @@ source ${dmcore}/config/global
 # general configurable options
 
 name="OpenAuth"
-basedir="`dirlocate .dm /`/.."
+basedir="$(resolvedir `dirlocate .dm /`/..)"
 srcdir="${basedir}/src"
 incdir="${basedir}/inc"
 targetdir="${basedir}/target"
 resdir="${basedir}/resources"
 jvmv="6"
-javac_includes="inc/craftbukkit.jar:inc/permissions.jar:inc/bukkit.jar:inc/worldedit.jar:inc/pex.jar:inc/JSONAPI.jar"
+javac_includes="inc/craftbukkit.jar:inc/permissions.jar:inc/bukkit.jar:inc/worldedit.jar:inc/pex.jar:inc/JSONAPI.jar:inc/spigot.jar"
 javac_src="src/me/maiome/openauth/*/*.java src/me/maiome/openauth/*/*/*.java src/net/eisental/common/*/*.java mixin/*.java"
 
 hashtag_file="${resdir}/hashtag"
@@ -34,12 +34,13 @@ depsource="http://maio.me/dm"
 manifest="manifest.txt"
 # this is the command that the build system will run to perform tests. if any tests fail,
 # the build will stop before packaging
-testcmd='cp ${PACKAGE} ${basedir}/test/plugins; pushd ${basedir}/test/; ./run-spigot.sh; popd'
+#testcmd='cp ${OUTFILE} ${basedir}/test/plugins; pushd ${basedir}/test/ 2>&1 1>/dev/null; ./run-spigot.sh; popd'
+testcmd=''
 
 # dependency configuration ENDS
 # ==============================================================================================================
 # dm wrapper options
 
-dm_allowed_actions=( "bukkit" "bukkit-compile" "count" )
+dm_allowed_actions=( "bukkit" "bukkit-compile" "count" "gen-makefile" )
 
 # dm wrapper options END
